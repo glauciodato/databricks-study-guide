@@ -287,6 +287,114 @@
     line-height: 1.75;
   }
 
+
+  /* ── Interactive Stepper ── */
+  .stepper { margin: 20px 0; position: relative; }
+  .stepper::before {
+    content: '';
+    position: absolute;
+    left: 23px;
+    top: 24px;
+    bottom: 24px;
+    width: 2px;
+    background: var(--border);
+  }
+  .step {
+    position: relative;
+    padding-left: 60px;
+    margin-bottom: 0;
+  }
+  .step .step-num {
+    position: absolute;
+    left: 4px;
+    top: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--surface-raised);
+    border: 2px solid var(--border);
+    color: var(--text-muted);
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    transition: all 0.25s;
+    cursor: pointer;
+  }
+  .step.active .step-num,
+  .step:hover .step-num {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .step .step-header {
+    padding: 8px 0;
+    cursor: pointer;
+    user-select: none;
+  }
+  .step .step-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .step .step-sub {
+    font-size: 12px;
+    color: var(--text-faint);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .step .step-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.35s ease, opacity 0.25s ease;
+    opacity: 0;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+  }
+  .step.active .step-body {
+    max-height: 800px;
+    opacity: 1;
+    border-color: var(--accent);
+    background: var(--surface);
+    padding: 16px 18px;
+    margin-bottom: 16px;
+  }
+  .step .step-body p { margin-bottom: 10px; font-size: 14px; }
+  .step .step-body pre {
+    margin: 10px 0 4px;
+    font-size: 12.5px;
+    border-color: var(--border-subtle);
+  }
+  .step .step-toggle {
+    position: absolute;
+    right: 8px;
+    top: 12px;
+    font-size: 10px;
+    color: var(--text-faint);
+    transition: transform 0.25s;
+  }
+  .step.active .step-toggle { transform: rotate(180deg); color: var(--accent); }
+
+  /* Result block after stepper */
+  .stepper-result {
+    margin: 12px 0 20px;
+    padding: 16px 20px;
+    border: 2px solid var(--accent);
+    border-radius: var(--radius-lg);
+    background: var(--accent-soft);
+  }
+  .stepper-result .result-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
 </style>
 </head>
 <body>
@@ -918,7 +1026,115 @@ WHEN NOT MATCHED THEN
       .quiz-explain.show { display: block; }
       .quiz-score { padding: 20px; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-top: 20px; display: none; }
       .quiz-score .score-num { font-size: 36px; font-weight: 700; color: var(--accent); }
-    </style>
+    
+  /* ── Interactive Stepper ── */
+  .stepper { margin: 20px 0; position: relative; }
+  .stepper::before {
+    content: '';
+    position: absolute;
+    left: 23px;
+    top: 24px;
+    bottom: 24px;
+    width: 2px;
+    background: var(--border);
+  }
+  .step {
+    position: relative;
+    padding-left: 60px;
+    margin-bottom: 0;
+  }
+  .step .step-num {
+    position: absolute;
+    left: 4px;
+    top: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--surface-raised);
+    border: 2px solid var(--border);
+    color: var(--text-muted);
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    transition: all 0.25s;
+    cursor: pointer;
+  }
+  .step.active .step-num,
+  .step:hover .step-num {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .step .step-header {
+    padding: 8px 0;
+    cursor: pointer;
+    user-select: none;
+  }
+  .step .step-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .step .step-sub {
+    font-size: 12px;
+    color: var(--text-faint);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .step .step-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.35s ease, opacity 0.25s ease;
+    opacity: 0;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+  }
+  .step.active .step-body {
+    max-height: 800px;
+    opacity: 1;
+    border-color: var(--accent);
+    background: var(--surface);
+    padding: 16px 18px;
+    margin-bottom: 16px;
+  }
+  .step .step-body p { margin-bottom: 10px; font-size: 14px; }
+  .step .step-body pre {
+    margin: 10px 0 4px;
+    font-size: 12.5px;
+    border-color: var(--border-subtle);
+  }
+  .step .step-toggle {
+    position: absolute;
+    right: 8px;
+    top: 12px;
+    font-size: 10px;
+    color: var(--text-faint);
+    transition: transform 0.25s;
+  }
+  .step.active .step-toggle { transform: rotate(180deg); color: var(--accent); }
+
+  /* Result block after stepper */
+  .stepper-result {
+    margin: 12px 0 20px;
+    padding: 16px 20px;
+    border: 2px solid var(--accent);
+    border-radius: var(--radius-lg);
+    background: var(--accent-soft);
+  }
+  .stepper-result .result-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+</style>
 
     <div class="quiz-q" data-correct="c">
       <div class="q-num">Questão 1 de 8</div>
@@ -1815,13 +2031,67 @@ FROM STREAM 1_bronze_db.orders_bronze;</code></pre>
   <div class="section">
     <h4>D. AUTO CDC INTO — sintaxe declarativa</h4>
     <p><code>AUTO CDC INTO</code> substitui lógica complexa de <code>MERGE INTO</code> batch com sintaxe concisa e declarativa:</p>
-    <pre><code>AUTO CDC INTO target_table               -- Tabela target
-FROM source_stream                        -- Source com changes
-KEYS (customer_id)                        -- Colunas de match (PK)
-APPLY AS DELETE WHEN operation = 'DELETE' -- Quando deletar
-SEQUENCE BY process_date                  -- Ordena changes por timestamp
-COLUMNS *                                 -- Quais colunas aplicar
-STORED AS SCD TYPE 1;                     -- Tipo de SCD (1 ou 2)</code></pre>
+    <div class="stepper">
+  <div class="step active">
+    <div class="step-num">1</div>
+    <div class="step-header">
+      <div class="step-title">Target Table <span class="step-toggle">▼</span></div>
+      <div class="step-sub">AUTO CDC INTO</div>
+    </div>
+    <div class="step-body"><p>Define a tabela onde as changes serão aplicadas. Se não existir, será criada automaticamente.</p><pre><code>AUTO CDC INTO target_table</code></pre></div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-header">
+      <div class="step-title">Source Stream <span class="step-toggle">▼</span></div>
+      <div class="step-sub">FROM</div>
+    </div>
+    <div class="step-body"><p>A fonte de dados com as mudanças (inserts, updates, deletes). Tipicamente uma streaming table com os change events.</p><pre><code>FROM source_stream</code></pre></div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-header">
+      <div class="step-title">Match Keys <span class="step-toggle">▼</span></div>
+      <div class="step-sub">KEYS</div>
+    </div>
+    <div class="step-body"><p>Colunas usadas para fazer match entre source e target (primary key). Determina se um record é novo (insert) ou existente (update/delete).</p><pre><code>KEYS (customer_id)</code></pre></div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-header">
+      <div class="step-title">Delete Condition <span class="step-toggle">▼</span></div>
+      <div class="step-sub">APPLY AS DELETE WHEN</div>
+    </div>
+    <div class="step-body"><p>Condição que identifica quais records devem ser <strong>deletados</strong> no target. Sem essa cláusula, deletes são ignorados.</p><pre><code>APPLY AS DELETE WHEN operation = 'DELETE'</code></pre></div>
+  </div>
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-header">
+      <div class="step-title">Sequence Column <span class="step-toggle">▼</span></div>
+      <div class="step-sub">SEQUENCE BY</div>
+    </div>
+    <div class="step-body"><p>Coluna que <strong>ordena as changes</strong> cronologicamente. Garante que o valor mais recente vença quando há múltiplas mudanças para o mesmo key.</p><pre><code>SEQUENCE BY process_date</code></pre></div>
+  </div>
+  <div class="step">
+    <div class="step-num">6</div>
+    <div class="step-header">
+      <div class="step-title">Columns &amp; SCD Type <span class="step-toggle">▼</span></div>
+      <div class="step-sub">COLUMNS + STORED AS</div>
+    </div>
+    <div class="step-body"><p><code>COLUMNS *</code> aplica todas as colunas. <code>STORED AS SCD TYPE 1</code> faz overwrite (sem histórico). Use <code>SCD TYPE 2</code> para versioning com <code>__START_AT</code> e <code>__END_AT</code>.</p><pre><code>COLUMNS *
+STORED AS SCD TYPE 1;</code></pre></div>
+  </div>
+</div>
+<div class="stepper-result">
+  <div class="result-label">Resultado: AUTO CDC INTO completo</div>
+  <pre><code>AUTO CDC INTO target_table
+FROM source_stream
+KEYS (customer_id)
+APPLY AS DELETE WHEN operation = 'DELETE'
+SEQUENCE BY process_date
+COLUMNS *
+STORED AS SCD TYPE 1;</code></pre>
+</div>
     <div class="card info">
       <div class="card-label">Cada cláusula explicada</div>
       <p><strong>KEYS</strong> = colunas para match (PK). <strong>APPLY AS DELETE WHEN</strong> = condição para deletar rows. <strong>SEQUENCE BY</strong> = coluna que ordena changes (mais recente vence). <strong>COLUMNS</strong> = quais colunas aplicar (* = todas). <strong>STORED AS</strong> = SCD TYPE 1 (overwrite) ou SCD TYPE 2 (versioning).</p>
@@ -1975,6 +2245,26 @@ function checkQuiz(btn) {
     }
   }
 }
+</script>
+
+
+<script>
+document.addEventListener('click', function(e) {
+  const header = e.target.closest('.step-header') || e.target.closest('.step-num');
+  if (!header) return;
+  const step = header.closest('.step');
+  if (!step) return;
+  
+  // Toggle this step
+  const wasActive = step.classList.contains('active');
+  
+  // Close all siblings in the same stepper
+  const stepper = step.closest('.stepper');
+  stepper.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  
+  // Open if it was closed
+  if (!wasActive) step.classList.add('active');
+});
 </script>
 
 </body>
