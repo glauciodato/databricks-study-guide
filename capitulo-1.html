@@ -556,7 +556,12 @@
     <p>O <strong>Workflow Engine</strong> no centro coordena tudo. À esquerda, os <strong>Triggers</strong> iniciam a execução: Scheduled (tempo), Continuous (sempre ativo), File Arrival (evento) e Table Updates (mudança de dados). À direita, o <strong>Compute</strong> suporta ETL, ML/AI e Analytics/BI. Dois componentes transversais sustentam o sistema: <strong>Observability</strong> para monitoramento e <strong>Control Flow</strong> para gerenciar dependências entre tasks.</p>
   </div>
 
-  <div class="takeaways">
+  
+  <div class="section">
+    <h4>D. Conclusão</h4>
+    <p>Nesta lição vimos as três camadas do Databricks (Storage, Governance, Lakeflow) e como Lakeflow Jobs resolve os desafios de orquestração externa com uma solução nativa integrada.</p>
+  </div>
+<div class="takeaways">
     <div class="takeaways-title">Key Takeaways</div>
     <ul>
       <li><strong>3 camadas</strong>: Optimized Storage (Delta Lake) → Unified Governance (Unity Catalog) → Lakeflow (Connect + SDP + Jobs)</li>
@@ -659,7 +664,12 @@ FROM STREAM read_files('/Volumes/catalog/schema/files', format => 'json')</code>
     </div>
   </div>
 
-  <div class="takeaways">
+  
+  <div class="section">
+    <h4>F. Conclusão</h4>
+    <p>Existem três métodos para ingerir dados de cloud storage: CTAS (batch simples), COPY INTO (incremental idempotente) e Auto Loader (streaming escalável). O Databricks recomenda Streaming Tables com Auto Loader para a maioria dos cenários.</p>
+  </div>
+<div class="takeaways">
     <div class="takeaways-title">Key Takeaways</div>
     <ul>
       <li>3 métodos: <strong>CTAS</strong> (batch simples), <strong>COPY INTO</strong> (incremental, idempotente), <strong>Auto Loader</strong> (streaming, mais escalável)</li>
@@ -720,7 +730,12 @@ FROM STREAM read_files('/Volumes/catalog/schema/raw_files', format => 'csv');</c
     <p>O resultado é uma tabela Bronze com todas as colunas originais <strong>mais</strong> <code>source_file</code> e <code>file_mod_time</code>, permitindo rastrear a origem de cada registro.</p>
   </div>
 
-  <div class="takeaways">
+  
+  <div class="section">
+    <h4>D. Conclusão</h4>
+    <p>A coluna oculta <code>_metadata</code> adiciona contexto de origem (file name, modification time) a cada row durante a ingestão — essencial para auditoria e debugging na camada Bronze.</p>
+  </div>
+<div class="takeaways">
     <div class="takeaways-title">Key Takeaways</div>
     <ul>
       <li><code>_metadata</code> é uma <strong>coluna oculta</strong> — precisa ser selecionada explicitamente no SELECT</li>
@@ -778,7 +793,12 @@ WHERE _rescued_data IS NOT NULL;</code></pre>
     <p>O JSON na <code>_rescued_data</code> contém os nomes dos campos incompatíveis, seus valores originais e o <code>_file_path</code> do arquivo fonte — tudo que você precisa para investigar e corrigir.</p>
   </div>
 
-  <div class="takeaways">
+  
+  <div class="section">
+    <h4>D. Conclusão</h4>
+    <p>A <code>_rescued_data</code> column previne perda silenciosa de dados ao capturar valores com schema mismatch como JSON strings, em vez de descartá-los.</p>
+  </div>
+<div class="takeaways">
     <div class="takeaways-title">Key Takeaways</div>
     <ul>
       <li><code>_rescued_data</code> captura valores que <strong>não correspondem ao schema</strong> como JSON strings</li>
@@ -853,7 +873,12 @@ FROM my_table;
 -- parsed.name, parsed.age, parsed.address.city, parsed.children[0].name</code></pre>
   </div>
 
-  <div class="takeaways">
+  
+  <div class="section">
+    <h4>E. Conclusão</h4>
+    <p>JSON pode ser tratado como STRING (simples), STRUCT (tipado) ou VARIANT (flexível). O fluxo para STRUCT é <code>schema_of_json()</code> → <code>from_json()</code>.</p>
+  </div>
+<div class="takeaways">
     <div class="takeaways-title">Key Takeaways</div>
     <ul>
       <li>3 abordagens: <strong>STRING</strong> (simples, lento), <strong>STRUCT</strong> (tipado, eficiente), <strong>VARIANT</strong> (novo, flexível, melhor performance)</li>
@@ -930,7 +955,12 @@ FROM my_table;
     <p>Se <strong>não houver managed connector</strong> para a sua fonte de dados, o Partner Connect é a alternativa. Pela UI do Databricks, você cria trial accounts com parceiros tecnológicos (Informatica, Qlik, Rivery, Alteryx, Prophecy, Fivetran, etc.) e conecta o workspace diretamente. Cada parceiro oferece seus próprios conectores, muitas vezes cobrindo fontes que os managed connectors ainda não suportam.</p>
   </div>
 
-  <div class="takeaways">
+  
+  <div class="section">
+    <h4>F. Conclusão</h4>
+    <p>Managed Connectors são a solução nativa para ingestão de databases e SaaS. Para bancos atrás de firewall, o Ingestion Gateway resolve networking e controle de carga. Partner Connect é a alternativa para fontes sem managed connector.</p>
+  </div>
+<div class="takeaways">
     <div class="takeaways-title">Key Takeaways</div>
     <ul>
       <li><strong>Managed Connectors</strong> = nativos do Databricks, low-code, fully managed (UI ou API)</li>
@@ -1029,7 +1059,12 @@ WHEN NOT MATCHED THEN
     </div>
   </div>
 
-  <div class="takeaways">
+  
+  <div class="section">
+    <h4>F. Conclusão</h4>
+    <p>Lakehouse Federation consulta dados sem movê-los, Delta Sharing compartilha entre plataformas, o Marketplace oferece datasets prontos e MERGE INTO faz upserts atômicos em Delta Tables.</p>
+  </div>
+<div class="takeaways">
     <div class="takeaways-title">Key Takeaways</div>
     <ul>
       <li><strong>Lakehouse Federation</strong> = query sem mover dados (ad hoc, POC, migração incremental)</li>
