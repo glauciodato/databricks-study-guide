@@ -468,6 +468,9 @@
   .fig img { cursor: zoom-in; transition: filter 0.15s; }
   .fig img:hover { filter: brightness(1.08); }
 
+
+  .ch-link { display:block; padding:5px 8px; font-size:12.5px; color:var(--text-muted); text-decoration:none; border-radius:4px; transition:all 0.15s; line-height:1.5; }
+  .ch-link:hover { color:var(--text); background:var(--surface-raised); }
 </style>
 </head>
 <body>
@@ -476,21 +479,17 @@
 
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <div class="logo"><a href="index.html" style="color:var(--accent);text-decoration:none;">← Databricks</a></div>
-    <h1>Data Engineer<br>Study Guide</h1>
+    <a href="index.html" style="display:flex;align-items:center;gap:6px;color:var(--text-muted);text-decoration:none;font-size:13px;margin-bottom:12px;">← Todos os capítulos</a>
+    <div class="logo">Capítulo 1</div>
+    <h1 style="font-size:15px;">Data Ingestion with Lakeflow Connect</h1>
   </div>
   <div class="search-box">
     <input type="text" placeholder="Buscar neste capítulo…" id="search" oninput="filterNav(this.value)">
   </div>
   <div class="nav-section">
-    <div class="nav-section-title">Capítulos</div>
-    <div class="nav-theme open" data-theme="ch1">
-      <button class="nav-theme-toggle" onclick="toggleTheme(this)">
-        <span>Data Ingestion with Lakeflow Connect</span>
-        <span class="badge badge-orange">7</span>
-        <span class="chevron">▸</span>
-      </button>
-      <div class="nav-lessons">
+    <div class="nav-section-title">Lições</div>
+    <div class="nav-theme open">
+      <div class="nav-lessons" style="display:block;padding-left:8px;">
         <a href="#intro-data-engineering">Intro to Data Engineering</a>
         <a href="#cloud-storage-ingestion">Ingestion from Cloud Storage</a>
         <a href="#metadata-columns">Metadata Columns on Ingest</a>
@@ -498,60 +497,17 @@
         <a href="#semi-structured-json">Semi-Structured Data (JSON)</a>
         <a href="#enterprise-data">Enterprise Data Overview</a>
         <a href="#additional-features">Additional Features &amp; MERGE INTO</a>
-        <a href="#quiz-tema-1">📝 Quiz Capítulo 1</a>
+        <a href="#quiz-tema-1">📝 Quiz</a>
       </div>
     </div>
-    <div class="nav-theme" data-theme="ch2">
-      <button class="nav-theme-toggle" onclick="toggleTheme(this)">
-        <span>Deploy Workloads with Lakeflow Jobs</span>
-        <span class="badge badge-blue">7</span>
-        <span class="chevron">▸</span>
-      </button>
-      <div class="nav-lessons">
-        <a href="capitulo-2.html#t2-intro-data-engineering">Intro (shared)</a>
-        <a href="capitulo-2.html#t2-core-components">Core Components &amp; DAGs</a>
-        <a href="capitulo-2.html#t2-course-project">Course Project Overview</a>
-        <a href="capitulo-2.html#t2-creating-scheduling">Creating &amp; Scheduling</a>
-        <a href="capitulo-2.html#t2-conditional-iterative">Conditional &amp; Iterative</a>
-        <a href="capitulo-2.html#t2-handling-failures">Failures &amp; Monitoring</a>
-        <a href="capitulo-2.html#t2-production-best">Production Best Practices</a>
-        <a href="capitulo-2.html#quiz-tema-2">📝 Quiz Capítulo 2</a>
-      </div>
-    </div>
-    <div class="nav-theme" data-theme="ch3">
-      <button class="nav-theme-toggle" onclick="toggleTheme(this)">
-        <span>Spark Declarative Pipelines</span>
-        <span class="badge badge-purple">6</span>
-        <span class="chevron">▸</span>
-      </button>
-      <div class="nav-lessons">
-        <a href="capitulo-3.html#t3-intro">Intro to Declarative Pipelines</a>
-        <a href="capitulo-3.html#t3-project-datasets">Project &amp; Dataset Types</a>
-        <a href="capitulo-3.html#t3-simplified-dev">Pipeline Dev &amp; Settings</a>
-        <a href="capitulo-3.html#t3-quality">Data Quality Expectations</a>
-        <a href="capitulo-3.html#t3-streaming-joins">Streaming Joins &amp; Production</a>
-        <a href="capitulo-3.html#t3-cdc">Change Data Capture (CDC)</a>
-      </div>
-    </div>
-    <div class="nav-theme" data-theme="ch4">
-      <button class="nav-theme-toggle" onclick="toggleTheme(this)">
-        <span>DevOps Essentials for Data Engineering</span>
-        <span class="badge badge-green">9</span>
-        <span class="chevron">▸</span>
-      </button>
-      <div class="nav-lessons">
-        <a href="capitulo-4.html#t4-section-ci">▸ Continuous Integration (CI)</a>
-        <a href="capitulo-4.html#t4-swe">SWE Best Practices</a>
-        <a href="capitulo-4.html#t4-modular">Modularizing PySpark</a>
-        <a href="capitulo-4.html#t4-devops">DevOps Fundamentals</a>
-        <a href="capitulo-4.html#t4-cicd-role">Role of CI/CD in DevOps</a>
-        <a href="capitulo-4.html#t4-planning">Planning the Project</a>
-        <a href="capitulo-4.html#t4-unit-tests">Unit Tests for PySpark</a>
-        <a href="capitulo-4.html#t4-integration">Integration Tests</a>
-        <a href="capitulo-4.html#t4-git">Version Control with Git</a>
-        <a href="capitulo-4.html#t4-section-cd">▸ Continuous Deployment (CD)</a>
-        <a href="capitulo-4.html#t4-deploying">Deploying Databricks Assets</a>
-      </div>
+  </div>
+  <div class="nav-section" style="border-top:1px solid var(--border);margin-top:12px;padding-top:16px;">
+    <div class="nav-section-title">Outros Capítulos</div>
+    <div style="padding:0 8px;">
+      <a href="capitulo-1.html" class="ch-link" style="font-weight:700;color:var(--accent);">1. Data Ingestion</a>
+      <a href="capitulo-2.html" class="ch-link" style="">2. Lakeflow Jobs</a>
+      <a href="capitulo-3.html" class="ch-link" style="">3. Declarative Pipelines</a>
+      <a href="capitulo-4.html" class="ch-link" style="">4. DevOps Essentials</a>
     </div>
   </div>
 </nav>
@@ -1285,6 +1241,9 @@ WHEN NOT MATCHED THEN
   .fig img { cursor: zoom-in; transition: filter 0.15s; }
   .fig img:hover { filter: brightness(1.08); }
 
+
+  .ch-link { display:block; padding:5px 8px; font-size:12.5px; color:var(--text-muted); text-decoration:none; border-radius:4px; transition:all 0.15s; line-height:1.5; }
+  .ch-link:hover { color:var(--text); background:var(--surface-raised); }
 </style>
 
     <div class="quiz-q" data-correct="c">
