@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visão Geral do Curso | Data Ingestion with LakeFlow Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117; --surface: #161b22; --surface-raised: #1c2129;
+    --border: #2a313a; --text: #e6edf3; --text-muted: #8b949e; --text-faint: #6e7681;
+    --accent: #ff6433; --accent-soft: rgba(255,100,51,0.12);
+    --green: #3fb950; --blue: #58a6ff; --purple: #bc8cff; --yellow: #d29922;
+    --radius: 12px;
+  }
+  body.light {
+    --bg: #f8f9fb; --surface: #ffffff; --surface-raised: #f0f2f5;
+    --border: #d8dce2; --text: #1a1d23; --text-muted: #5a6170; --text-faint: #8891a0;
+    --accent: #e0501e; --accent-soft: rgba(224,80,30,0.08);
+    --green: #1a8a3e; --blue: #2563eb; --purple: #7c3aed;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+  
+  .top-bar {
+    position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border);
+    padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
+  .top-bar a:hover { color:var(--accent); }
+  .top-bar .sep { color:var(--text-faint); font-size:11px; }
+  .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
+  
+  .layout { display:flex; min-height:calc(100vh - 50px); }
+  
+  .sidebar {
+    width:280px; min-width:280px; background:var(--surface); border-right:1px solid var(--border);
+    padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px);
+  }
+  .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
+  .sidebar a {
+    display:block; padding:6px 16px; font-size:12.5px; color:var(--text-muted); text-decoration:none;
+    border-left:2px solid transparent; line-height:1.5; transition:all 0.15s;
+  }
+  .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
+  .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
+  
+  .content { flex:1; max-width:900px; padding:32px 40px 80px; }
+  
+  .notebook-cell { margin-bottom:24px; }
+  .notebook-cell h1 { font-size:26px; font-weight:700; margin-bottom:12px; }
+  .notebook-cell h2 { font-size:21px; font-weight:700; margin:28px 0 12px; padding-top:20px; border-top:1px solid var(--border); }
+  .notebook-cell h3 { font-size:17px; font-weight:600; margin:20px 0 10px; }
+  .notebook-cell h5 { font-size:12px; font-weight:600; margin:14px 0 6px; color:var(--text-muted); }
+  .notebook-cell p { margin-bottom:10px; font-size:14.5px; }
+  .notebook-cell ul, .notebook-cell ol { margin:0 0 10px 20px; font-size:14.5px; }
+  .notebook-cell li { margin-bottom:4px; }
+  .notebook-cell code { font-family:'IBM Plex Mono',monospace; background:var(--surface-raised); padding:1px 5px; border-radius:3px; font-size:12.5px; }
+  .notebook-cell pre { background:var(--surface-raised); border:1px solid var(--border); border-radius:8px; padding:14px; overflow-x:auto; margin:10px 0; }
+  .notebook-cell pre code { background:none; padding:0; }
+  .notebook-cell img { max-width:100%; height:auto; border-radius:6px; cursor:zoom-in; }
+  .notebook-cell details { margin:10px 0; padding:10px 14px; background:var(--surface-raised); border-radius:6px; border:1px solid var(--border); font-size:13.5px; }
+  .notebook-cell details summary { cursor:pointer; font-weight:600; color:var(--text-muted); font-size:12px; }
+  .notebook-cell details p, .notebook-cell details li { color:var(--text-muted); font-size:13.5px; }
+  .notebook-cell svg { max-width:100%; height:auto; }
+  .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
+  .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
+  .notebook-cell th { background:var(--surface-raised); font-weight:600; }
+  
+  .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
+  
+  .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
+  .lightbox.open { display:flex; }
+  .lightbox img { max-width:95vw; max-height:92vh; border-radius:6px; box-shadow:0 8px 40px rgba(0,0,0,0.5); object-fit:contain; background:#fff; padding:6px; cursor:default; }
+  .lightbox .lb-close { position:fixed; top:12px; right:16px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+  @media(max-width:768px) {
+    .sidebar { display:none; }
+    .content { padding:20px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="index.html">← Curso</a>
+  <span class="sep">›</span>
+  <span class="title">Aula 00 — Visão Geral do Curso</span>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav-title">Aulas</div>
+    <a href="00-overview.html" class="active">00. Visão Geral do Curso</a>
+    <a href="01-data-engineering.html">01. Engenharia de Dados no Databricks</a>
+    <a href="03-cloud-storage.html">03. Ingestão de Dados de Cloud Storage</a>
+    <a href="06-metadata-columns.html">06. Colunas de Metadata na Ingestão</a>
+    <a href="08-rescued-data.html">08. Coluna de Dados Resgatados</a>
+    <a href="11-json-data.html">11. Ingestão de Dados JSON</a>
+    <a href="14-enterprise-data.html">14. Ingestão de Dados Corporativos</a>
+    <a href="16-additional-features.html">16. Features Adicionais e MERGE INTO</a>
+    <a href="99-summary.html">99. Resumo e Próximos Passos</a>
+  </nav>
+  <div class="content">
+<section class="notebook-cell">
+<p><img alt="DB Academy" src="https://files.training.databricks.com/binder/prod_main/data-ingestion-with-lakeflow-connect-pt_br-3.1.2/images/20260903T145108Z/Data Ingestion with LakeFlow Connect/Includes/images/icons/databricks_academy.png" /></p>
+</section>
+<section class="notebook-cell">
+<h1>Ingestão de Dados com LakeFlow Connect</h1>
+<h2>Visão Geral</h2>
+<p>Este curso oferece uma introdução abrangente ao LakeFlow Connect, uma solução escalável e simplificada para ingestão de dados no Databricks a partir de uma ampla variedade de fontes. Você começará explorando os diferentes tipos de conectores do LakeFlow Connect (Standard e Managed) e aprenderá diversas técnicas de ingestão de dados, incluindo ingestão em lotes, em lotes incrementais e por transmissão. Você também revisará os principais benefícios do uso de tabelas UC e da Arquitetura Medallion.</p>
+<p>Em seguida, você desenvolverá habilidades práticas para ingestão de dados a partir de armazenamento de objetos em cloud usando os Conectores Standard do LakeFlow Connect. Isso inclui trabalhar com métodos como CREATE TABLE AS SELECT (CTAS), COPY INTO e Auto Loader, com ênfase nos benefícios e considerações de cada abordagem. Você também aprenderá como adicionar colunas de metadados às suas tabelas de nível Bronze durante a ingestão na Databricks Data Intelligence Platform. O curso aborda ainda como tratar registros que não correspondem ao esquema da tabela usando a coluna de dados resgatados, além de estratégias para gerenciar e analisar esses dados. Você também explorará técnicas para ingestão e achatamento de dados JSON semiestruturados.</p>
+<p>Na sequência, você explorará como realizar ingestão de dados em nível empresarial usando os Conectores Managed do LakeFlow Connect para trazer dados de bancos de dados e aplicações SaaS (Software como Serviço). O curso também apresenta o Partner Connect como uma opção para integrar ferramentas de parceiros às suas cargas de trabalho de ingestão.</p>
+<p>Por fim, o curso encerra com estratégias alternativas de ingestão, incluindo operações MERGE INTO e o uso do Databricks Marketplace, equipando você com uma base sólida para apoiar casos de uso modernos de engenharia de dados.</p>
+<h2>Objetivos Finais</h2>
+<ul>
+<li>Descrever o LakeFlow Connect como uma solução escalável e simplificada para ingestão de dados no Databricks a partir de diversas fontes.  </li>
+<li>Revisar os benefícios das tabelas UC e da Arquitetura Medallion.  </li>
+<li>Demonstrar como ingerir dados de armazenamento de objetos em cloud em tabelas UC usando CREATE TABLE AS, COPY INTO e Auto Loader, incluindo a captura de metadados de arquivos de Entrada em tabelas da camada Bronze.  </li>
+<li>Explicar como as colunas resgatadas são utilizadas durante a ingestão para gerenciar registros malformados.  </li>
+<li>Ilustrar técnicas para ingestão e achatamento de dados JSON semiestruturados a partir de armazenamento em cloud.  </li>
+<li>Descrever as opções disponíveis para ingestão de dados de sistemas empresariais usando os Conectores Managed do LakeFlow Connect.  </li>
+<li>Discutir métodos alternativos de ingestão, como MERGE INTO e Databricks Marketplace.</li>
+</ul>
+<h5>A atualização e a versão do curso podem ser encontradas no arquivo <code>Version Info</code>.</h5>
+</section>
+<section class="notebook-cell">
+<h2>A. Pré-requisitos</h2>
+<p>Antes de iniciar este curso, os alunos devem estar familiarizados com o seguinte:</p>
+<ul>
+<li>Compreensão básica da Databricks Data Intelligence Platform, incluindo Databricks Workspaces, Apache Spark, Delta Lake, a Arquitetura Medallion e Unity Catalog.</li>
+<li>Compreensão básica de fluxos de trabalho de ingestão de dados (lotes, transmissão, incremental) e princípios gerais de ETL</li>
+<li>Experiência com diversos formatos de arquivo (por exemplo, Parquet, CSV, JSON, TXT).</li>
+<li>Proficiência em SQL e Python.</li>
+<li>Familiaridade com a execução de código em Databricks Notebooks.</li>
+</ul>
+</section>
+<section class="notebook-cell">
+<h2>B. Informações de Configuração do Workspace</h2>
+</section>
+<section class="notebook-cell">
+<h3>B1. Workspace Vocareum Fornecido pela Databricks (Recomendado)</h3>
+<div style="
+  border-left: 4px solid #1976d2;
+  background: #e3f2fd;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+  <div style="color:#333;">
+
+- Se você está executando este notebook em um <strong>workspace Vocareum fornecido pela Databricks Academy</strong>, seu catálogo do Unity Catalog já foi criado para você.
+
+- O nome do seu catálogo corresponde ao seu nome de usuário do Vocareum e tem o seguinte formato: <strong>labuser12345</strong> (série de números únicos)
+
+- Se um dataset do <strong>Marketplace</strong> for necessário, o compartilhamento já está instalado e disponível no workspace.
+
+  </div>
+</div>
+</section>
+<section class="notebook-cell">
+<h2>C. Agenda do Curso</h2>
+<div style="max-width: 1200px; margin: 0 auto; font-family: sans-serif;">
+<div style="background: #F9F7F4; border-radius: 10px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(27,49,57,0.06);">
+
+<style>
+.agenda-table td, .agenda-table th {
+  font-size: 14pt !important;
+}
+</style>
+
+<table class="agenda-table" style="width: 100%; border-collapse: collapse; line-height: 1.5;">
+  <thead>
+    <tr style="background: #1B5162; color: white;">
+      <th style="padding: 10px 14px; text-align: center; border: 1px solid #EEEDE9; width: 50px;">#</th>
+      <th style="padding: 10px 14px; text-align: center; border: 1px solid #EEEDE9; width: 80px;">Tipo</th>
+      <th style="padding: 10px 14px; text-align: left; border: 1px solid #EEEDE9;">Nome do Módulo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background: white;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">1</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Aula</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Engenharia de Dados no Databricks</td>
+    </tr>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">2</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Demonstração</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Explorando o Ambiente de Laboratório</td>
+    </tr>
+    <tr style="background: white;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">3</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Aula</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Ingestão de Dados a partir do Armazenamento cloud</td>
+    </tr>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">4</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Demonstração</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Ingestão de Dados com CREATE TABLE AS e COPY INTO</td>
+    </tr>
+    <tr style="background: white;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">5</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Demonstração</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Criar Tabelas de Transmissão com SQL usando Auto Loader</td>
+    </tr>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">6</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Aula</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Adicionando Colunas de Metadados na Ingestão</td>
+    </tr>
+    <tr style="background: white;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">7</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Demonstração</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Adicionando Colunas de Metadados Durante a Ingestão</td>
+    </tr>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">8</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Aula</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Trabalhando com a Coluna de Dados Resgatados</td>
+    </tr>
+    <tr style="background: white;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">9</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Demonstração</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Tratando a Ingestão de CSV com a Coluna de Dados Resgatados</td>
+    </tr>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">10</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Laboratório</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Criando Tabelas Bronze a partir de Arquivos CSV</td>
+    </tr>
+    <tr style="background: white;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">11</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Aula</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Ingestão de Dados Semiestruturados JSON</td>
+    </tr>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">12</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Demonstração</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Ingestão de Arquivos JSON com Databricks</td>
+    </tr>
+    <tr style="background: white;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">13</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Laboratório</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Criando Tabelas Bronze a partir de Arquivos JSON</td>
+    </tr>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">14</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Aula</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Visão Geral da Ingestão de Dados Corporativos</td>
+    </tr>
+    <tr style="background: white;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">15</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Demonstração</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Ingestão de Dados Corporativos com LakeFlow Connect</td>
+    </tr>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">16</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Aula</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Recursos Adicionais e Ingestão em Tabelas Delta Existentes</td>
+    </tr>
+    <tr style="background: white;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">17</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Demonstração</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">BÔNUS - Ingestão de Dados com MERGE INTO</td>
+    </tr>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">18</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center;"><span style="background: #e3f2fd; color: #1976d2; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Resumo</span></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Resumo e Próximos Passos</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+</div>
+</section>
+<section class="notebook-cell">
+<h2>D. Requisitos</h2>
+<p>Por favor, revise os requisitos a seguir antes de iniciar a lição:</p>
+<div style="
+  border-left: 4px solid #1976d2;
+  background: #e3f2fd;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+  <div style="color:#333;">
+
+- Use a versão do Databricks Runtime: **`Serverless V5`** para executar todos os notebooks de demonstração e laboratório.
+
+  </div>
+</div>
+</section>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightbox(event)">✕</button>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
+
+<script>
+if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
+function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
+function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});
+document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src);});});
+</script>
+</body>
+</html>

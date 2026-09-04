@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ingestão de Dados de Cloud Storage | Data Ingestion with LakeFlow Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117; --surface: #161b22; --surface-raised: #1c2129;
+    --border: #2a313a; --text: #e6edf3; --text-muted: #8b949e; --text-faint: #6e7681;
+    --accent: #ff6433; --accent-soft: rgba(255,100,51,0.12);
+    --green: #3fb950; --blue: #58a6ff; --purple: #bc8cff; --yellow: #d29922;
+    --radius: 12px;
+  }
+  body.light {
+    --bg: #f8f9fb; --surface: #ffffff; --surface-raised: #f0f2f5;
+    --border: #d8dce2; --text: #1a1d23; --text-muted: #5a6170; --text-faint: #8891a0;
+    --accent: #e0501e; --accent-soft: rgba(224,80,30,0.08);
+    --green: #1a8a3e; --blue: #2563eb; --purple: #7c3aed;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+  
+  .top-bar {
+    position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border);
+    padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
+  .top-bar a:hover { color:var(--accent); }
+  .top-bar .sep { color:var(--text-faint); font-size:11px; }
+  .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
+  
+  .layout { display:flex; min-height:calc(100vh - 50px); }
+  
+  .sidebar {
+    width:280px; min-width:280px; background:var(--surface); border-right:1px solid var(--border);
+    padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px);
+  }
+  .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
+  .sidebar a {
+    display:block; padding:6px 16px; font-size:12.5px; color:var(--text-muted); text-decoration:none;
+    border-left:2px solid transparent; line-height:1.5; transition:all 0.15s;
+  }
+  .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
+  .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
+  
+  .content { flex:1; max-width:900px; padding:32px 40px 80px; }
+  
+  .notebook-cell { margin-bottom:24px; }
+  .notebook-cell h1 { font-size:26px; font-weight:700; margin-bottom:12px; }
+  .notebook-cell h2 { font-size:21px; font-weight:700; margin:28px 0 12px; padding-top:20px; border-top:1px solid var(--border); }
+  .notebook-cell h3 { font-size:17px; font-weight:600; margin:20px 0 10px; }
+  .notebook-cell h5 { font-size:12px; font-weight:600; margin:14px 0 6px; color:var(--text-muted); }
+  .notebook-cell p { margin-bottom:10px; font-size:14.5px; }
+  .notebook-cell ul, .notebook-cell ol { margin:0 0 10px 20px; font-size:14.5px; }
+  .notebook-cell li { margin-bottom:4px; }
+  .notebook-cell code { font-family:'IBM Plex Mono',monospace; background:var(--surface-raised); padding:1px 5px; border-radius:3px; font-size:12.5px; }
+  .notebook-cell pre { background:var(--surface-raised); border:1px solid var(--border); border-radius:8px; padding:14px; overflow-x:auto; margin:10px 0; }
+  .notebook-cell pre code { background:none; padding:0; }
+  .notebook-cell img { max-width:100%; height:auto; border-radius:6px; cursor:zoom-in; }
+  .notebook-cell details { margin:10px 0; padding:10px 14px; background:var(--surface-raised); border-radius:6px; border:1px solid var(--border); font-size:13.5px; }
+  .notebook-cell details summary { cursor:pointer; font-weight:600; color:var(--text-muted); font-size:12px; }
+  .notebook-cell details p, .notebook-cell details li { color:var(--text-muted); font-size:13.5px; }
+  .notebook-cell svg { max-width:100%; height:auto; }
+  .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
+  .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
+  .notebook-cell th { background:var(--surface-raised); font-weight:600; }
+  
+  .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
+  
+  .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
+  .lightbox.open { display:flex; }
+  .lightbox img { max-width:95vw; max-height:92vh; border-radius:6px; box-shadow:0 8px 40px rgba(0,0,0,0.5); object-fit:contain; background:#fff; padding:6px; cursor:default; }
+  .lightbox .lb-close { position:fixed; top:12px; right:16px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+  @media(max-width:768px) {
+    .sidebar { display:none; }
+    .content { padding:20px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="index.html">← Curso</a>
+  <span class="sep">›</span>
+  <span class="title">Aula 03 — Ingestão de Dados de Cloud Storage</span>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav-title">Aulas</div>
+    <a href="00-overview.html">00. Visão Geral do Curso</a>
+    <a href="01-data-engineering.html">01. Engenharia de Dados no Databricks</a>
+    <a href="03-cloud-storage.html" class="active">03. Ingestão de Dados de Cloud Storage</a>
+    <a href="06-metadata-columns.html">06. Colunas de Metadata na Ingestão</a>
+    <a href="08-rescued-data.html">08. Coluna de Dados Resgatados</a>
+    <a href="11-json-data.html">11. Ingestão de Dados JSON</a>
+    <a href="14-enterprise-data.html">14. Ingestão de Dados Corporativos</a>
+    <a href="16-additional-features.html">16. Features Adicionais e MERGE INTO</a>
+    <a href="99-summary.html">99. Resumo e Próximos Passos</a>
+  </nav>
+  <div class="content">
+<section class="notebook-cell">
+<h1>Aula - Ingestão de Dados do Cloud Storage</h1>
+<h2>Visão Geral</h2>
+<p>Nesta aula, você aprenderá como arquivos brutos do cloud storage podem ser convertidos de forma eficiente em tabelas UC usando as ferramentas do Databricks, desbloqueando capacidades avançadas de gerenciamento e analítica dentro do Lakehouse.</p>
+<h2>Objetivos de Aprendizagem</h2>
+<p>Ao final desta aula, você será capaz de:</p>
+<ol>
+<li><strong>Demonstrar como realizar a ingestão de dados do armazenamento de objetos em cloud para tabelas UC</strong> usando CREATE TABLE AS, COPY INTO e Auto Loader, incluindo <strong>a captura de metadados do arquivo de Entrada em tabelas da camada Bronze</strong></li>
+<li><strong>Explicar como as colunas resgatadas são utilizadas durante a ingestão</strong> para gerenciar registros malformados</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h2>A. Padrões de Ingestão de Dados do Cloud Object Storage</h2>
+<p>A ingestão de dados é um componente crítico da arquitetura moderna de Lakehouse, permitindo que as organizações aproveitem grandes volumes de dados armazenados em sistemas de armazenamento de objetos em cloud.</p>
+</section>
+<section class="notebook-cell">
+<div style="max-width: 800px; margin: 0 auto; font-family: sans-serif; color: #0b2026;">
+
+<div style="display: flex; gap: 16px; align-items: center;">
+
+  <!-- Cloud Storage -->
+  <div style="flex: 0 0 170px; background: #F9F7F4; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(27,49,57,0.08); text-align: center;">
+    <div style="font-size: 15pt; font-weight: 700; margin-top: 10px;">Cloud Storage</div>
+    <ul style="font-size: 14pt; padding-left: 18px; margin: 10px 0 0; text-align: left;">
+      <li>CSV</li>
+      <li>JSON</li>
+      <li>Parquet</li>
+      <li>etc.</li>
+    </ul>
+  </div>
+
+  <!-- Arrow -->
+  <div style="font-size: 28pt; color: #618794;"> > </div>
+
+  <!-- Data Ingestion Methods -->
+  <div style="flex: 0 0 240px; background: #4299E0; border-radius: 10px; padding: 18px; text-align: center; color: white;">
+    <div style="font-size: 15pt; font-weight: 700; margin-bottom: 14px;">Ingestão de Dados</div>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="background: white; color: #1B5162; border-radius: 6px; padding: 8px; font-size: 14pt; font-weight: 500;">CREATE TABLE AS</div>
+      <div style="background: white; color: #1B5162; border-radius: 6px; padding: 8px; font-size: 14pt; font-weight: 500;">COPY INTO</div>
+      <div style="background: white; color: #1B5162; border-radius: 6px; padding: 8px; font-size: 14pt; font-weight: 500;">AUTO LOADER</div>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div style="font-size: 28pt; color: #618794;"> > </div>
+
+  <!-- UC table -->
+  <div style="flex: 0 0 170px; background: #F9F7F4; border-radius: 10px; padding: 18px; box-shadow: 0 2px 8px rgba(27,49,57,0.08); text-align: center;">
+    <div style="font-size: 15pt; font-weight: 700; margin-top: 10px;">Tabela UC</div>
+    <img src="https://files.training.databricks.com/binder/prod_main/data-ingestion-with-lakeflow-connect-pt_br-3.1.2/images/20260903T145108Z/Data Ingestion with LakeFlow Connect/Includes/images/icons/table.png" style="height: 150px;">
+  </div>
+
+</div>
+
+<!-- Bottom callout -->
+<div style="
+  margin: 18px auto 0;
+  padding: 12px 20px;
+  background: #F9F7F4;
+  border: 2px solid #4299E0;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14pt;
+  max-width: 900px;
+">
+  Converter <strong>formatos de arquivo brutos</strong> em <strong>Tabelas UC</strong>
+</div>
+
+</div>
+</section>
+<section class="notebook-cell">
+<h5>EXPANDIR PARA NOTAS ADICIONAIS</h5>
+<details>
+<ul>
+<li>Formatos de arquivo comuns como <strong>CSV, JSON e Parquet</strong> são amplamente utilizados devido à sua flexibilidade e facilidade de uso.</li>
+<li>Nosso objetivo é converter esses <strong>arquivos brutos em tabelas do UC</strong>, desbloqueando funcionalidades avançadas como transações ACID, viagem do tempo e imposição de esquema.</li>
+<li>Vamos explorar três <strong>métodos principais para ingestão de arquivos</strong> do armazenamento de objetos cloud em tabelas do UC:
+<ul>
+<li>CREATE TABLE AS (CTAS)</li>
+<li>COPY INTO</li>
+<li>Auto Loader</li>
+</ul>
+</li>
+<li>A ingestão a partir do armazenamento de objetos cloud é realizada usando os <strong>Conectores Padrão do LakeFlow Connect</strong>.</li>
+</ul>
+</details>
+</section>
+<section class="notebook-cell">
+<h2>B. Métodos de Ingestão de Dados</h2>
+<p>Ao realizar a ingestão de dados no Databricks usando os Conectores Padrão do LakeFlow Connect, você pode escolher entre diferentes métodos de ingestão.</p>
+<h5>Clique nas abas para alternar entre os métodos de ingestão.</h5>
+</section>
+<section class="notebook-cell">
+<div style="width: 100%; margin: auto; font-family: sans-serif;">
+
+<style>
+.four-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+    justify-content: center;
+    align-items: center;
+}
+.ing-box {
+    width: 80%;
+    min-height: 400px;
+    background: #F9F7F4;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(27,49,57,0.06);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    box-sizing: border-box;
+}
+.ing-box::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 8px;
+}
+.ing-box.batch::before       { background: #2574B5; }
+.ing-box.incremental::before { background: #02A36F; }
+.ing-box.streaming::before   { background: #FE3722; }
+
+.ing-box-title { font-size: 16pt; font-weight: bold; text-align: center; }
+.ing-box-icon  { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.ing-box-icon img {
+    width: 50px; height: auto;
+    background: transparent;
+    mix-blend-mode: multiply;
+    filter: contrast(1.15) brightness(1);
+    border-radius: 4px;
+}
+
+.ing-box-content {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+}
+.ing-box-text {
+    font-size: 14pt;
+    max-width: 500px;
+    text-align: left;
+    line-height: 1.6;
+}
+.ing-box-text ul { text-align: left; padding-left: 18px; margin: 0 0 14px 0; }
+.ing-box-text li { margin-bottom: 10px; }
+.ing-box-text li:last-child { margin-bottom: 0; }
+.ing-example {
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 14pt;
+    line-height: 1.6;
+    font-weight: 400;
+}
+.batch .ing-example       { background: rgba(37,116,181,0.10); border-left: 4px solid #2574B5; }
+.incremental .ing-example { background: rgba(2,163,111,0.10);  border-left: 4px solid #02A36F; }
+.streaming .ing-example   { background: rgba(254,55,34,0.10);  border-left: 4px solid #FE3722; }
+
+.code-block-wrapper {
+    flex: 1;
+    min-width: 100;
+    min-height: 200px;
+}
+
+.code-block-container {
+    background: #f8f8f8;
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    border: 1px solid #e0e0e0;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 10pt;
+    line-height: 1.6;
+    text-align: left;
+}
+</style>
+
+<!-- Tabs -->
+<div style="display: flex; border-bottom: 2px solid #EEEDE9; margin-bottom: 0;">
+  <button class="dbtab" onclick="showTab(1)" style="padding: 10px 18px; border: none; border-bottom: 3px solid #2574B5; background: none; font-size: 14pt; font-weight: bold; color: #2574B5; cursor: pointer; margin-bottom: -2px;">CREATE TABLE AS</button>
+  <button class="dbtab" onclick="showTab(2)" style="padding: 10px 18px; border: none; border-bottom: 3px solid transparent; background: none; font-size: 14pt; font-weight: bold; color: #888; cursor: pointer; margin-bottom: -2px;">COPY INTO</button>
+  <button class="dbtab" onclick="showTab(3)" style="padding: 10px 18px; border: none; border-bottom: 3px solid transparent; background: none; font-size: 14pt; font-weight: bold; color: #888; cursor: pointer; margin-bottom: -2px;">AUTO LOADER</button>
+</div>
+
+<br>
+
+<!-- TAB 1 -->
+<div class="dbpanel" style="display: block;">
+  <div class="four-grid">
+    <div class="ing-box batch">
+      <div class="ing-box-title">
+        <div class="ing-box-icon">
+          <img src="https://files.training.databricks.com/binder/prod_main/data-ingestion-with-lakeflow-connect-pt_br-3.1.2/images/20260903T145108Z/Data Ingestion with LakeFlow Connect/Includes/images/icons/batch.png" alt="Create Table As">
+          <span>Método 1 - Lotes - <br><code>CREATE TABLE AS (CTAS)</code></span>
+        </div>
+      </div>
+      <div class="ing-box-content">
+        <div class="code-block-wrapper">
+        <div class="code-block" data-language="sql">
+          CREATE TABLE new_table AS
+          SELECT *
+          FROM read_files(
+            &lt;<i>path_to_file(s)</i>&gt;,
+            format => '&lt;<i>file_type</i>&gt;',
+            &lt;<i>other_format_specific_options</i>&gt;
+          );
+        </div>
+        </div>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+
+<script>
+(function() {
+    document.querySelectorAll('.code-block').forEach(function(block) {
+        if (block.getAttribute('data-processed')) return;
+        block.setAttribute('data-processed', 'true');
+        var lang = block.getAttribute('data-language') || 'sql';
+        var code = block.textContent.trim();
+        var id = 'code-' + Math.random().toString(36).substr(2, 9);
+        block.innerHTML =
+            '<div style="position:relative;margin:16px 0;">' +
+                '<button class="copy-btn" style="position:absolute;top:8px;right:8px;padding:4px 12px;font-size:12px;background:#ddd;color:#333;border:1px solid #ccc;border-radius:4px;cursor:pointer;z-index:10;">Copiar</button>' +
+                '<pre style="background:#f8f8f8;border-radius:8px;padding:16px;padding-top:40px;overflow-x:auto;margin:0;border:1px solid #e0e0e0;"><code id="' + id + '" class="language-' + lang + '" style="font-family:Consolas,Monaco,monospace;font-size:14px;"></code></pre>' +
+            '</div>';
+        var codeEl = document.getElementById(id);
+        codeEl.textContent = code;
+        Prism.highlightElement(codeEl);
+        block.querySelector('.copy-btn').onclick = function() {
+            var t = document.createElement('textarea');
+            t.value = code;
+            document.body.appendChild(t);
+            t.select();
+            document.execCommand('copy');
+            document.body.removeChild(t);
+            this.textContent = '✓ Copied!';
+            setTimeout(() => this.textContent = 'Copy', 2000);
+        };
+    });
+})();
+</script>
+<br>
+<div class="ing-box-text">
+  <div class="ing-example">
+<code><strong>CREATE TABLE AS (CTAS)</strong></code> cria uma tabela UC <strong>por default</strong> a partir de arquivos no armazenamento de objetos cloud.
+</div>
+<br>
+  <div class="ing-example">
+A função <code><strong>read_files()</strong></code> lê arquivos em um local fornecido e retorna os dados em <strong>formato tabular.</strong>
+  </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- TAB 2 -->
+<div class="dbpanel" style="display: none;">
+  <div class="four-grid">
+    <div class="ing-box incremental">
+      <div class="ing-box-title">
+        <div class="ing-box-icon">
+          <img src="https://files.training.databricks.com/binder/prod_main/data-ingestion-with-lakeflow-connect-pt_br-3.1.2/images/20260903T145108Z/Data Ingestion with LakeFlow Connect/Includes/images/icons/incremental.png" alt="COPY INTO">
+          <span>Método 2 - Lotes Incrementais - <br><code>COPY INTO</code></span>
+        </div>
+      </div>
+      <div class="ing-box-content">
+        <div class="code-block-wrapper">
+        <div class="code-block" data-language="sql">
+        CREATE TABLE new_table;
+        <br>
+        COPY INTO new_table
+        FROM '&lt;<i>dir_path</i>&gt;'
+        FILEFORMAT = &lt;<i>file_type</i>&gt;
+        FORMAT_OPTIONS (&lt;<i>options</i>&gt;)
+        COPY_OPTIONS (&lt;<i>options</i>&gt;)
+        </div>
+        </div>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+
+<script>
+(function() {
+    document.querySelectorAll('.code-block').forEach(function(block) {
+        if (block.getAttribute('data-processed')) return;
+        block.setAttribute('data-processed', 'true');
+        var lang = block.getAttribute('data-language') || 'sql';
+        var code = block.textContent.trim();
+        var id = 'code-' + Math.random().toString(36).substr(2, 9);
+        block.innerHTML =
+            '<div style="position:relative;margin:16px 0;">' +
+                '<button class="copy-btn" style="position:absolute;top:8px;right:8px;padding:4px 12px;font-size:12px;background:#ddd;color:#333;border:1px solid #ccc;border-radius:4px;cursor:pointer;z-index:10;">Copiar</button>' +
+                '<pre style="background:#f8f8f8;border-radius:8px;padding:16px;padding-top:40px;overflow-x:auto;margin:0;border:1px solid #e0e0e0;"><code id="' + id + '" class="language-' + lang + '" style="font-family:Consolas,Monaco,monospace;font-size:14px;"></code></pre>' +
+            '</div>';
+        var codeEl = document.getElementById(id);
+        codeEl.textContent = code;
+        Prism.highlightElement(codeEl);
+        block.querySelector('.copy-btn').onclick = function() {
+            var t = document.createElement('textarea');
+            t.value = code;
+            document.body.appendChild(t);
+            t.select();
+            document.execCommand('copy');
+            document.body.removeChild(t);
+            this.textContent = '✓ Copied!';
+            setTimeout(() => this.textContent = 'Copy', 2000);
+        };
+    });
+})();
+</script>
+<br>
+<div class="ing-box-text">
+<div class="ing-example">
+Use o comando <code><strong>COPY INTO</strong></code> para copiar arquivos do armazenamento cloud para a tabela UC; isso realiza uma carga em massa de arquivos do armazenamento de objetos cloud para a tabela.
+</div>
+<br>
+<div class="ing-example">
+O <code><strong>COPY INTO</strong></code> ignorará quaisquer arquivos que já tenham sido carregados na tabela, e somente os novos arquivos serão ingeridos.
+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3 -->
+<div class="dbpanel" style="display: none;">
+  <div class="four-grid">
+    <div class="ing-box streaming">
+      <div class="ing-box-title">
+        <div class="ing-box-icon">
+          <img src="https://files.training.databricks.com/binder/prod_main/data-ingestion-with-lakeflow-connect-pt_br-3.1.2/images/20260903T145108Z/Data Ingestion with LakeFlow Connect/Includes/images/icons/streaming.png" alt="AUTO LOADER">
+          <span>Método 3 - Lotes Incrementais ou Transmissão - <br><code>AUTO LOADER</code></span>
+        </div>
+      </div>
+      <div class="ing-box-content">
+        <div style="max-width: 700px; margin: 0 auto; font-family: sans-serif; color: #0b2026;">
+          <div style="display: flex; gap: 20px; align-items: flex-start;">
+            <!-- Python -->
+            <div style="flex: 1;">
+              <div style="font-size: 12pt; font-weight: 400; margin-bottom: 10px;"><strong>Auto Loader com Python</strong></div>
+              <div class="code-block-container">
+                <div class="code-block-wrapper">
+                  (spark<br>
+                  &nbsp;&nbsp;.readStream<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;.<span style="color: #4299E0;">format</span>(<span style="color: #00A972;">"cloudFiles"</span>)<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;.<span style="color: #4299E0;">option</span>(<span style="color: #00A972;">"cloudFiles.format"</span>, <span style="color: #00A972;">"json"</span>)<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;.<span style="color: #4299E0;">option</span>(<span style="color: #00A972;">"cloudFiles.schemaLocation"</span>, <span style="color: #00A972;">"&lt;<code>checkpoint_path</code>&gt;"</span>)<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;.<span style="color: #4299E0;">load</span>(<span style="color: #00A972;">"/Volumes/catalog/schema/files"</span>)<br>
+                  &nbsp;&nbsp;.writeStream<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;.<span style="color: #4299E0;">option</span>(<span style="color: #00A972;">"checkpointLocation"</span>, <span style="color: #00A972;">"&lt;<code>checkpoint_path</code>&gt;"</span>)<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;.<span style="color: #4299E0;">trigger</span>(processingTime=<span style="color: #00A972;">"5 seconds"</span>)<br>
+                  &nbsp;&nbsp;&nbsp;&nbsp;.<span style="color: #4299E0;">toTable</span>(<span style="color: #00A972;">"catalog.database.table"</span>)<br>
+                  )
+                </div>
+              </div>
+            </div>
+            <!-- SQL -->
+            <div style="flex: 1;">
+              <div style="font-size: 12pt; font-weight: 400; margin-bottom: 10px;"><strong>Auto Loader com SQL (Declarative Pipelines)</strong></div>
+              <div class="code-block-container">
+                <span style="color: #4299E0; font-weight: 400;">CREATE OR REFRESH STREAMING TABLE</span><br>
+                &nbsp;&nbsp;catalog.schema.table<br>
+                <span style="color: #4299E0; font-weight: 400;">SCHEDULE EVERY</span> 1 HOUR<br>
+                <span style="color: #4299E0; font-weight: 400;">AS</span><br>
+                <span style="color: #4299E0; font-weight: 400;">SELECT</span> *<br>
+                <span style="color: #4299E0; font-weight: 400;">FROM STREAM</span> read_files(<br>
+                &nbsp;&nbsp;'&lt;<code>dir_path</code>&gt;',<br>
+                &nbsp;&nbsp;format => '&lt;<code>file_type</code>&gt;'<br>
+                )
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(n) {
+  var tabs   = document.getElementsByClassName("dbtab");
+  var panels = document.getElementsByClassName("dbpanel");
+  var colors = ["#2574B5", "#02A36F", "#FE3722"];
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].style.color        = "#888";
+    tabs[i].style.borderBottom = "3px solid transparent";
+    panels[i].style.display    = "none";
+  }
+  tabs[n-1].style.color        = colors[n-1];
+  tabs[n-1].style.borderBottom = "3px solid " + colors[n-1];
+  panels[n-1].style.display    = "block";
+}
+window.onload = function() { showTab(1); };
+</script>
+</section>
+<section class="notebook-cell">
+<h5>Documentação</h5>
+<p>Para mais informações sobre o Auto Loader, consulte a <a href="https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader">documentação da Databricks</a> oficial e os <a href="https://www.databricks.com/resources/demos/tutorials?itm_data=demo_center">tutoriais</a>.</p>
+</section>
+<section class="notebook-cell">
+<h5>EXPANDIR PARA NOTAS ADICIONAIS</h5>
+<details>
+<ul>
+<li><strong>CREATE TABLE AS (CTAS)</strong>
+  <ol>
+    <li>Suporta leitura de <strong>formatos de arquivo</strong> como:<br>
+        | JSON | CSV | XML | TEXT | BINARYFILE | PARQUET | AVRO | ORC</li>
+    <li>Pode detectar o formato do arquivo automaticamente e <strong>inferir um esquema unificado</strong> em todos os arquivos.</li>
+    <li>Especifique <strong>opções de formato de arquivo específicas</strong> para ler os dados com base no formato do arquivo fonte.</li>
+    <li>Pode ser usado em <strong>tabelas de transmissão</strong> para ingerir arquivos de forma <strong>incremental</strong> no Delta Lake usando o Auto Loader.</li>
+  </ol>
+</li><br>
+<li><strong>COPY INTO</strong><br>
+Use o comando <code><strong>COPY INTO</strong></code> para copiar arquivos do armazenamento cloud para a tabela do Unity Catalog. Este comando realiza um carregamento em massa de arquivos do armazenamento de objetos cloud para a tabela e, neste exemplo, carregará os arquivos na tabela vazia new_table. A cláusula <code><strong>FROM</strong></code> especifica o local dos arquivos CSV.</li><br>
+<code><strong>COPY INTO</strong></code> é ideal para situações em que o local de armazenamento cloud está continuamente recebendo novos arquivos, pois é uma operação repetível e idempotente projetada para ingestão de dados em lotes de forma incremental.
+
+  <strong>Aspectos principais do <code>COPY INTO</code></strong>:
+  <ul>
+    <li><strong>Idempotente</strong>: Ignorará qualquer arquivo que já tenha sido carregado na tabela; somente novos arquivos serão ingeridos</li>
+    <li><strong>Suporte a formatos de arquivo</strong>: Parquet, JSON, XML e outros</li>
+    <li><strong><code>Cláusula FROM</code></strong>: Especifica o caminho do local de armazenamento cloud onde novos arquivos estão sendo adicionados continuamente</li>
+    <li><strong><code>FORMAT_OPTIONS()</code></strong>: Controla como os arquivos fonte são analisados e interpretados (as opções dependem do formato do arquivo)</li>
+    <li><strong><code>COPY_OPTIONS()</code></strong>: Controla o comportamento da própria operação <code>COPY INTO</code>, como:
+      <ul>
+        <li>Evolução do esquema usando (<strong>mergeSchema</strong>)</li>
+        <li>Idempotência usando (<strong>force</strong>)</li>
+      </ul>
+    </li>
+  </ul>
+</li><br>
+<li><strong>AUTO LOADER</strong>
+  <ol>
+    <li>Ingestão em lotes incremental ou de transmissão usando o Auto Loader.
+      <ul>
+        <li>Processar novos arquivos de dados de forma <strong>incremental</strong> à medida que chegam ao armazenamento cloud (em lotes ou transmissão)</li>
+        <li>Ingerir dados <strong>sem configuração extra</strong> ou configuração complexa</li>
+        <li>Detectar e carregar <strong>automaticamente</strong> novos arquivos em tabelas do Unity Catalog</li>
+        <li>Simplificar o tratamento de dados incrementais e de transmissão</li>
+        <li>Usar com <strong>Python</strong> e <strong>SQL</strong> (via Declarative Pipelines)</li>
+        <li>Escalar para <strong>processar bilhões de arquivos</strong></li>
+        <li>Basear-se no <strong>Spark Structured Streaming</strong> para ingestão eficiente e confiável</li>
+      </ul>
+    </li><br>
+    <li>Auto Loader em Python para ler dados de transmissão do armazenamento cloud:
+      <ul>
+        <li>Começamos com <strong><code>.readStream</code></strong> e definimos o <strong>formato</strong> como "<code><strong>cloudFiles</strong></code>", o que habilita o Auto Loader.</li>
+        <li>Em seguida, especificamos o <strong>formato do arquivo</strong> como <strong>JSON</strong> e definimos o <strong>local do esquema</strong> usando <code><strong>cloudFiles.schemaLocation</strong></code>, que é utilizado para rastrear a inferência e a evolução do esquema.</li>
+        <li>Depois, usamos <strong><code>.load()</code></strong> para apontar para o local dos arquivos, neste caso um caminho em /Volumes referenciando o Unity Catalog.</li>
+        <li>No lado de escrita, configuramos <strong><code>.writeStream</code></strong> com um <strong>local de checkpoint</strong> para manter o estado e o progresso, e definimos um intervalo de <strong>gatilho</strong> de <strong>a cada 5 segundos</strong>.</li>
+        <li>Por fim, usamos <strong><code>.toTable()</code></strong> para gravar os dados em uma tabela do Unity Catalog especificada pelo catálogo, banco de dados e nome da tabela.</li>
+      </ul>
+    </li><br>
+    <li>Auto Loader com Databricks SQL
+      <ul>
+        <li>O Databricks recomenda o uso de tabelas de transmissão para ingerir dados com o Databricks SQL (em vez de COPY INTO). Uma tabela de transmissão é uma tabela registrada no <strong>Unity Catalog</strong> que inclui suporte adicional para processamento de dados em transmissão ou incremental.
+          <ul>
+            <li>Quando você cria uma tabela de transmissão, um <strong>pipeline</strong> é gerado automaticamente para ela.</li>
+            <li>As tabelas de transmissão podem ser usadas para carregamento incremental de dados tanto do <strong>Kafka</strong> quanto do <strong>armazenamento de objetos cloud</strong>.</li>
+          </ul>
+        </li>
+        <li>Para criar uma tabela de transmissão a partir de arquivos em um volume, você usa o Auto Loader. O Databricks recomenda usar o <strong>Auto Loader com Apache Spark™ Declarative Pipelines</strong> para a maioria das tarefas de ingestão de dados do armazenamento de objetos cloud. Juntos, o Auto Loader e o Declarative Pipelines são projetados para carregar de forma incremental e idempotente conjuntos de dados em crescimento contínuo à medida que chegam.</li>
+        <li>As tabelas de transmissão no Databricks SQL são suportadas por Spark Declarative Pipelines <strong>serverless</strong>. Seu workspace deve suportar pipelines serverless para usar essa funcionalidade. Alternativamente, você pode <strong>criar seus próprios</strong> Spark Declarative Pipelines para processamento incremental, otimização e monitoramento. O Declarative Pipelines oferece uma variedade de recursos adicionais, sobre os quais você pode aprender mais <a href="https://docs.databricks.com/aws/en/dlt/" style="color:#1976D2;">aqui</a>.</li>
+        <li>Para usar o Auto Loader no Databricks SQL, utilize a função <strong><code>read_files</code></strong> com a palavra-chave <strong><code>STREAM</code></strong> na cláusula <strong><code>FROM</code></strong>.</li>
+      </ul>
+    </li>
+  </ol>
+</li>
+</ul>
+</details>
+</section>
+<section class="notebook-cell">
+<h2>C. Visão Geral dos Métodos de Ingestão</h2>
+<p>Aqui está um resumo rápido dos três métodos de ingestão de dados.</p>
+<div style="max-width: 1100px; margin: 0 auto; font-family: sans-serif; color: #0b2026;">
+
+<style>
+table td, table th {
+  font-size: 12pt !important;
+}
+table ul {
+  font-size: 12pt !important;
+}
+</style>
+
+<table style="width: 100%; border-collapse: collapse; line-height: 1.5;">
+  <thead>
+    <tr style="background: #1B5162; color: white;">
+      <th style="padding: 10px 14px; text-align: left; border: 1px solid #EEEDE9; width: 140px;">RECURSO</th>
+      <th style="padding: 10px 14px; text-align: left; border: 1px solid #EEEDE9;">CREATE TABLE AS (CTAS) + spark.read</th>
+      <th style="padding: 10px 14px; text-align: left; border: 1px solid #EEEDE9;">COPY INTO</th>
+      <th style="padding: 10px 14px; text-align: left; border: 1px solid #EEEDE9;">Auto Loader</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9; font-weight: 700;">Tipo de Ingestão</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Lotes</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Lotes Incrementais</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Incremental (Lotes ou Transmissão)</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9; font-weight: 700;">Casos de Uso</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Melhor para conjuntos de dados menores</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Ideal para milhares de arquivos</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Escala para milhões ou mais de arquivos por hora, reprocessamento com bilhões de arquivos</td>
+    </tr>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9; font-weight: 700;">Sintaxe/Interface</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">
+        <ul style="margin: 0; padding-left: 16px;">
+          <li>Python (spark.read)</li>
+          <li>SQL (CTAS)</li>
+        </ul>
+      </td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">SQL</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">
+        <ul style="margin: 0; padding-left: 16px;">
+          <li>Python (spark.readStream)</li>
+          <li>SQL com Declarative Pipelines (CREATE OR REFRESH STREAMING TABLES)</li>
+          <li>Tabelas de transmissão no Databricks SQL</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9; font-weight: 700;">Idempotência</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Não</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Sim</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Sim</td>
+    </tr>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9; font-weight: 700;">Evolução do Esquema</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Manual ou inferida durante a leitura</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Suportada com opções</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">O Auto Loader detecta e evolui esquemas automaticamente. Lida com novas colunas conforme elas surgem.</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9; font-weight: 700;">Latência</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Alta</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Moderada (agendada)</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Baixa ou alta dependendo da configuração</td>
+    </tr>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9; font-weight: 700;">Facilidade de Uso</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Simples</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Simples e baseado em SQL</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Intermediário a avançado dependendo da implementação</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9; font-weight: 700;">Resumo</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Melhor para ingestão pontual ou ad hoc. Pode ser agendado para sempre ler e processar todos os dados.</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Simples e repetível para ingestão incremental de arquivos. Ótimo para jobs agendados ou pipelines.</td>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">Melhor para transmissão em tempo quase real ou ingestão incremental, com alta automação e escalabilidade.</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+</section>
+<section class="notebook-cell">
+<h2>D. Conclusão</h2>
+<p>Nesta aula, você aprendeu os três métodos principais para ingestão de dados de armazenamento de objetos cloud em tabelas UC:</p>
+<ul>
+<li><strong><code>CREATE TABLE AS (CTAS)</code></strong>: Ingestão em lotes usando <code>read_files()</code> que cria tabelas UC a partir de arquivos brutos. Ideal para conjuntos de dados menores e ad hoc.</li>
+<li><strong><code>COPY INTO</code></strong>: Ingestão incremental em lotes que é idempotente e repetível. Ignora arquivos já carregados e oferece suporte a opções de formato e cópia para controle refinado.</li>
+<li><strong><code>AUTO LOADER</code></strong>: O método mais escalável, construído sobre Spark Structured Streaming. Oferece suporte a Python e SQL (via Declarative Pipelines), processa bilhões de arquivos e lida automaticamente com a evolução do esquema.</li>
+</ul>
+<h3>Próximos Passos</h3>
+<p>Na próxima seção, você trabalhará de forma prática com esses métodos de ingestão para carregar dados do armazenamento cloud em tabelas UC.</p>
+</section>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightbox(event)">✕</button>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
+
+<script>
+if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
+function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
+function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});
+document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src);});});
+</script>
+</body>
+</html>

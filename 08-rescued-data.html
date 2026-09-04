@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coluna de Dados Resgatados | Data Ingestion with LakeFlow Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117; --surface: #161b22; --surface-raised: #1c2129;
+    --border: #2a313a; --text: #e6edf3; --text-muted: #8b949e; --text-faint: #6e7681;
+    --accent: #ff6433; --accent-soft: rgba(255,100,51,0.12);
+    --green: #3fb950; --blue: #58a6ff; --purple: #bc8cff; --yellow: #d29922;
+    --radius: 12px;
+  }
+  body.light {
+    --bg: #f8f9fb; --surface: #ffffff; --surface-raised: #f0f2f5;
+    --border: #d8dce2; --text: #1a1d23; --text-muted: #5a6170; --text-faint: #8891a0;
+    --accent: #e0501e; --accent-soft: rgba(224,80,30,0.08);
+    --green: #1a8a3e; --blue: #2563eb; --purple: #7c3aed;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+  
+  .top-bar {
+    position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border);
+    padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
+  .top-bar a:hover { color:var(--accent); }
+  .top-bar .sep { color:var(--text-faint); font-size:11px; }
+  .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
+  
+  .layout { display:flex; min-height:calc(100vh - 50px); }
+  
+  .sidebar {
+    width:280px; min-width:280px; background:var(--surface); border-right:1px solid var(--border);
+    padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px);
+  }
+  .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
+  .sidebar a {
+    display:block; padding:6px 16px; font-size:12.5px; color:var(--text-muted); text-decoration:none;
+    border-left:2px solid transparent; line-height:1.5; transition:all 0.15s;
+  }
+  .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
+  .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
+  
+  .content { flex:1; max-width:900px; padding:32px 40px 80px; }
+  
+  .notebook-cell { margin-bottom:24px; }
+  .notebook-cell h1 { font-size:26px; font-weight:700; margin-bottom:12px; }
+  .notebook-cell h2 { font-size:21px; font-weight:700; margin:28px 0 12px; padding-top:20px; border-top:1px solid var(--border); }
+  .notebook-cell h3 { font-size:17px; font-weight:600; margin:20px 0 10px; }
+  .notebook-cell h5 { font-size:12px; font-weight:600; margin:14px 0 6px; color:var(--text-muted); }
+  .notebook-cell p { margin-bottom:10px; font-size:14.5px; }
+  .notebook-cell ul, .notebook-cell ol { margin:0 0 10px 20px; font-size:14.5px; }
+  .notebook-cell li { margin-bottom:4px; }
+  .notebook-cell code { font-family:'IBM Plex Mono',monospace; background:var(--surface-raised); padding:1px 5px; border-radius:3px; font-size:12.5px; }
+  .notebook-cell pre { background:var(--surface-raised); border:1px solid var(--border); border-radius:8px; padding:14px; overflow-x:auto; margin:10px 0; }
+  .notebook-cell pre code { background:none; padding:0; }
+  .notebook-cell img { max-width:100%; height:auto; border-radius:6px; cursor:zoom-in; }
+  .notebook-cell details { margin:10px 0; padding:10px 14px; background:var(--surface-raised); border-radius:6px; border:1px solid var(--border); font-size:13.5px; }
+  .notebook-cell details summary { cursor:pointer; font-weight:600; color:var(--text-muted); font-size:12px; }
+  .notebook-cell details p, .notebook-cell details li { color:var(--text-muted); font-size:13.5px; }
+  .notebook-cell svg { max-width:100%; height:auto; }
+  .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
+  .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
+  .notebook-cell th { background:var(--surface-raised); font-weight:600; }
+  
+  .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
+  
+  .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
+  .lightbox.open { display:flex; }
+  .lightbox img { max-width:95vw; max-height:92vh; border-radius:6px; box-shadow:0 8px 40px rgba(0,0,0,0.5); object-fit:contain; background:#fff; padding:6px; cursor:default; }
+  .lightbox .lb-close { position:fixed; top:12px; right:16px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+  @media(max-width:768px) {
+    .sidebar { display:none; }
+    .content { padding:20px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="index.html">← Curso</a>
+  <span class="sep">›</span>
+  <span class="title">Aula 08 — Coluna de Dados Resgatados</span>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav-title">Aulas</div>
+    <a href="00-overview.html">00. Visão Geral do Curso</a>
+    <a href="01-data-engineering.html">01. Engenharia de Dados no Databricks</a>
+    <a href="03-cloud-storage.html">03. Ingestão de Dados de Cloud Storage</a>
+    <a href="06-metadata-columns.html">06. Colunas de Metadata na Ingestão</a>
+    <a href="08-rescued-data.html" class="active">08. Coluna de Dados Resgatados</a>
+    <a href="11-json-data.html">11. Ingestão de Dados JSON</a>
+    <a href="14-enterprise-data.html">14. Ingestão de Dados Corporativos</a>
+    <a href="16-additional-features.html">16. Features Adicionais e MERGE INTO</a>
+    <a href="99-summary.html">99. Resumo e Próximos Passos</a>
+  </nav>
+  <div class="content">
+<section class="notebook-cell">
+<h1>Aula - Trabalhando com a Coluna de Dados Resgatados</h1>
+<h2>Visão Geral</h2>
+<p>Nesta aula, você aprenderá como a coluna de dados resgatados (<code>_rescued_data</code>) captura campos incompatíveis ou não analisáveis como JSON durante a ingestão de dados, preservando valores de Entrada não conformes nas suas tabelas do Lakehouse em vez de descartá-los.</p>
+<h2>Objetivos de Aprendizado</h2>
+<p>Ao final desta aula, você será capaz de:</p>
+<ol>
+<li><strong>Explicar o propósito da coluna de dados resgatados</strong> e como ela preserva dados não conformes durante a ingestão</li>
+<li><strong>Descrever como as incompatibilidades de esquema são tratadas</strong> ao usar <code>read_files()</code>, <code>spark.read</code> ou Auto Loader</li>
+<li><strong>Interpretar os valores de dados resgatados</strong> armazenados como strings JSON na coluna <code>_rescued_data</code></li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h2>A. Recuperando Linhas Malformadas na Ingestão</h2>
+<p>Durante a ingestão de dados, há momentos em que os dados de entrada não correspondem ao esquema da sua Tabela.</p>
+</section>
+<section class="notebook-cell">
+<div style="max-width:1100px; margin:0 auto; padding:14px 16px 6px; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; color:#16313b; background:#fff;">
+
+  <style>
+    .resc-wrap{position:relative;}
+    .top-callout{
+      border:3px solid #ff5b43;
+      padding:12px 16px 8px;
+      text-align:center;
+      font-size:26px;
+      line-height:1.2;
+      font-weight:400;
+      margin:0 110px 20px 0;
+      color:#142b34;
+    }
+    .top-callout b{font-weight:800;}
+
+    /* simple elbow connector: right line + down line */
+    .top-route{
+      position:absolute;
+      right:65px;
+      top:44px;
+      width:50px;
+      height:150px;
+      border-top:4px solid #ff5b43;
+      border-right:4px solid #ff5b43;
+      box-sizing:border-box;
+    }
+
+    .flow{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      margin-top:4px;
+    }
+
+    .source-box{
+      width:180px;
+      height:320px;
+      border:2px solid #1b5568;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding-top:22px;
+      box-sizing:border-box;
+    }
+    .source-box img{
+      width:90px;
+      height:70px;
+      object-fit:contain;
+      margin-bottom:12px;
+      background:transparent;
+      mix-blend-mode:multiply;
+      filter:contrast(1.05) brightness(1.02);
+    }
+    .source-list{
+      margin-top:4px;
+      font-size:30px;
+      line-height:1.7;
+      text-align:center;
+      font-weight:400;
+    }
+
+    .big-arrow{
+      width:82px;
+      height:30px;
+      background:#3e93d9;
+      clip-path:polygon(0 0, 70% 0, 70% -5%, 100% 50%, 70% 105%, 70% 100%, 0 100%);
+      border:1.5px solid #165b8e;
+      box-sizing:border-box;
+      flex-shrink:0;
+      margin-top:150px;
+    }
+
+    .ingestion{
+      width:235px;
+      height:300px;
+      border:3px solid #4d97e3;
+      border-radius:24px;
+      padding:16px 18px;
+      box-sizing:border-box;
+    }
+    .ingestion-title{
+      font-size:28px;
+      font-weight:700;
+      color:#1d556a;
+      text-align:center;
+      margin-bottom:12px;
+      line-height:1.1;
+    }
+    .ing-box{
+      height:58px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:20px;
+      font-weight:700;
+      color:#fff;
+      margin-bottom:14px;
+      box-sizing:border-box;
+      border:1.5px solid rgba(0,0,0,.15);
+    }
+    .ing-blue{background:#1f78bf;}
+    .ing-grey{background:#cfcfcf; color:#f7f7f7;}
+
+    .bronze-col{
+      width:230px;
+      text-align:center;
+      position:relative;
+      padding-top:6px;
+    }
+    .bronze-col img{
+      width:108px;
+      height:80px;
+      object-fit:contain;
+      margin:0 auto 8px;
+      display:block;
+      background:transparent;
+      mix-blend-mode:multiply;
+      filter:contrast(1.05) brightness(1.02);
+    }
+    .bronze-label{
+      font-size:38px;
+      font-weight:800;
+      color:#132730;
+      line-height:1.02;
+    }
+
+    .rescue-col{width:300px; position:relative; margin-right:4px;}
+    .rescue-table{
+      border:1.5px solid #5d6f79;
+      width:100%;
+      background:#fff;
+      box-sizing:border-box;
+      margin-top:66px;
+      position:relative;
+    }
+    .rescue-head{display:grid; grid-template-columns:30px 1fr;}
+    .rescue-head .left{
+      background:#1f78bf; color:#fff; padding:6px 6px; font-weight:700; font-size:20px; line-height:1;
+      border-right:1.5px solid #5d6f79;
+    }
+    .rescue-head .right{
+      background:#ff5b43; color:#fff; padding:5px 10px; font-weight:800; font-size:16px; line-height:1.15;
+    }
+    .rescue-row{
+      display:grid;
+      grid-template-columns:30px 1fr;
+      border-top:1.5px solid #5d6f79;
+      min-height:38px;
+    }
+    .rescue-row .left{
+      border-right:1.5px solid #5d6f79;
+      padding:8px 6px;
+      font-size:18px;
+      color:#3a4d57;
+      line-height:1;
+    }
+    .rescue-row .right{
+      padding:5px 10px;
+      font-size:14px;
+      line-height:1.2;
+      font-weight:600;
+      color:#20353d;
+    }
+    .red-x{position:absolute; right:86px; bottom:-22px; width:46px; height:46px;}
+    .red-x:before,.red-x:after{
+      content:""; position:absolute; left:20px; top:0; width:6px; height:46px; background:#ff3b30; border-radius:3px;
+    }
+    .red-x:before{transform:rotate(45deg);}
+    .red-x:after{transform:rotate(-45deg);}
+  </style>
+
+  <div class="resc-wrap">
+    <div class="top-callout">
+      <b>read_files(), spark.read ou Auto Loader</b> fornece uma <b>coluna de dados resgatados</b> se os dados brutos não corresponderem ao esquema
+    </div>
+    <div class="top-route"></div>
+    <div class="flow">
+      <div class="source-box">
+        <img src="https://files.training.databricks.com/binder/prod_main/data-ingestion-with-lakeflow-connect-pt_br-3.1.2/images/20260903T145108Z/Data Ingestion with LakeFlow Connect/Includes/images/icons/cloud_icon.png" alt="Ícone de nuvem">
+        <div class="source-list">CSV<br>JSON<br>Parquet<br>etc.</div>
+      </div>
+      <div class="big-arrow"></div>
+      <div class="ingestion">
+        <div class="ingestion-title">Ingestão de Dados</div>
+        <div class="ing-box ing-blue">CTAS</div>
+        <div class="ing-box ing-grey">COPY INTO</div>
+        <div class="ing-box ing-blue">AUTO LOADER</div>
+      </div>
+      <div class="big-arrow"></div>
+      <div class="bronze-col">
+        <img src="https://files.training.databricks.com/binder/prod_main/data-ingestion-with-lakeflow-connect-pt_br-3.1.2/images/20260903T145108Z/Data Ingestion with LakeFlow Connect/Includes/images/icons/bronze_table_icon.png" alt="Ícone de tabela Bronze">
+        <div class="bronze-label">Tabela Bronze</div>
+      </div>
+      <div class="big-arrow"></div>
+      <div class="rescue-col">
+        <div class="rescue-table">
+          <div class="rescue-head">
+            <div class="left">…</div>
+            <div class="right">_rescued_data</div>
+          </div>
+          <div class="rescue-row">
+            <div class="left">…</div>
+            <div class="right">{"column": "< data >", "_file_path": "< file_path >"}</div>
+          </div>
+          <div class="rescue-row">
+            <div class="left">…</div>
+            <div class="right">{"column": "< data >", "_file_path": "< file_path >"}</div>
+          </div>
+          <div class="rescue-row">
+            <div class="left">…</div>
+            <div class="right">null</div>
+          </div>
+        </div>
+        <div class="red-x"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<section class="notebook-cell">
+<h5>EXPANDIR PARA NOTAS ADICIONAIS</h5>
+<details>
+
+Técnicas de ingestão como `read_files()`, `spark.read`, ou Auto Loader fornecem uma coluna de dados resgatados durante a ingestão:
+
+- A coluna de dados resgatados garante que colunas que não correspondem ao esquema sejam <strong>resgatadas em vez de descartadas</strong>
+- Valores incompatíveis são armazenados como <strong>strings no formato JSON</strong> na coluna <code>_rescued_data</code>
+- Se uma linha não apresentar incompatibilidades de esquema, a coluna <code>_rescued_data</code> será <code>null</code>
+- Isso preserva todos os dados de Entrada e evita a perda silenciosa de dados
+
+</details>
+</section>
+<section class="notebook-cell">
+<h2>B. Exemplo de Coluna de Dados Resgatados</h2>
+<h5>Clique em cada passo abaixo para explorar como trabalhar com a Coluna de Dados Resgatados.</h5>
+<div style="width:100%;font-family:'Segoe UI',sans-serif;max-width:1100px;margin:0 auto;">
+
+<style>
+.rj-shell {
+ display:flex;
+ flex-direction:column;
+ gap:16px;
+}
+
+/* Image */
+.rj-figure-wrap{
+ position:relative;
+ width:720px;
+ max-width:100%;
+ margin:10px auto 0 auto;
+ overflow:hidden;
+ border-radius:8px;
+}
+.rj-figure-wrap img{
+ width:100%;
+ height:auto;
+ display:block;
+}
+.rj-highlight{
+ position:absolute;
+ border:3px solid #FF3B30;
+ border-radius:8px;
+ box-shadow:0 0 0 9999px rgba(255,255,255,0.08);
+ opacity:0;
+ transition:opacity .25s ease;
+ pointer-events:none;
+}
+.rj-highlight.active{ opacity:1; }
+
+/* Highlight regions */
+.rj-h1{ left:2%; top:3%; width:20%; height:31%; }     /* files */
+.rj-h2{ left:1%; top:34%; width:23%; height:28%; }    /* users and cost */
+.rj-h3{ left:39%; top:25%; width:20%; height:35%; }   /* STRING and BIGINT */
+.rj-h4{ left:39%; top:40%; width:58%; height:7%; }    /* Peter + $100 main row */
+.rj-h4b{ left:28%; top:77%; width:46%; height:17%; }  /* Peter + $100 extra box */
+.rj-h5{ left:39%; top:46.5%; width:58%; height:7%; }  /* zebi + 300 main row */
+.rj-h5b{ left:28%; top:61%; width:32%; height:15%; }  /* zebi + 300 extra box */
+
+/* Horizontal steps */
+.rj-list {
+ display:flex;
+ align-items:stretch;
+ justify-content:center;
+ gap:10px;
+ flex-wrap:wrap;
+}
+.rj-trigger {
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ gap:8px;
+ cursor:pointer;
+ width:200px;
+}
+.rj-badge {
+ width:22px;
+ height:22px;
+ border-radius:50%;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:16px;
+ font-weight:800;
+ color:white;
+ border:3px solid white;
+ box-shadow:0 2px 10px rgba(0,0,0,0.15);
+ transition:transform 0.2s, box-shadow 0.2s;
+}
+.rj-trigger:hover .rj-badge {
+ transform:scale(1.08);
+ box-shadow:0 6px 18px rgba(0,0,0,0.2);
+}
+.rj-label-box {
+ width:100%;
+ background:#F9F7F4;
+ border-radius:8px;
+ border:1.5px solid #e8e5e0;
+ padding:10px 12px;
+ transition:border-color 0.2s, box-shadow 0.2s;
+ box-sizing:border-box;
+ min-height:82px;
+}
+.rj-trigger.active .rj-label-box {
+ border-color:var(--step-color);
+ box-shadow:0 2px 10px rgba(0,0,0,0.10);
+ background:#fff;
+}
+.rj-trigger:hover .rj-label-box {
+ box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+.rj-label-top {
+ display:flex;
+ align-items:center;
+ gap:7px;
+ justify-content:center;
+}
+.rj-dot {
+ width:9px;
+ height:9px;
+ border-radius:50%;
+ background:var(--step-color);
+ flex-shrink:0;
+}
+.rj-title {
+ font-size:12pt;
+ font-weight:700;
+ color:#1b3139;
+ line-height:1.25;
+ text-align:center;
+}
+.rj-sub {
+ font-size:9pt;
+ color:#7a7974;
+ margin-top:4px;
+ line-height:1.35;
+ text-align:center;
+}
+.rj-chevron {
+ font-size:11px;
+ color:#ccc;
+ transition:transform 0.25s, color 0.2s;
+ flex-shrink:0;
+}
+.rj-trigger.active .rj-chevron {
+ transform:rotate(90deg);
+ color:var(--step-color);
+}
+
+.rj-panels { width:100%; }
+
+.rj-panel {
+ display:none;
+ background:#F9F7F4;
+ border-radius:12px;
+ border:1.5px solid #e8e5e0;
+ padding:20px 22px;
+ animation:rjIn 0.28s ease;
+}
+.rj-panel.active {
+ display:block;
+ border-color:var(--panel-color);
+ box-shadow:0 4px 20px rgba(0,0,0,0.10);
+}
+@keyframes rjIn {
+ from { opacity:0; transform:translateY(-10px); }
+ to { opacity:1; transform:translateY(0); }
+}
+
+.rj-panel-title {
+ display:flex;
+ align-items:center;
+ gap:10px;
+ margin-bottom:14px;
+ padding-bottom:10px;
+ border-bottom:1.5px solid #eeede9;
+}
+.rj-panel-dot {
+ width:11px;
+ height:11px;
+ border-radius:50%;
+ background:var(--panel-color);
+ flex-shrink:0;
+}
+.rj-panel-title h4 {
+ font-size:13pt;
+ font-weight:800;
+ color:#1b3139;
+ margin:0;
+}
+.rj-panel-title span {
+ font-size:11pt;
+ color:#7a7974;
+ margin-left:4px;
+}
+.rj-desc {
+ font-size:11pt;
+ color:#3a3a3a;
+ line-height:1.75;
+ margin:0 0 12px 0;
+}
+.rj-desc strong { color:#1b3139; }
+
+.tbl-wrap { overflow-x:auto; margin-top:12px; }
+.rj-table { width:100%; border-collapse:collapse; font-size:9.5pt; }
+.rj-table th { padding:7px 11px; text-align:left; color:white; font-weight:700; font-size:9pt; }
+.rj-table td { padding:7px 11px; color:#1b3139; border-bottom:1px solid #f0edea; font-size:9pt; }
+.rj-table tr:last-child td { border-bottom:none; color:#aaa; }
+
+.th-blue { background:#2574B5; }
+.th-orange { background:#E05A2B; }
+.td-rescued { background:rgba(224,90,43,0.07); font-size:8.5pt; font-family:monospace; color:#c0400a; }
+.td-null { color:#aaa !important; font-style:italic; }
+.td-ok { background:rgba(2,163,111,0.06); }
+
+.callout {
+ margin-top:12px;
+ padding:11px 15px;
+ border-radius:8px;
+ font-size:10.5pt;
+ line-height:1.65;
+}
+.callout-orange { background:rgba(224,90,43,0.09); border-left:4px solid #E05A2B; }
+.callout-green { background:rgba(2,163,111,0.08); border-left:4px solid #02A36F; }
+
+.tag-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+.tag { padding:3px 11px; border-radius:999px; font-size:9pt; font-weight:600; color:white; }
+</style>
+
+<div class="rj-shell">
+ <!-- Image -->
+ <div class="rj-figure-wrap">
+  <img
+   src="https://files.training.databricks.com/binder/prod_main/data-ingestion-with-lakeflow-connect-pt_br-3.1.2/images/20260903T145108Z/Data Ingestion with LakeFlow Connect/Includes/images/lecture_rescued_data/rescued_data_example.png"
+   alt="Coluna de Dados Resgatados">
+  <div class="rj-highlight rj-h1" id="rh1"></div>
+  <div class="rj-highlight rj-h2" id="rh2"></div>
+  <div class="rj-highlight rj-h3" id="rh3"></div>
+  <div class="rj-highlight rj-h4" id="rh4"></div>
+  <div class="rj-highlight rj-h4b" id="rh4b"></div>
+  <div class="rj-highlight rj-h5" id="rh5"></div>
+  <div class="rj-highlight rj-h5b" id="rh5b"></div>
+ </div>
+ <!-- Horizontal steps -->
+ <div class="rj-list">
+  <div class="rj-trigger active" style="--step-color:#2574B5;" onclick="rjSwitch(this,'rp1','rh1')">
+   <div class="rj-badge" style="background:#2574B5;">1</div>
+   <div class="rj-label-box">
+    <div class="rj-label-top">
+     <div class="rj-dot"></div>
+     <div class="rj-title">Arquivos</div>
+     <span class="rj-chevron">▶</span>
+    </div>
+    <div class="rj-sub">arquivos brutos no armazenamento cloud</div>
+   </div>
+  </div>
+  <div class="rj-trigger" style="--step-color:#E05A2B;" onclick="rjSwitch(this,'rp2','rh2')">
+   <div class="rj-badge" style="background:#E05A2B;">2</div>
+   <div class="rj-label-box">
+    <div class="rj-label-top">
+     <div class="rj-dot"></div>
+     <div class="rj-title">Usuários e Custo</div>
+     <span class="rj-chevron">▶</span>
+    </div>
+    <div class="rj-sub">colunas fonte nos arquivos brutos</div>
+   </div>
+  </div>
+  <div class="rj-trigger" style="--step-color:#02A36F;" onclick="rjSwitch(this,'rp3','rh3')">
+   <div class="rj-badge" style="background:#02A36F;">3</div>
+   <div class="rj-label-box">
+    <div class="rj-label-top">
+     <div class="rj-dot"></div>
+     <div class="rj-title">STRING e BIGINT</div>
+     <span class="rj-chevron">▶</span>
+    </div>
+    <div class="rj-sub">tipos esperados durante a ingestão</div>
+   </div>
+  </div>
+  <div class="rj-trigger" style="--step-color:#1C3037;" onclick="rjSwitch(this,'rp4','rh4')">
+   <div class="rj-badge" style="background:#1C3037;">4</div>
+   <div class="rj-label-box">
+    <div class="rj-label-top">
+     <div class="rj-dot"></div>
+     <div class="rj-title">"Peter" e "$100"</div>
+     <span class="rj-chevron">▶</span>
+    </div>
+    <div class="rj-sub">capturado em _rescued_data</div>
+   </div>
+  </div>
+  <div class="rj-trigger" style="--step-color:#618794;" onclick="rjSwitch(this,'rp5','rh5')">
+   <div class="rj-badge" style="background:#618794;">5</div>
+   <div class="rj-label-box">
+    <div class="rj-label-top">
+     <div class="rj-dot"></div>
+     <div class="rj-title">"zebi" e "300"</div>
+     <span class="rj-chevron">▶</span>
+    </div>
+    <div class="rj-sub">lido sem problemas</div>
+   </div>
+  </div>
+ </div>
+ <!-- Panels -->
+ <div class="rj-panels">
+  <div class="rj-panel active" id="rp1" style="--panel-color:#2574B5;">
+   <div class="rj-panel-title">
+    <div class="rj-panel-dot"></div>
+    <h4>arquivos</h4>
+    <span>arquivos brutos no armazenamento cloud</span>
+   </div>
+   <p class="rj-desc">
+    Suponha que seu local de armazenamento cloud contenha um conjunto de arquivos brutos. Eles podem estar nos formatos CSV, TXT, JSON ou outros.
+   </p>
+   <div class="tag-row">
+    <span class="tag" style="background:#2574B5;">CSV</span>
+    <span class="tag" style="background:#2574B5;">TXT</span>
+    <span class="tag" style="background:#2574B5;">JSON</span>
+   </div>
+  </div>
+  <div class="rj-panel" id="rp2" style="--panel-color:#E05A2B;">
+   <div class="rj-panel-title">
+    <div class="rj-panel-dot"></div>
+    <h4>usuários e custo</h4>
+    <span>colunas nos arquivos brutos</span>
+   </div>
+   <p class="rj-desc">
+    Os arquivos brutos contêm uma coluna <strong>users</strong> e uma coluna <strong>cost</strong>.
+   </p>
+   <div class="tbl-wrap">
+    <table class="rj-table" style="max-width:320px;">
+     <thead>
+      <tr><th class="th-blue">users</th><th class="th-blue">cost</th></tr>
+     </thead>
+     <tbody>
+      <tr><td>Peter</td><td>$100</td></tr>
+      <tr><td>zebi</td><td>300</td></tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+  <div class="rj-panel" id="rp3" style="--panel-color:#02A36F;">
+   <div class="rj-panel-title">
+    <div class="rj-panel-dot"></div>
+    <h4>STRING e BIGINT</h4>
+    <span>tipos esperados durante a ingestão</span>
+   </div>
+   <p class="rj-desc">
+    Ao ingerir esses dados, a coluna <strong>users</strong> deve ser lida na tabela como <strong>STRING</strong>, e a coluna <strong>cost</strong> deve ser lida como <strong>BIGINT</strong>.
+   </p>
+   <div class="tbl-wrap">
+    <table class="rj-table" style="max-width:360px;">
+     <thead>
+      <tr><th class="th-blue">Coluna</th><th class="th-blue">Tipo Esperado</th></tr>
+     </thead>
+     <tbody>
+      <tr><td>users</td><td>STRING</td></tr>
+      <tr><td>cost</td><td>BIGINT</td></tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+  <div class="rj-panel" id="rp4" style="--panel-color:#1C3037;">
+   <div class="rj-panel-title">
+    <div class="rj-panel-dot"></div>
+    <h4>Primeira linha: "Peter" e "$100"</h4>
+    <span>_rescued_data é preenchido</span>
+   </div>
+   <p class="rj-desc">
+    Na primeira linha de dados, o valor <strong>"Peter"</strong> será lido corretamente na coluna <strong>users</strong> da tabela Bronze. No entanto, como a coluna <strong>cost</strong> contém uma string como <strong>$100</strong>, ela não corresponde ao tipo <strong>BIGINT</strong> esperado.
+   </p>
+   <div class="callout callout-orange">
+    Como resultado, esse valor não será inserido na coluna cost. Em vez disso, será capturado na coluna <strong>_rescued_data</strong>, armazenado como uma <strong>string no formato JSON</strong>.
+   </div>
+   <div class="tbl-wrap">
+    <table class="rj-table">
+     <thead>
+      <tr>
+       <th class="th-blue">users</th>
+       <th class="th-blue">cost</th>
+       <th class="th-orange">_rescued_data</th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td>Peter</td>
+       <td class="td-null">null</td>
+       <td class="td-rescued">{"cost": "$100", "_file_path": "&lt;file_path&gt;"}</td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+  <div class="rj-panel" id="rp5" style="--panel-color:#618794;">
+   <div class="rj-panel-title">
+    <div class="rj-panel-dot"></div>
+    <h4>Segunda linha: "zebi" e 300</h4>
+    <span>_rescued_data permanece vazio</span>
+   </div>
+   <p class="rj-desc">
+    Na segunda linha, ambos os valores são válidos: o valor <strong>"zebi"</strong> é uma <strong>STRING</strong>, e <strong>300</strong> é um <strong>BIGINT</strong>.
+   </p>
+   <div class="callout callout-green">
+    Portanto, essa linha será lida na tabela Bronze sem problemas, e a coluna <strong>_rescued_data</strong> permanecerá vazia para essa linha.
+   </div>
+   <div class="tbl-wrap">
+    <table class="rj-table">
+     <thead>
+      <tr>
+       <th class="th-blue">users</th>
+       <th class="th-blue">cost</th>
+       <th class="th-orange">_rescued_data</th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td>zebi</td>
+       <td class="td-ok">300</td>
+       <td class="td-null">null</td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+</div>
+
+<script>
+function rjSwitch(triggerEl, panelId, highlightId) {
+  var allTriggers = document.querySelectorAll('.rj-trigger');
+  var allPanels = document.querySelectorAll('.rj-panel');
+  var allHighlights = document.querySelectorAll('.rj-highlight');
+  var isAlreadyActive = triggerEl.classList.contains('active');
+
+  allTriggers.forEach(function(t){ t.classList.remove('active'); });
+  allPanels.forEach(function(p){ p.classList.remove('active'); });
+  allHighlights.forEach(function(h){ h.classList.remove('active'); });
+
+  if (!isAlreadyActive) {
+    triggerEl.classList.add('active');
+    document.getElementById(panelId).classList.add('active');
+    document.getElementById(highlightId).classList.add('active');
+
+    if (highlightId === 'rh4') {
+      document.getElementById('rh4b').classList.add('active');
+    }
+    if (highlightId === 'rh5') {
+      document.getElementById('rh5b').classList.add('active');
+    }
+  }
+}
+document.getElementById('rh1').classList.add('active');
+</script>
+</div>
+</section>
+<section class="notebook-cell">
+<h5>EXPANDIR PARA NOTAS ADICIONAIS</h5>
+<details>
+
+Por exemplo, suponha que seu local de armazenamento cloud contenha um conjunto de arquivos brutos (que podem ser CSV, TXT, JSON ou outros formatos) e que esses arquivos contenham uma coluna de usuários e uma coluna de custo.
+
+Ao ingerir esses dados, a coluna de usuários deve ser lida na tabela como STRING, e a coluna de custo deve ser lida como BIGINT.
+
+Na primeira linha de dados, o valor "Peter" será lido corretamente na coluna de usuários da tabela Bronze. No entanto, como a coluna de custo contém uma string como $100, ela não corresponde ao tipo BIGINT esperado. Como resultado, esse valor não será inserido na coluna de custo. Em vez disso, ele será capturado na coluna <code>_rescued_data</code>, armazenado como uma string no formato JSON.
+
+Na segunda linha, ambos os valores são válidos: o valor "zebi" é uma STRING e 300 é um BIGINT. Portanto, essa linha será lida na tabela Bronze sem problemas, e a coluna <code>_rescued_data</code> permanecerá vazia para essa linha.
+
+
+</details>
+</section>
+<section class="notebook-cell">
+<h2>C. Conclusão</h2>
+<p>Nesta aula, você aprendeu como a coluna de dados resgatados funciona durante a ingestão de dados:</p>
+<ul>
+<li>Quando os dados de Entrada não correspondem ao esquema esperado, <strong>os valores incompatíveis são capturados na coluna <code>_rescued_data</code></strong> como strings formatadas em JSON em vez de serem descartados.</li>
+<li>A coluna de dados resgatados está disponível ao usar <strong><code>read_files()</code></strong>, <strong><code>spark.read</code></strong> ou <strong>Auto Loader</strong>.</li>
+<li>Os valores que correspondem ao esquema são ingeridos normalmente, e <code>_rescued_data</code> é <code>null</code> para essas linhas.</li>
+<li>Esse recurso evita a perda silenciosa de dados e permite inspecionar e tratar incompatibilidades de esquema após a ingestão.</li>
+</ul>
+<h3>Próximos Passos</h3>
+<p>Na próxima seção, você trabalhará de forma prática com a coluna de dados resgatados para lidar com incompatibilidades de esquema durante a ingestão.</p>
+</section>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightbox(event)">✕</button>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
+
+<script>
+if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
+function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
+function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});
+document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src);});});
+</script>
+</body>
+</html>

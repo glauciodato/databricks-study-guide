@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resumo e Próximos Passos | Data Ingestion with LakeFlow Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117; --surface: #161b22; --surface-raised: #1c2129;
+    --border: #2a313a; --text: #e6edf3; --text-muted: #8b949e; --text-faint: #6e7681;
+    --accent: #ff6433; --accent-soft: rgba(255,100,51,0.12);
+    --green: #3fb950; --blue: #58a6ff; --purple: #bc8cff; --yellow: #d29922;
+    --radius: 12px;
+  }
+  body.light {
+    --bg: #f8f9fb; --surface: #ffffff; --surface-raised: #f0f2f5;
+    --border: #d8dce2; --text: #1a1d23; --text-muted: #5a6170; --text-faint: #8891a0;
+    --accent: #e0501e; --accent-soft: rgba(224,80,30,0.08);
+    --green: #1a8a3e; --blue: #2563eb; --purple: #7c3aed;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+  
+  .top-bar {
+    position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border);
+    padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
+  .top-bar a:hover { color:var(--accent); }
+  .top-bar .sep { color:var(--text-faint); font-size:11px; }
+  .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
+  
+  .layout { display:flex; min-height:calc(100vh - 50px); }
+  
+  .sidebar {
+    width:280px; min-width:280px; background:var(--surface); border-right:1px solid var(--border);
+    padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px);
+  }
+  .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
+  .sidebar a {
+    display:block; padding:6px 16px; font-size:12.5px; color:var(--text-muted); text-decoration:none;
+    border-left:2px solid transparent; line-height:1.5; transition:all 0.15s;
+  }
+  .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
+  .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
+  
+  .content { flex:1; max-width:900px; padding:32px 40px 80px; }
+  
+  .notebook-cell { margin-bottom:24px; }
+  .notebook-cell h1 { font-size:26px; font-weight:700; margin-bottom:12px; }
+  .notebook-cell h2 { font-size:21px; font-weight:700; margin:28px 0 12px; padding-top:20px; border-top:1px solid var(--border); }
+  .notebook-cell h3 { font-size:17px; font-weight:600; margin:20px 0 10px; }
+  .notebook-cell h5 { font-size:12px; font-weight:600; margin:14px 0 6px; color:var(--text-muted); }
+  .notebook-cell p { margin-bottom:10px; font-size:14.5px; }
+  .notebook-cell ul, .notebook-cell ol { margin:0 0 10px 20px; font-size:14.5px; }
+  .notebook-cell li { margin-bottom:4px; }
+  .notebook-cell code { font-family:'IBM Plex Mono',monospace; background:var(--surface-raised); padding:1px 5px; border-radius:3px; font-size:12.5px; }
+  .notebook-cell pre { background:var(--surface-raised); border:1px solid var(--border); border-radius:8px; padding:14px; overflow-x:auto; margin:10px 0; }
+  .notebook-cell pre code { background:none; padding:0; }
+  .notebook-cell img { max-width:100%; height:auto; border-radius:6px; cursor:zoom-in; }
+  .notebook-cell details { margin:10px 0; padding:10px 14px; background:var(--surface-raised); border-radius:6px; border:1px solid var(--border); font-size:13.5px; }
+  .notebook-cell details summary { cursor:pointer; font-weight:600; color:var(--text-muted); font-size:12px; }
+  .notebook-cell details p, .notebook-cell details li { color:var(--text-muted); font-size:13.5px; }
+  .notebook-cell svg { max-width:100%; height:auto; }
+  .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
+  .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
+  .notebook-cell th { background:var(--surface-raised); font-weight:600; }
+  
+  .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
+  
+  .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
+  .lightbox.open { display:flex; }
+  .lightbox img { max-width:95vw; max-height:92vh; border-radius:6px; box-shadow:0 8px 40px rgba(0,0,0,0.5); object-fit:contain; background:#fff; padding:6px; cursor:default; }
+  .lightbox .lb-close { position:fixed; top:12px; right:16px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+  @media(max-width:768px) {
+    .sidebar { display:none; }
+    .content { padding:20px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="index.html">← Curso</a>
+  <span class="sep">›</span>
+  <span class="title">Aula 99 — Resumo e Próximos Passos</span>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav-title">Aulas</div>
+    <a href="00-overview.html">00. Visão Geral do Curso</a>
+    <a href="01-data-engineering.html">01. Engenharia de Dados no Databricks</a>
+    <a href="03-cloud-storage.html">03. Ingestão de Dados de Cloud Storage</a>
+    <a href="06-metadata-columns.html">06. Colunas de Metadata na Ingestão</a>
+    <a href="08-rescued-data.html">08. Coluna de Dados Resgatados</a>
+    <a href="11-json-data.html">11. Ingestão de Dados JSON</a>
+    <a href="14-enterprise-data.html">14. Ingestão de Dados Corporativos</a>
+    <a href="16-additional-features.html">16. Features Adicionais e MERGE INTO</a>
+    <a href="99-summary.html" class="active">99. Resumo e Próximos Passos</a>
+  </nav>
+  <div class="content">
+<section class="notebook-cell">
+<div style="text-align: center; line-height: 0; padding-top: 9px;">
+  <img
+    src="https://databricks.com/wp-content/uploads/2018/03/db-academy-rgb-1200px.png"
+    alt="Databricks Learning"
+  >
+</div>
+</section>
+<section class="notebook-cell">
+<h1>Resumo e Próximos Passos</h1>
+</section>
+<section class="notebook-cell">
+<div style="max-width: 1200px; margin: 0 auto; font-family: sans-serif; color: #0b2026;">
+
+<!-- Title -->
+<div style="text-align: center; margin-bottom: 28px;">
+  <div style="font-size: 15pt; color: #618794; margin-top: 6px;">O kit completo de ingestão do LakeFlow Connect</div>
+</div>
+
+<!-- ===== ROW 1: Connectors → Ingestion Methods → Bronze Quality ===== -->
+<div style="display: flex; justify-content: center; align-items: stretch; gap: 0;">
+
+  <!-- 1. LakeFlow Connect Connectors -->
+  <div style="flex: 1; max-width: 280px; background: #F9F7F4; border-radius: 10px; padding: 18px 16px; box-shadow: 0 2px 8px rgba(27,49,57,0.06); text-align: center; border-top: 6px solid #4299E0;">
+    <div style="font-size: 15pt; font-weight: 700; color: #0b2026; margin-bottom: 10px;">Conectores do LakeFlow Connect</div>
+    <div style="font-size: 14pt; color: #618794; line-height: 1.6; text-align: left;">
+      <div style="margin-bottom: 4px;">Upload Files</div>
+      <div style="margin-bottom: 4px;">Conectores Padrão</div>
+      <div style="margin-bottom: 4px;">Conectores Gerenciados</div>
+      <div>Partner Connect</div>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div style="display: flex; align-items: center; padding: 0 10px; font-size: 26pt; color: #618794;">&#10132;</div>
+
+  <!-- 2. Ingestion Methods -->
+  <div style="flex: 1.1; max-width: 300px; background: #1B5162; border-radius: 10px; padding: 18px 16px; box-shadow: 0 2px 8px rgba(27,49,57,0.06); text-align: center; border-top: 6px solid #FF5F46;">
+    <div style="font-size: 15pt; font-weight: 700; color: white; margin-bottom: 10px;">Métodos de Ingestão</div>
+    <div style="display: flex; flex-direction: column; gap: 5px;">
+      <div style="background: rgba(255,255,255,0.15); border-radius: 5px; padding: 6px 10px; font-size: 14pt; color: white;">CREATE TABLE AS &amp; <code style="color: white;">read_files()</code></div>
+      <div style="background: rgba(255,255,255,0.15); border-radius: 5px; padding: 6px 10px; font-size: 14pt; color: white;">COPY INTO</div>
+      <div style="background: rgba(255,255,255,0.15); border-radius: 5px; padding: 6px 10px; font-size: 14pt; color: white;">Auto Loader (Python &amp; SQL)</div>
+      <div style="background: rgba(255,255,255,0.15); border-radius: 5px; padding: 6px 10px; font-size: 14pt; color: white;">MERGE INTO</div>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div style="display: flex; align-items: center; padding: 0 10px; font-size: 26pt; color: #618794;">&#10132;</div>
+
+  <!-- 3. Bronze Quality -->
+  <div style="flex: 1; max-width: 280px; background: #F9F7F4; border-radius: 10px; padding: 18px 16px; box-shadow: 0 2px 8px rgba(27,49,57,0.06); text-align: center; border-top: 6px solid #00A972;">
+    <div style="font-size: 15pt; font-weight: 700; color: #0b2026; margin-bottom: 10px;">Qualidade Bronze</div>
+    <div style="font-size: 14pt; color: #618794; line-height: 1.6;">
+      Enriqueça com colunas <code>_metadata</code>, preserve incompatibilidades em <code>_rescued_data</code> e achate JSON para tabelas UC prontas para análise
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== ITERATE LOOP BAR ===== -->
+<div style="margin: 16px auto 0 auto; max-width: 1050px; display: flex; align-items: center; justify-content: center; gap: 12px;">
+  <div style="flex: 1; height: 4px; background: #FF5F46; border-radius: 2px;"></div>
+  <div style="background: #FF5F46; color: white; padding: 6px 22px; border-radius: 20px; font-size: 14pt; font-weight: 700; white-space: nowrap;">
+    INGERIR &amp; REFINAR
+  </div>
+  <div style="flex: 1; height: 4px; background: #FF5F46; border-radius: 2px;"></div>
+</div>
+
+<!-- ===== COURSE JOURNEY TABLE ===== -->
+<div style="margin-top: 20px; background: #F9F7F4; border-radius: 10px; padding: 20px 24px; box-shadow: 0 2px 8px rgba(27,49,57,0.06);">
+
+<div style="font-size: 16pt; font-weight: 700; color: #1B5162; margin-bottom: 14px;">Sua Jornada pelo Curso</div>
+
+<style>
+.journey-table td, .journey-table th {
+  font-size: 14pt !important;
+}
+</style>
+
+<table class="journey-table" style="width: 100%; border-collapse: collapse; line-height: 1.5;">
+  <thead>
+    <tr style="background: #1B5162; color: white;">
+      <th style="padding: 10px 14px; text-align: center; border: 1px solid #EEEDE9; width: 50px;">Passo</th>
+      <th style="padding: 10px 14px; text-align: left; border: 1px solid #EEEDE9;">O Que Você Fez</th>
+      <th style="padding: 10px 14px; text-align: left; border: 1px solid #EEEDE9;">Principal Aprendizado</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background: white;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">1</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Revisou os fundamentos de engenharia de dados, conectores do LakeFlow Connect, métodos de ingestão, Delta Lake e a Arquitetura Medallion</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; color: #618794;">O LakeFlow Connect substitui ferramentas de ingestão fragmentadas por uma plataforma unificada e gerenciada</td>
+    </tr>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">2</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Ingeriu arquivos do armazenamento cloud usando <code>CREATE TABLE AS</code>, <code>COPY INTO</code> e Auto Loader</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; color: #618794;">Escolha o método de ingestão adequado à carga de trabalho &mdash; lotes ad-hoc, incremental ou transmissão</td>
+    </tr>
+    <tr style="background: white;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">3</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Adicionou colunas <code>_metadata.file_name</code> e <code>_metadata.file_modification_time</code> durante a ingestão</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; color: #618794;">As tabelas Bronze devem sempre preservar o contexto da fonte para linhagem, auditoria e depuração</td>
+    </tr>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">4</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Tratou registros CSV malformados com a coluna <code>_rescued_data</code> e construiu tabelas Bronze em um laboratório</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; color: #618794;">Os dados resgatados evitam a perda silenciosa de dados quando a Entrada não corresponde ao esquema de destino</td>
+    </tr>
+    <tr style="background: white;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">5</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Ingeriu e achatou JSON usando as abordagens STRING, STRUCT e VARIANT com <code>schema_of_json</code> e <code>from_json</code></td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; color: #618794;">STRUCT impõe estrutura para analítica; VARIANT oferece armazenamento semiestruturado flexível e de alto desempenho</td>
+    </tr>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">6</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Configurou Conectores Gerenciados do LakeFlow Connect para bancos de dados corporativos e fontes SaaS</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; color: #618794;">Os conectores gerenciados oferecem ingestão totalmente gerenciada e orientada por interface para fontes além do armazenamento cloud</td>
+    </tr>
+    <tr style="background: white;">
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; text-align: center; font-weight: 700; color: #1B5162;">7</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9;">Explorou recursos adicionais (Lakehouse Federation, Zerobus, Open Sharing, Marketplace) e aplicou <code>MERGE INTO</code> para upserts</td>
+      <td style="padding: 8px 14px; border: 1px solid #EEEDE9; color: #618794;">MERGE INTO unifica atualizações, inserções e exclusões em uma única operação atômica &mdash; ideal para CDC e slowly changing dimensions</td>
+    </tr>
+  </tbody>
+</table>
+
+</div>
+
+<!-- ===== CLOSING CALLOUT ===== -->
+<div style="margin-top: 20px; padding: 20px 28px; background: #FFF6F4; border: 3px solid #FF5F46; border-radius: 10px; text-align: center;">
+  <div style="font-size: 17pt; font-weight: 700; color: #FF5F46; margin-bottom: 8px;">A ingestão moderna é unificada, governada e incremental.</div>
+  <div style="font-size: 15pt; color: #0b2026; line-height: 1.6;">Os pipelines mais robustos utilizam o LakeFlow Connect para criar tabelas Bronze governadas, capturar metadados da fonte, resgatar registros não conformes e refinar progressivamente os dados por meio da Arquitetura Medallion &mdash; tudo dentro da Databricks Data Intelligence Platform.</div>
+</div>
+
+</div>
+
+<h5>EXPANDA PARA NOTAS ADICIONAIS</h5>
+<details>
+
+#### O Kit Completo do LakeFlow Connect
+
+Este visual apresenta os três pilares de ingestão de dados que você explorou em todas as aulas, demonstrações e laboratórios. Cada um complementa os demais para entregar tabelas Bronze governadas e prontas para análise no Lakehouse.
+
+#### Conectores do LakeFlow Connect
+
+O LakeFlow Connect é a camada de ingestão de dados da Databricks Data Intelligence Platform &mdash; ele substitui o conjunto fragmentado tradicional de ferramentas de ingestão por uma única superfície gerenciada:
+
+- **Upload Files** &mdash; cargas ad-hoc de arquivos locais em volumes ou tabelas do Unity Catalog
+- **Conectores Padrão** &mdash; armazenamento de objetos cloud, Kafka e outras fontes, com suporte a ingestão em lotes, lotes incrementais e transmissão
+- **Conectores Gerenciados** &mdash; ingestão totalmente gerenciada e orientada por interface a partir de bancos de dados corporativos e aplicações SaaS (Salesforce, Workday, SQL Server e outros)
+- **Partner Connect** &mdash; soluções de parceiros validadas quando um conector gerenciado nativo não está disponível
+
+#### Métodos de Ingestão
+
+O método adequado depende do volume de dados, da atualidade e do padrão operacional:
+
+- **CREATE TABLE AS (CTAS)** com `read_files()` &mdash; ingestão em lotes simples que cria tabelas UC a partir de arquivos brutos. Ideal para cargas ad-hoc únicas ou de menor escala.
+- **COPY INTO** &mdash; ingestão incremental em lotes idempotente e repetível. Ignora arquivos já carregados; ideal para pipelines agendados que processam milhares de arquivos.
+- **Auto Loader** (Python `cloudFiles` ou tabelas de transmissão SQL em Declarative Pipelines) &mdash; a opção mais escalável. Suporta evolução automática do esquema e processa bilhões de arquivos para cargas de trabalho incrementais ou de transmissão.
+- **MERGE INTO** &mdash; upserts atômicos em tabelas UC existentes. A ferramenta certa para slowly changing dimensions, cargas incrementais e change data capture.
+
+#### Qualidade Bronze
+
+As tabelas Bronze de produção precisam de mais do que valores brutos. Ao longo do curso, você enriqueceu e protegeu seus dados ingeridos:
+
+- **Colunas `_metadata`** &mdash; capturam `file_name` e `file_modification_time` durante a ingestão para linhagem, auditoria e depuração
+- **Coluna `_rescued_data`** &mdash; preserva registros que não correspondem ao esquema de destino como strings formatadas em JSON, evitando a perda silenciosa de dados
+- **Tratamento de JSON** &mdash; achata dados semiestruturados em colunas consultáveis usando STRING, STRUCT (com `schema_of_json` + `from_json`) ou o novo tipo de dado VARIANT
+
+#### O Ciclo de Ingestão e Refinamento
+
+A barra coral representa o fluxo contínuo de dados pela Arquitetura Medallion. As tabelas Bronze produzidas pelo LakeFlow Connect alimentam tabelas Prata limpas, que por sua vez alimentam tabelas ouro curadas &mdash; com cada camada refinada de forma incremental e governada pelo Unity Catalog.
+
+</details>
+</section>
+<section class="notebook-cell">
+<h2>Apache Spark™ Declarative Pipelines</h2>
+<p><br></br></p>
+<div style="max-width: 1200px; margin: 0 auto; font-family: sans-serif;">
+
+<div style="background: #F9F7F4; border-radius: 10px; padding: 24px 28px; box-shadow: 0 2px 8px rgba(27,49,57,0.06); border-top: 6px solid #FF5F46;">
+
+  <div style="font-size: 18pt; font-weight: 700; color: #0b2026; margin-bottom: 14px;">Leve Seus Pipelines de Ingestão Mais Longe</div>
+
+  <div style="font-size: 15pt; color: #0b2026; line-height: 1.7; margin-bottom: 16px;">
+    Agora que você compreende os fundamentos da ingestão de dados com LakeFlow Connect &mdash; — desde o armazenamento cloud e conectores gerenciados até metadados, dados resgatados, JSON e <code style="background: #EEEDE9; padding: 2px 6px; border-radius: 3px;">MERGE INTO</code> &mdash; — o próximo passo é orquestrar pipelines de ponta a ponta com <strong>Spark Declarative Pipelines</strong>.
+  </div>
+
+  <div style="font-size: 15pt; color: #0b2026; line-height: 1.7; margin-bottom: 18px;">
+    O Declarative Pipelines permite definir tabelas de transmissão e visões materializadas com SQL ou Python simples, enquanto o Databricks cuida da resolução de dependências, atualização incremental, qualidade de dados e orquestração. Combinado com o Auto Loader, é a abordagem recomendada para ingestão em produção em escala.
+  </div>
+
+  <div style="display: flex; gap: 10px; margin-top: 12px;">
+    <a href="https://docs.databricks.com/aws/en/dlt/" target="_blank" style="display: inline-block; background: #1B5162; color: white; font-size: 15pt; font-weight: 700; padding: 10px 24px; border-radius: 8px; text-decoration: none;">
+      AWS &rarr;
+    </a>
+    <a href="https://learn.microsoft.com/en-us/azure/databricks/dlt/" target="_blank" style="display: inline-block; background: #1B5162; color: white; font-size: 15pt; font-weight: 700; padding: 10px 24px; border-radius: 8px; text-decoration: none;">
+      Azure &rarr;
+    </a>
+    <a href="https://docs.databricks.com/gcp/en/dlt/" target="_blank" style="display: inline-block; background: #1B5162; color: white; font-size: 15pt; font-weight: 700; padding: 10px 24px; border-radius: 8px; text-decoration: none;">
+      GCP &rarr;
+    </a>
+  </div>
+
+</div>
+
+</div>
+</section>
+<section class="notebook-cell">
+<h2>A. Recursos Adicionais</h2>
+<p>Explore os recursos a seguir para saber mais sobre o LakeFlow Connect e manter-se atualizado com as últimas novidades da plataforma.</p>
+<h3>A1. Documentação</h3>
+<ul>
+<li>
+<p>O que é LakeFlow Connect &mdash; Ingestão unificada para o Databricks Data Intelligence Platform:
+<a href="https://docs.databricks.com/aws/en/ingestion/lakeflow-connect/">AWS</a> |
+<a href="https://learn.microsoft.com/en-us/azure/databricks/ingestion/lakeflow-connect/">Azure</a> |
+<a href="https://docs.databricks.com/gcp/en/ingestion/lakeflow-connect/">GCP</a></p>
+</li>
+<li>
+<p>Ingerir dados de armazenamento de objetos na cloud com Auto Loader:
+<a href="https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader">AWS</a> |
+<a href="https://learn.microsoft.com/en-us/azure/databricks/ingestion/cloud-object-storage/auto-loader">Azure</a> |
+<a href="https://docs.databricks.com/gcp/en/ingestion/cloud-object-storage/auto-loader">GCP</a></p>
+</li>
+<li>
+<p>Carregar dados com <code>COPY INTO</code>:
+<a href="https://docs.databricks.com/aws/en/ingestion/copy-into/">AWS</a> |
+<a href="https://learn.microsoft.com/en-us/azure/databricks/ingestion/copy-into/">Azure</a> |
+<a href="https://docs.databricks.com/gcp/en/ingestion/copy-into/">GCP</a></p>
+</li>
+<li>
+<p>Coluna de metadados de arquivo &mdash; captura <code>_metadata.file_name</code> e <code>_metadata.file_modification_time</code> durante a ingestão:
+<a href="https://docs.databricks.com/aws/en/ingestion/file-metadata-column">AWS</a> |
+<a href="https://learn.microsoft.com/en-us/azure/databricks/ingestion/file-metadata-column">Azure</a> |
+<a href="https://docs.databricks.com/gcp/en/ingestion/file-metadata-column">GCP</a></p>
+</li>
+<li>
+<p>Coluna de dados resgatados &mdash; captura registros que não correspondem ao seu esquema:
+<a href="https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema#what-is-the-rescued-data-column">AWS</a> |
+<a href="https://learn.microsoft.com/en-us/azure/databricks/ingestion/cloud-object-storage/auto-loader/schema#what-is-the-rescued-data-column">Azure</a> |
+<a href="https://docs.databricks.com/gcp/en/ingestion/cloud-object-storage/auto-loader/schema#what-is-the-rescued-data-column">GCP</a></p>
+</li>
+<li>
+<p>Upsert em uma tabela Delta Lake usando <code>MERGE</code>:
+<a href="https://docs.databricks.com/aws/en/delta/merge">AWS</a> |
+<a href="https://learn.microsoft.com/en-us/azure/databricks/delta/merge">Azure</a> |
+<a href="https://docs.databricks.com/gcp/en/delta/merge">GCP</a></p>
+</li>
+</ul>
+<h3>A2. Blog e Comunicados</h3>
+<ul>
+<li>
+<p><a href="https://www.databricks.com/blog/announcing-general-availability-databricks-lakeflow">Anunciando a Disponibilidade Geral do Databricks Lakeflow</a> &mdash; Lakeflow Connect, Declarative Pipelines e Jobs agora estão em disponibilidade geral (GA), com um novo IDE para engenharia de dados e conectores de ingestão expandidos.</p>
+</li>
+<li>
+<p><a href="https://www.databricks.com/blog/accelerate-business-insights-lakeflow-connect-now-free-tier">Acelere os insights de negócios com o Lakeflow Connect, agora com um Nível Gratuito</a> &mdash; Cada workspace recebe 100 DBUs gratuitos por dia para conectores SaaS gerenciados e de banco de dados, permitindo a ingestão de até 100 milhões de registros diariamente.</p>
+</li>
+<li>
+<p><a href="https://www.databricks.com/blog/whats-new-zerobus-and-other-announcements-improve-data-ingestion-lakeflow-connect">Novidades: Zerobus e Outros Comunicados Melhoram a Ingestão de Dados para o Lakeflow Connect</a> &mdash; API de escrita direta para ingestão de eventos com alta Taxa de transferência, além de conectores expandidos para bancos de dados e aplicações empresariais.</p>
+</li>
+<li>
+<p><a href="https://www.databricks.com/blog/lakeflow-connect-efficient-and-easy-data-ingestion-using-sql-server-connector">Lakeflow Connect: Ingestão de Dados Eficiente e Simples com o conector SQL Server</a> &mdash; Uma análise detalhada sobre como configurar e operar o conector gerenciado do SQL Server.</p>
+</li>
+</ul>
+<h3>A3. Recursos Adicionais Fora do Escopo deste Curso</h3>
+<ul>
+<li>
+<p>Spark Declarative Pipelines &mdash; pipelines declarativos de ponta a ponta para transmissão e lotes:
+<a href="https://docs.databricks.com/aws/en/dlt/">AWS</a> |
+<a href="https://learn.microsoft.com/en-us/azure/databricks/dlt/">Azure</a> |
+<a href="https://docs.databricks.com/gcp/en/dlt/">GCP</a></p>
+</li>
+<li>
+<p>Lakehouse Federation &mdash; query em fontes externas sem mover os dados:
+<a href="https://docs.databricks.com/aws/en/query-federation/">AWS</a> |
+<a href="https://learn.microsoft.com/en-us/azure/databricks/query-federation/">Azure</a> |
+<a href="https://docs.databricks.com/gcp/en/query-federation/">GCP</a></p>
+</li>
+<li>
+<p>Open Sharing &mdash; um protocolo aberto para compartilhamento de dados seguro entre plataformas:
+<a href="https://docs.databricks.com/aws/en/delta-sharing/">AWS</a> |
+<a href="https://learn.microsoft.com/en-us/azure/databricks/delta-sharing/">Azure</a> |
+<a href="https://docs.databricks.com/gcp/en/delta-sharing/">GCP</a></p>
+</li>
+<li>
+<p>Databricks Marketplace &mdash; descubra e compartilhe ativos de dados, IA e analítica:
+<a href="https://docs.databricks.com/aws/en/marketplace/">AWS</a> |
+<a href="https://learn.microsoft.com/en-us/azure/databricks/marketplace/">Azure</a> |
+<a href="https://docs.databricks.com/gcp/en/marketplace/">GCP</a></p>
+</li>
+<li>
+<p>O tipo de dado VARIANT &mdash; armazenamento flexível e de alto desempenho para dados semiestruturados:
+<a href="https://docs.databricks.com/aws/en/semi-structured/variant">AWS</a> |
+<a href="https://learn.microsoft.com/en-us/azure/databricks/semi-structured/variant">Azure</a> |
+<a href="https://docs.databricks.com/gcp/en/semi-structured/variant">GCP</a></p>
+</li>
+<li>
+<p>Partner Connect &mdash; integre parceiros de ingestão validados (Fivetran, Informatica, Qlik e outros):
+<a href="https://docs.databricks.com/aws/en/partner-connect/">AWS</a> |
+<a href="https://learn.microsoft.com/en-us/azure/databricks/partner-connect/">Azure</a> |
+<a href="https://docs.databricks.com/gcp/en/partner-connect/">GCP</a></p>
+</li>
+</ul>
+</section>
+<section class="notebook-cell">
+<h2>B. Próximos Passos</h2>
+<p>Continue desenvolvendo suas habilidades no Databricks com recursos adicionais de treinamento e certificação.</p>
+<h3>B1. Continue seu Aprendizado</h3>
+<p>Amplie seu conhecimento em dados e IA por meio de treinamentos autoguiados e com instrutor do Databricks. Esses cursos ajudam você a aprofundar suas habilidades técnicas e ganhar experiência prática com a plataforma Databricks.</p>
+<p>Acesse o <a href="https://www.databricks.com/learn/training/home">Databricks Training and Certification</a></p>
+<ul>
+<li>
+<p><a href="https://www.databricks.com/training/catalog/build-data-pipelines-with-apache-spark-declarative-pipelines-1686">Build Data Pipelines with Apache Spark Declarative Pipelines</a> &mdash; Crie pipelines de ponta a ponta com o framework declarativo.</p>
+</li>
+<li>
+<p><a href="https://www.databricks.com/training/catalog/stream-processing-and-analysis-with-apache-spark-3944">Stream Processing and Analysis with Apache Spark</a> &mdash; Aprofunde-se no Spark Structured Streaming e no Auto Loader.</p>
+</li>
+<li>
+<p><a href="https://www.databricks.com/training/catalog/advanced-data-engineering-with-databricks-971">Advanced Data Engineering with Databricks</a> &mdash; Construa pipelines de dados de nível de produção em escala com Delta Lake e Structured Streaming.</p>
+</li>
+</ul>
+<h3>B2. Obtenha uma Certificação</h3>
+<p>Valide sua expertise no Databricks conquistando uma credencial oficial. As certificações demonstram sua capacidade de Aplicar as tecnologias Databricks em cargas de trabalho reais de dados e IA.</p>
+<p>Acesse o <a href="https://www.databricks.com/learn/training/certification">Databricks Certification and Badging</a></p>
+<ul>
+<li><strong>Databricks Certified Data Engineer Associate</strong> &mdash; a próxima credencial natural após este curso.</li>
+<li><strong>Databricks Certified Data Engineer Professional</strong> &mdash; para engenharia de dados avançada no Lakehouse.</li>
+</ul>
+</section>
+<section class="notebook-cell">
+<p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
+</section>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightbox(event)">✕</button>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
+
+<script>
+if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
+function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
+function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});
+document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src);});});
+</script>
+</body>
+</html>

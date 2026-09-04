@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Features Adicionais e MERGE INTO | Data Ingestion with LakeFlow Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117; --surface: #161b22; --surface-raised: #1c2129;
+    --border: #2a313a; --text: #e6edf3; --text-muted: #8b949e; --text-faint: #6e7681;
+    --accent: #ff6433; --accent-soft: rgba(255,100,51,0.12);
+    --green: #3fb950; --blue: #58a6ff; --purple: #bc8cff; --yellow: #d29922;
+    --radius: 12px;
+  }
+  body.light {
+    --bg: #f8f9fb; --surface: #ffffff; --surface-raised: #f0f2f5;
+    --border: #d8dce2; --text: #1a1d23; --text-muted: #5a6170; --text-faint: #8891a0;
+    --accent: #e0501e; --accent-soft: rgba(224,80,30,0.08);
+    --green: #1a8a3e; --blue: #2563eb; --purple: #7c3aed;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+  
+  .top-bar {
+    position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border);
+    padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
+  .top-bar a:hover { color:var(--accent); }
+  .top-bar .sep { color:var(--text-faint); font-size:11px; }
+  .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
+  
+  .layout { display:flex; min-height:calc(100vh - 50px); }
+  
+  .sidebar {
+    width:280px; min-width:280px; background:var(--surface); border-right:1px solid var(--border);
+    padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px);
+  }
+  .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
+  .sidebar a {
+    display:block; padding:6px 16px; font-size:12.5px; color:var(--text-muted); text-decoration:none;
+    border-left:2px solid transparent; line-height:1.5; transition:all 0.15s;
+  }
+  .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
+  .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
+  
+  .content { flex:1; max-width:900px; padding:32px 40px 80px; }
+  
+  .notebook-cell { margin-bottom:24px; }
+  .notebook-cell h1 { font-size:26px; font-weight:700; margin-bottom:12px; }
+  .notebook-cell h2 { font-size:21px; font-weight:700; margin:28px 0 12px; padding-top:20px; border-top:1px solid var(--border); }
+  .notebook-cell h3 { font-size:17px; font-weight:600; margin:20px 0 10px; }
+  .notebook-cell h5 { font-size:12px; font-weight:600; margin:14px 0 6px; color:var(--text-muted); }
+  .notebook-cell p { margin-bottom:10px; font-size:14.5px; }
+  .notebook-cell ul, .notebook-cell ol { margin:0 0 10px 20px; font-size:14.5px; }
+  .notebook-cell li { margin-bottom:4px; }
+  .notebook-cell code { font-family:'IBM Plex Mono',monospace; background:var(--surface-raised); padding:1px 5px; border-radius:3px; font-size:12.5px; }
+  .notebook-cell pre { background:var(--surface-raised); border:1px solid var(--border); border-radius:8px; padding:14px; overflow-x:auto; margin:10px 0; }
+  .notebook-cell pre code { background:none; padding:0; }
+  .notebook-cell img { max-width:100%; height:auto; border-radius:6px; cursor:zoom-in; }
+  .notebook-cell details { margin:10px 0; padding:10px 14px; background:var(--surface-raised); border-radius:6px; border:1px solid var(--border); font-size:13.5px; }
+  .notebook-cell details summary { cursor:pointer; font-weight:600; color:var(--text-muted); font-size:12px; }
+  .notebook-cell details p, .notebook-cell details li { color:var(--text-muted); font-size:13.5px; }
+  .notebook-cell svg { max-width:100%; height:auto; }
+  .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
+  .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
+  .notebook-cell th { background:var(--surface-raised); font-weight:600; }
+  
+  .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
+  
+  .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
+  .lightbox.open { display:flex; }
+  .lightbox img { max-width:95vw; max-height:92vh; border-radius:6px; box-shadow:0 8px 40px rgba(0,0,0,0.5); object-fit:contain; background:#fff; padding:6px; cursor:default; }
+  .lightbox .lb-close { position:fixed; top:12px; right:16px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+  @media(max-width:768px) {
+    .sidebar { display:none; }
+    .content { padding:20px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="index.html">← Curso</a>
+  <span class="sep">›</span>
+  <span class="title">Aula 16 — Features Adicionais e MERGE INTO</span>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav-title">Aulas</div>
+    <a href="00-overview.html">00. Visão Geral do Curso</a>
+    <a href="01-data-engineering.html">01. Engenharia de Dados no Databricks</a>
+    <a href="03-cloud-storage.html">03. Ingestão de Dados de Cloud Storage</a>
+    <a href="06-metadata-columns.html">06. Colunas de Metadata na Ingestão</a>
+    <a href="08-rescued-data.html">08. Coluna de Dados Resgatados</a>
+    <a href="11-json-data.html">11. Ingestão de Dados JSON</a>
+    <a href="14-enterprise-data.html">14. Ingestão de Dados Corporativos</a>
+    <a href="16-additional-features.html" class="active">16. Features Adicionais e MERGE INTO</a>
+    <a href="99-summary.html">99. Resumo e Próximos Passos</a>
+  </nav>
+  <div class="content">
+<section class="notebook-cell">
+<h1>Aula - Recursos Adicionais e Ingestão em Tabelas UC Existentes</h1>
+<h2>Visão Geral</h2>
+<p>O Databricks oferece recursos adicionais como Lakehouse Federation, Zerobus, Open Sharing e Databricks Marketplace para expandir as capacidades de integração de dados, compartilhamento e colaboração no Lakehouse.</p>
+<p>Esta aula também apresenta como <code>MERGE INTO</code> simplifica a ingestão em tabelas UC existentes, aplicando atualizações, inserções e exclusões a partir de uma fonte em uma única operação atômica.</p>
+<h2>Objetivos de Aprendizado</h2>
+<p>Ao final desta aula, você será capaz de:</p>
+<ol>
+<li><strong>Descrever os recursos adicionais do Databricks</strong> que ampliam as capacidades de integração de dados, compartilhamento e colaboração</li>
+<li><strong>Identificar os principais componentes do Databricks Marketplace</strong> e explorar ativos de dados compartilhados</li>
+<li><strong>Explicar a finalidade do MERGE INTO</strong> para aplicar atualizações, inserções e exclusões em tabelas UC existentes</li>
+<li><strong>Descrever as cláusulas do MERGE INTO</strong>, incluindo atualizações em registros correspondentes, exclusões em registros correspondentes e inserções em registros não correspondentes</li>
+<li><strong>Escrever uma instrução MERGE INTO</strong> para fazer merge de dados de uma fonte em uma tabela UC de destino</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h2>A. O Que Vem a Seguir: Recursos Fora Deste Curso</h2>
+<p>Embora este curso se concentre nos conectores gerenciados do LakeFlow Connect, existem outros recursos de ingestão no Databricks que podem ser úteis à medida que sua arquitetura evolui.</p>
+<h5>Clique nas abas para alternar entre os recursos.</h5>
+<p><br></p>
+<div style="width: 100%; margin: auto; font-family: sans-serif;">
+
+<style>
+.feat-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+    justify-content: center;
+    align-items: center;
+}
+.feat-box {
+    width: 80%;
+    min-height: 400px;
+    background: #F9F7F4;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(27,49,57,0.06);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    box-sizing: border-box;
+}
+.feat-box::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 8px;
+    background: #FF5F46;
+}
+.feat-box-title {
+    font-size: 16pt;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 4px;
+}
+.feat-box-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+}
+.feat-box-text {
+    font-size: 14pt;
+    max-width: 420px;
+    text-align: left;
+    line-height: 1.6;
+}
+.feat-box-text ul { text-align: left; padding-left: 18px; margin: 0 0 14px 0; }
+.feat-box-text li { margin-bottom: 10px; }
+.feat-box-text li:last-child { margin-bottom: 0; }
+</style>
+
+<!-- Tabs -->
+<div style="display: flex; border-bottom: 2px solid #EEEDE9; margin-bottom: 0;">
+  <button class="feattab" onclick="showFeatTab(1)" style="padding: 10px 18px; border: none; border-bottom: 3px solid #FF5F46; background: none; font-size: 14pt; font-weight: bold; color: #FF5F46; cursor: pointer; margin-bottom: -2px;">Lakehouse Federation</button>
+  <button class="feattab" onclick="showFeatTab(2)" style="padding: 10px 18px; border: none; border-bottom: 3px solid transparent; background: none; font-size: 14pt; font-weight: bold; color: #888; cursor: pointer; margin-bottom: -2px;">Zerobus</button>
+  <button class="feattab" onclick="showFeatTab(3)" style="padding: 10px 18px; border: none; border-bottom: 3px solid transparent; background: none; font-size: 14pt; font-weight: bold; color: #888; cursor: pointer; margin-bottom: -2px;">Open Sharing</button>
+</div>
+
+<br>
+
+<!-- TAB 1: Lakehouse Federation -->
+<div class="featpanel" style="display: block;">
+  <div class="feat-grid">
+    <div class="feat-box">
+      <div class="feat-box-title">Lakehouse Federation</div>
+      <div class="feat-box-content">
+        <div>
+          <img src="https://files.training.databricks.com/binder/prod_main/data-ingestion-with-lakeflow-connect-pt_br-3.1.2/images/20260903T145108Z/Data Ingestion with LakeFlow Connect/Includes/images/lecture_additional_features/lakehouse_federation.png"
+               alt="Diagrama do Lakehouse Federation"
+               style="width: 620px; max-width: 100%; height: auto; background: transparent; mix-blend-mode: multiply; filter: contrast(1.15) brightness(1);">
+        </div>
+        <div class="feat-box-text">
+          Permite que você <strong>consulte fontes de dados externas</strong> sem mover seus dados.
+          <br><br>
+          Especialmente útil para:
+          <ul>
+            <li><strong>Relatórios ad hoc</strong></li>
+            <li>Trabalhos de <strong>prova de conceito</strong></li>
+            <li>A <strong>fase exploratória</strong> de novos pipelines de ETL ou relatórios</li>
+            <li>Suporte a cargas de trabalho durante a <strong>migração incremental</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: Zerobus -->
+<div class="featpanel" style="display: none;">
+  <div class="feat-grid">
+    <div class="feat-box">
+      <div class="feat-box-title">Zerobus <em>(em breve)</em></div>
+      <div class="feat-box-content">
+        <div>
+          <img src="https://files.training.databricks.com/binder/prod_main/data-ingestion-with-lakeflow-connect-pt_br-3.1.2/images/20260903T145108Z/Data Ingestion with LakeFlow Connect/Includes/images/lecture_additional_features/Zerobus.png"
+               alt="Diagrama do Zerobus"
+               style="width: 620px; max-width: 100%; height: auto; background: transparent; mix-blend-mode: multiply; filter: contrast(1.15) brightness(1);">
+        </div>
+        <div class="feat-box-text">
+          Uma <strong>API do LakeFlow Connect</strong> que permite aos desenvolvedores <strong>gravar dados de eventos diretamente no lakehouse</strong> com taxa de transferência muito alta (100 MB/s) e latência quase em tempo real (&lt;5 segundos).
+          <br><br>
+          <strong>Simplifique a ingestão</strong> para:
+          <ul>
+            <li>IoT</li>
+            <li>Clickstreams</li>
+            <li>Telemetria e muito mais</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3: Open Sharing -->
+<div class="featpanel" style="display: none;">
+  <div class="feat-grid">
+    <div class="feat-box">
+      <div class="feat-box-title">Open Sharing</div>
+      <div class="feat-box-content">
+        <div>
+          <img src="https://files.training.databricks.com/binder/prod_main/data-ingestion-with-lakeflow-connect-pt_br-3.1.2/images/20260903T145108Z/Data Ingestion with LakeFlow Connect/Includes/images/lecture_additional_features/Delta_sharing.png"
+               alt="Diagrama do Open Sharing"
+               style="width: 620px; max-width: 100%; height: auto; background: transparent; mix-blend-mode: multiply; filter: contrast(1.15) brightness(1);">
+        </div>
+        <div class="feat-box-text">
+          Permite que você <strong>compartilhe dados com segurança</strong> entre plataformas, clouds e regiões.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function showFeatTab(n) {
+  var tabs   = document.getElementsByClassName("feattab");
+  var panels = document.getElementsByClassName("featpanel");
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].style.color        = "#888";
+    tabs[i].style.borderBottom = "3px solid transparent";
+    panels[i].style.display    = "none";
+  }
+  tabs[n-1].style.color        = "#FF5F46";
+  tabs[n-1].style.borderBottom = "3px solid #FF5F46";
+  panels[n-1].style.display    = "block";
+}
+window.onload = function() { showFeatTab(1); };
+</script>
+</section>
+<section class="notebook-cell">
+<h5>Documentação</h5>
+<ol>
+  <li><strong>Lakehouse Federation</strong>
+    <ul>
+      <li><a href="https://docs.databricks.com/aws/en/query-federation/" style="color:#1976D2;">O que é Lakehouse Federation</a> documentação</li>
+      <li><a href="https://www.databricks.com/resources/demos/videos/governance/lakehouse-federation" style="color:#1976D2;">Lakehouse Federation: Descubra, consulte e governe seus dados — independentemente de onde estejam</a></li>
+    </ul>
+  </li>
+  <br>
+  <li><strong>Zerobus</strong>
+    <ul>
+      <li><a href="https://www.databricks.com/dataaisummit/session/eliminate-hops-your-streaming-architecture-zerobus-part-lakeflow" style="color:#1976D2;">Elimine Saltos na Sua Arquitetura de Transmissão com Zerobus, Parte do LakeFlow Connect</a></li>
+      <li><a href="https://www.databricks.com/blog/announcing-general-availability-databricks-lakeflow" style="color:#1976D2;">Anunciando a Disponibilidade Geral do Databricks LakeFlow</a></li>
+    </ul>
+  </li>
+  <br>
+  <li><strong>Compartilhamento Aberto</strong>
+    <ul>
+      <li><a href="https://www.databricks.com/resources/demos/videos/data-sharing/delta-sharing" style="color:#1976D2;">Demo de Compartilhamento Aberto</a></li>
+      <li><a href="https://docs.databricks.com/aws/en/delta-sharing/" style="color:#1976D2;">O que é a documentação de Compartilhamento Aberto</a></li>
+    </ul>
+  </li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h2>B. Ingestão de Dados com o Databricks Marketplace</h2>
+<p>O Databricks Marketplace é um marketplace aberto para todos os seus dados, analítica e IA, baseado no padrão de compartilhamento de código aberto Open Sharing. O Databricks Marketplace amplia suas oportunidades de impulsionar a inovação e avançar em todas as suas iniciativas de analítica e IA.</p>
+</section>
+<section class="notebook-cell">
+<div class="two-col-section">
+
+<style>
+.two-col-section {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 0;
+    max-width: 960px;
+    margin: 0 auto;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(27, 49, 57, 0.10);
+    background: #F9F7F4;
+}
+
+.two-col-image {
+    flex: 1 1 45%;
+    min-width: 300px;
+    background: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    border-right: 1px solid #E8E5E0;
+}
+
+.two-col-image img {
+    width: 100%;
+    max-width: 380px;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.two-col-content {
+    flex: 1 1 55%;
+    padding: 40px 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+.two-col-content::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: #FF5F46;
+    border-radius: 0 10px 0 0;
+}
+
+.two-col-content h2 {
+    font-size: 22pt;
+    font-weight: 700;
+    color: #1B3139;
+    margin-bottom: 10px;
+    margin-top: 16px;
+}
+
+.two-col-content .subtitle {
+    font-size: 13pt;
+    color: #4A5E65;
+    margin-bottom: 28px;
+    line-height: 1.6;
+}
+
+.two-col-content .subtitle strong {
+    color: #1B3139;
+}
+
+.product-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.product-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13pt;
+    color: #1B3139;
+    font-weight: 500;
+}
+
+.product-list li::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    min-width: 8px;
+    border-radius: 50%;
+    background: #FF5F46;
+}
+</style>
+
+<div class="two-col-image">
+  <img
+    src="https://files.training.databricks.com/binder/prod_main/data-ingestion-with-lakeflow-connect-pt_br-3.1.2/images/20260903T145108Z/Data Ingestion with LakeFlow Connect/Includes/images/lecture_additional_features/databricks_marketplace.png"
+    alt="Databricks Marketplace"
+    style="width: 900px; max-width: 100%; height: auto;">
+</div>
+
+<div class="two-col-content">
+  <h2>Databricks Marketplace</h2>
+  <p class="subtitle">
+    É uma plataforma aberta de troca para todos os produtos de dados:
+  </p>
+  <ul class="product-list">
+    <li>Datasets</li>
+    <li>Notebooks</li>
+    <li>Dashboards</li>
+    <li>Modelos de ML</li>
+    <li>Solution Accelerators</li>
+  </ul>
+  <br>
+  <b>Desenvolvido com Open Sharing</b>
+</div>
+</div>
+</section>
+<section class="notebook-cell">
+<h5>Documentação</h5>
+<ul>
+<li><a href="https://docs.databricks.com/aws/en/marketplace" style="color:#1976D2;">O que é o Databricks Marketplace</a> documentação</li>
+<li><a href="https://www.databricks.com/product/marketplace" style="color:#1976D2;">Databricks Marketplace</a></li>
+</ul>
+</section>
+<section class="notebook-cell">
+<h2>C. Compartilhamento Aberto com Databricks Marketplace</h2>
+<p>Começar a usar ativos de dados do Databricks Marketplace é rápido e fácil em apenas três passos simples.</p>
+<h5>Clique em qualquer passo à esquerda para ver instruções detalhadas e visuais aqui.</h5>
+<p><br></p>
+<div style="max-width: 1200px; margin: 0 auto; font-family: sans-serif;">
+<div style="display: flex; align-items: stretch; gap: 16px;">
+  <!-- Left arrow label -->
+  <div style="
+      writing-mode: vertical-lr;
+      transform: rotate(180deg);
+      text-align: center;
+      font-weight: 700;
+      font-size: 15pt;
+      color: #618794;
+      padding: 0 6px;
+      display: flex;
+      justify-content: flex-end;
+  ">
+  &larr; COMEÇANDO EM 3 PASSOS
+  </div>
+  <!-- Main two-column layout -->
+  <div style="flex: 1; display: flex; gap: 20px; align-items: flex-start;">
+    <!-- LEFT: Step buttons -->
+    <div style="display: flex; flex-direction: column; gap: 6px; width: 450px; flex-shrink: 0;">
+      <!-- Step 1 -->
+      <div style="display: flex; gap: 0; align-items: stretch;">
+        <div onclick="showStep('step1')" style="cursor: pointer; background: #1C3037; color: white; border-radius: 8px 0 0 4px; padding: 22px 24px; text-align: center; flex: 1;">
+          <div style="font-size: 14pt; font-weight: 700;">1. Abrir o Marketplace</div>
+          <div style="font-size: 11pt; margin-top: 6px; opacity: 0.9;">No seu Databricks Workspace, navegue até o <strong>Databricks Marketplace</strong> pela barra lateral esquerda</div>
+        </div>
+        <div onclick="showStep('step1')" id="btn-step1" style="cursor: pointer; background: #152830; color: #a8c4cc; border-radius: 0 8px 4px 0; padding: 0 14px; display: flex; align-items: center; font-size: 18pt; font-weight: 700; user-select: none; min-width: 40px; justify-content: center;">&#8250;</div>
+      </div>
+      <!-- Step 2 -->
+      <div style="display: flex; gap: 0; align-items: stretch;">
+        <div onclick="showStep('step2')" style="cursor: pointer; background: #2574B5; color: white; border-radius: 4px 0 0 4px; padding: 18px 24px; text-align: center; flex: 1;">
+          <div style="font-size: 14pt; font-weight: 700;">2. Pesquisar Ativos</div>
+          <div style="font-size: 11pt; margin-top: 6px; opacity: 0.9;">Use a barra de pesquisa para navegar pelos ativos de dados disponíveis — comece com os ativos fornecidos diretamente pelo <strong>Databricks</strong></div>
+        </div>
+        <div onclick="showStep('step2')" id="btn-step2" style="cursor: pointer; background: #1a5d91; color: #a8cfe8; border-radius: 0 4px 4px 0; padding: 0 14px; display: flex; align-items: center; font-size: 18pt; font-weight: 700; user-select: none; min-width: 40px; justify-content: center;">&#8250;</div>
+      </div>
+      <!-- Step 3 -->
+      <div style="display: flex; gap: 0; align-items: stretch;">
+        <div onclick="showStep('step3')" style="cursor: pointer; background: #FF5F46; color: white; border-radius: 4px 0 8px 0; padding: 18px 24px; text-align: center; flex: 1;">
+          <div style="font-size: 14pt; font-weight: 700;">3. Obter Acesso Imediato</div>
+          <div style="font-size: 11pt; margin-top: 6px; opacity: 0.9;">Selecione o ativo e clique em <strong>"Get instant access"</strong> — pronto para começar a usar ativos de dados compartilhados e organizados!</div>
+        </div>
+        <div onclick="showStep('step3')" id="btn-step3" style="cursor: pointer; background: #cc4a34; color: #ffd5ce; border-radius: 0 4px 0 8px; padding: 0 14px; display: flex; align-items: center; font-size: 18pt; font-weight: 700; user-select: none; min-width: 40px; justify-content: center;">&#8250;</div>
+      </div>
+    </div>
+    <!-- RIGHT: Expandable content panel -->
+    <div style="flex: 1; min-height: 300px;">
+      <!-- Default placeholder -->
+      <div id="placeholder" style="
+          height: 100%;
+          min-height: 300px;
+          background: #f5f7f8;
+          border-radius: 8px;
+          border: 2px dashed #c2d0d4;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          color: #8aa8b2;
+          font-size: 13pt;
+          text-align: center;
+          padding: 32px;
+          gap: 12px;
+          box-sizing: border-box;
+      ">
+        <div style="font-size: 32pt;"> </div>
+        <div style="font-weight: 700; color: #618794;">Selecione um passo para explorar</div>
+        <div style="font-size: 11pt; max-width: 260px; line-height: 1.6;">Clique em qualquer passo à esquerda para ver instruções detalhadas e visuais aqui.</div>
+      </div>
+      <!-- Step 1 Panel -->
+      <div id="step1" style="display: none; background: #f0f5f6; border-left: 4px solid #1C3037; border-radius: 0 8px 8px 0; padding: 24px 28px; box-sizing: border-box;">
+        <div style="font-size: 13pt; font-weight: 700; color: #1C3037; margin-bottom: 14px;">Onde encontrar</div>
+        <div style="display: flex; gap: 28px; align-items: flex-start;">
+          <ul style="font-size: 12pt; color: #2e4e58; line-height: 1.9; padding-left: 20px; margin: 0; flex: 1;">
+            <li>Faça log in no seu <strong>Databricks Workspace</strong></li>
+            <li>Procure o <strong>Marketplace</strong> na barra de navegação lateral esquerda</li>
+            <li>Disponível para todos os usuários do workspace por default</li>
+          </ul>
+          <div style="flex-shrink: 0; width: 340px;">
+            <img
+              src="https://files.training.databricks.com/binder/prod_main/data-ingestion-with-lakeflow-connect-pt_br-3.1.2/images/20260903T145108Z/Data Ingestion with LakeFlow Connect/Includes/images/lecture_additional_features/step1_marketplace.png"
+              style="width: 100%; border-radius: 6px; border: 2px solid #c8d8dc; display: block;"
+            />
+            <div style="font-size: 10pt; color: #618794; text-align: center; margin-top: 6px; font-style: italic;">
+              Marketplace na barra lateral esquerda
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Step 2 Panel -->
+      <div id="step2" style="display: none; background: #eef4fa; border-left: 4px solid #2574B5; border-radius: 0 8px 8px 0; padding: 24px 28px; box-sizing: border-box;">
+        <div style="font-size: 13pt; font-weight: 700; color: #2574B5; margin-bottom: 14px;">O que procurar</div>
+        <ul style="font-size: 12pt; color: #1a3a52; line-height: 1.9; padding-left: 20px; margin: 0;">
+          <li>Pesquise por <strong>nome, categoria ou provedor</strong></li>
+          <li>Filtre por <strong>Gratuito</strong> para encontrar conjuntos de dados sem custo</li>
+          <li>Comece com ativos <strong>fornecidos pelo Databricks</strong> — eles são bem documentados e prontos para uso</li>
+          <li>Verifique as abas <strong>Tables, Files</strong> e <strong>Notebooks</strong> para diferentes tipos de ativos</li>
+        </ul>
+      </div>
+      <!-- Step 3 Panel -->
+      <div id="step3" style="display: none; background: #fff2f0; border-left: 4px solid #FF5F46; border-radius: 0 8px 8px 0; padding: 24px 28px; box-sizing: border-box;">
+        <div style="font-size: 13pt; font-weight: 700; color: #cc4a34; margin-bottom: 14px;">O que acontece a seguir</div>
+        <div style="display: flex; gap: 28px; align-items: flex-start;">
+          <ul style="font-size: 12pt; color: #4a1a10; line-height: 1.9; padding-left: 20px; margin: 0; flex: 1;">
+            <li>O ativo é adicionado automaticamente ao seu <strong>Unity Catalog</strong></li>
+            <li>O acesso é <strong>imediato</strong> — nenhum fluxo de trabalho de aprovação é necessário para ativos gratuitos</li>
+            <li>Faça query nos dados diretamente usando <strong>SQL, notebooks ou painéis</strong></li>
+            <li>Os dados permanecem <strong>atualizados e em tempo real</strong> via Compartilhamento Aberto — sem necessidade de cópia</li>
+          </ul>
+        </div>
+        <br>
+        <div style="text-align:center; flex-shrink: 0;">
+          <img
+            src="https://files.training.databricks.com/binder/prod_main/data-ingestion-with-lakeflow-connect-pt_br-3.1.2/images/20260903T145108Z/Data Ingestion with LakeFlow Connect/Includes/images/lecture_additional_features/step2_get_access.png"
+            alt="Botão de acesso imediato na página do ativo do Databricks Marketplace"
+            style="width:560px; max-width:100%; height:auto; border-radius: 6px; border: 2px solid #f5c4bc; display: block;">
+        </div>
+        <div style="font-size: 10pt; color: #cc4a34; text-align: center; margin-top: 6px; font-style: italic;">
+          Clique em "Get instant access" para desbloquear o ativo
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let activeStep = null;
+  function showStep(id) {
+    const allPanels = ['step1', 'step2', 'step3'];
+    if (activeStep === id) {
+      document.getElementById(id).style.display = 'none';
+      document.getElementById('btn-' + id).innerHTML = '&#8250;';
+      document.getElementById('placeholder').style.display = 'flex';
+      activeStep = null;
+      return;
+    }
+    allPanels.forEach(function(s) {
+      document.getElementById(s).style.display = 'none';
+      document.getElementById('btn-' + s).innerHTML = '&#8250;';
+    });
+    document.getElementById('placeholder').style.display = 'none';
+    document.getElementById(id).style.display = 'block';
+    document.getElementById('btn-' + id).innerHTML = '&#8964;';
+    activeStep = id;
+  }
+</script>
+</div>
+</section>
+<section class="notebook-cell">
+<h2>D. Atualizações, Inserções e Exclusões em tabelas UC com MERGE INTO</h2>
+<p>O comando MERGE INTO permite aplicar atualizações, inserções e exclusões de uma tabela fonte em uma tabela UC existente, tudo em uma única operação atômica.</p>
+</section>
+<section class="notebook-cell">
+<h3>D1. Visão Geral do MERGE INTO</h3>
+</section>
+<section class="notebook-cell">
+<div style="max-width:1000px; margin:0 auto; font-family:'Segoe UI',sans-serif; color:#0B2026;">
+  <div style="background:#F9F7F4; border:2px solid #EEEDE9; border-radius:14px; padding:22px 24px; box-shadow:0 3px 12px rgba(0,0,0,0.06);">
+    <div style="display:inline-block; background:#FF5F46; color:white; font-weight:800; font-size:10pt; padding:5px 12px; border-radius:999px; margin-bottom:12px;">
+      MERGE INTO
+    </div>
+    <div style="font-size:11pt; line-height:1.8; color:#1B3139; margin-bottom:18px;">
+      Combina um conjunto de atualizações, inserções e exclusões de uma tabela fonte em uma tabela UC de destino.
+      O MERGE INTO suporta imposição de esquema ou evolução do esquema e permite diferentes ações dependendo se uma linha é correspondida entre uma tabela fonte e uma tabela de destino:
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-bottom:18px;">
+      <div style="background:white; border-radius:10px; border-top:4px solid #2574B5; padding:14px 16px; box-shadow:0 1px 6px rgba(0,0,0,0.05);">
+        <div style="font-weight:800; font-size:10.5pt; color:#0B2026; margin-bottom:6px;">Linhas correspondidas</div>
+        <div style="font-size:10pt; color:#5A6F77; line-height:1.7;">UPDATE ou DELETE</div>
+      </div>
+      <div style="background:white; border-radius:10px; border-top:4px solid #02A36F; padding:14px 16px; box-shadow:0 1px 6px rgba(0,0,0,0.05);">
+        <div style="font-weight:800; font-size:10.5pt; color:#0B2026; margin-bottom:6px;">Linhas não correspondidas pelo destino</div>
+        <div style="font-size:10pt; color:#5A6F77; line-height:1.7;">INSERT</div>
+      </div>
+      <div style="background:white; border-radius:10px; border-top:4px solid #FFAB00; padding:14px 16px; box-shadow:0 1px 6px rgba(0,0,0,0.05);">
+        <div style="font-weight:800; font-size:10.5pt; color:#0B2026; margin-bottom:6px;">Linhas não correspondidas pela fonte</div>
+        <div style="font-size:10pt; color:#5A6F77; line-height:1.7;">UPDATE ou DELETE</div>
+      </div>
+    </div>
+    <div style="background:rgba(255,95,70,0.08); border-bottom:4px solid #FF5F46; border-radius:8px; padding:12px 14px; font-size:10.5pt; line-height:1.75; color:#1B3139;">
+      Essa funcionalidade torna o MERGE INTO ideal para lidar com slowly changing dimensions (SCDs), cargas incrementais e cenários complexos de change data capture (CDC).
+    </div>
+  </div>
+</div>
+</section>
+<section class="notebook-cell">
+<h3>D2. Exemplo Passo a Passo de MERGE INTO</h3>
+<p>Há situações em que você precisa atualizar, inserir ou excluir registros em uma tabela de destino com base em informações de outra tabela.</p>
+</section>
+<section class="notebook-cell">
+<div style="max-width: 1000px; margin: 0 auto; font-family: sans-serif; color: #0b2026;">
+  <div style="display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap;">
+    <!-- Left: Text -->
+    <div style="flex: 0 0 34%; min-width: 280px; font-size: 12pt; line-height: 1.7;">
+      <div style="margin-bottom: 10px; font-weight: 700;"><br>Neste cenário, temos:</div>
+      <ul style="margin: 0; padding-left: 20px;">
+        <li>Uma <strong>target_table</strong> com os usuários peter e zebi, ambos com estado "current"</li><br>
+        <li>Uma <strong>source_table</strong> com três linhas indicando alterações:
+          <ul style="margin-top: 6px; padding-left: 20px;">
+            <li><strong>peter</strong>: status = "delete" (remover da tabela destino)</li>
+            <li><strong>zebi</strong>: status = "update" (atualizar email para zebi@other.com)</li>
+            <li><strong>samarth</strong>: status = "new" (inserir como nova linha)</li>
+          </ul>
+        </li>
+      </ul>
+      <div style="margin-top: 14px;">
+        O objetivo é atualizar a <strong>target_table</strong> aplicando os três tipos de alterações em uma única operação <strong>MERGE INTO</strong>.
+      </div>
+    </div>
+    <!-- Right: Visual -->
+    <div style="flex: 1; min-width: 500px;">
+      <div style="display: flex; gap: 20px; align-items: flex-start;">
+        <!-- Target Table -->
+        <div style="flex: 1;">
+          <div style="font-size: 14pt; font-weight: 700; margin-bottom: 10px;">target_table</div>
+          <table style="width: 100%; border-collapse: collapse; font-size: 12pt;">
+            <thead>
+              <tr style="background: #1B5162; color: white;">
+                <th style="padding: 8px 10px; border: 1px solid #EEEDE9;">users</th>
+                <th style="padding: 8px 10px; border: 1px solid #EEEDE9;">email</th>
+                <th style="padding: 8px 10px; border: 1px solid #EEEDE9;">status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background: #F9F7F4;">
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9;">peter</td>
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9;">peter@email.com</td>
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9;">current</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9;">zebi</td>
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9;">zebi@email.com</td>
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9;">current</td>
+              </tr>
+              <tr style="background: #F9F7F4;">
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9; color: #aaa;">...</td>
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9; color: #aaa;">...</td>
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9; color: #aaa;">...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Arrow + label -->
+        <div style="text-align: center; padding-top: 40px; min-width: 180px;">
+          <svg width="120" height="34" viewBox="0 0 120 34" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block; margin: 0 auto 10px auto;">
+            <polygon points="0,17 28,0 28,11 120,11 120,23 28,23 28,34" fill="#1a2e3b"/>
+          </svg>
+          <div style="font-size: 14pt; font-weight: 400; line-height: 1.6;">
+            Atualizar a <strong>target_table</strong><br>com a <strong>source_table</strong>
+          </div>
+        </div>
+        <!-- Source Table -->
+        <div style="flex: 1;">
+          <div style="font-size: 14pt; font-weight: 700; margin-bottom: 10px;">source_table</div>
+          <table style="width: 100%; border-collapse: collapse; font-size: 12pt;">
+            <thead>
+              <tr style="background: #1B5162; color: white;">
+                <th style="padding: 8px 10px; border: 1px solid #EEEDE9;">users</th>
+                <th style="padding: 8px 10px; border: 1px solid #EEEDE9;">email</th>
+                <th style="padding: 8px 10px; border: 1px solid #EEEDE9;">status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="background: #FFF0F0;">
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9;">peter</td>
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9;">peter@email.com</td>
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9; color: #98102A; font-weight: 600;">delete</td>
+              </tr>
+              <tr style="background: #FFFFF0;">
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9;">zebi</td>
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9;">zebi@other.com</td>
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9; color: #FFAB00; font-weight: 600;">update</td>
+              </tr>
+              <tr style="background: #F0FFF0;">
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9;">samarth</td>
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9;">samarth@other.com</td>
+                <td style="padding: 8px 10px; border: 1px solid #EEEDE9; color: #00A972; font-weight: 600;">new</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Down arrow -->
+<div style="margin-top: 16px; margin-bottom: 6px; display: flex; justify-content: flex-end; padding-right: 500px;">
+  <svg width="38" height="48" viewBox="0 0 38 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="19,48 0,27 11,27 11,0 27,0 27,27 38,27" fill="#4299E0"/>
+  </svg>
+</div>
+      <!-- Result -->
+      <div style="border: 2px dashed #4299E0; border-radius: 8px; padding: 16px; display: table; margin: 0 auto;">
+        <div style="font-size: 14pt; font-weight: 700; margin-bottom: 10px;">target_table</div>
+        <table style="border-collapse: collapse; font-size: 12pt; min-width: 480px;">
+          <thead>
+            <tr style="background: #1B5162; color: white;">
+              <th style="padding: 8px 10px; border: 1px solid #EEEDE9;">users</th>
+              <th style="padding: 8px 10px; border: 1px solid #EEEDE9;">email</th>
+              <th style="padding: 8px 10px; border: 1px solid #EEEDE9;">status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background: #F9F7F4;">
+              <td style="padding: 8px 10px; border: 1px solid #EEEDE9; font-weight: 600;">zebi</td>
+              <td style="padding: 8px 10px; border: 1px solid #EEEDE9; font-weight: 600;">zebi@other.com</td>
+              <td style="padding: 8px 10px; border: 1px solid #EEEDE9;">update</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 10px; border: 1px solid #EEEDE9; font-weight: 600;">samarth</td>
+              <td style="padding: 8px 10px; border: 1px solid #EEEDE9; font-weight: 600;">samarth@other.com</td>
+              <td style="padding: 8px 10px; border: 1px solid #EEEDE9;">new</td>
+            </tr>
+            <tr style="background: #F9F7F4;">
+              <td style="padding: 8px 10px; border: 1px solid #EEEDE9; color: #aaa;">...</td>
+              <td style="padding: 8px 10px; border: 1px solid #EEEDE9; color: #aaa;">...</td>
+              <td style="padding: 8px 10px; border: 1px solid #EEEDE9; color: #aaa;">...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+<section class="notebook-cell">
+<h2>E. Sintaxe SQL do MERGE INTO</h2>
+</section>
+<section class="notebook-cell">
+<div style="max-width:1180px;margin:0 auto;font-family:DM Sans,Segoe UI,Helvetica,Arial,sans-serif;color:#0B2026"><table id="mrg-shell" style="width:100%;border-collapse:separate;border-spacing:14px 0;table-layout:fixed"><tbody><tr><td id="mrg-p1" style="background:#F9F7F4;border:1.5px solid #e8e5e0;border-radius:12px;padding:14px;box-sizing:border-box;vertical-align:top;width:26%"><div style="font-size:15px;font-weight:800;margin-bottom:10px;color:#1b3139;">Os passos</div><div id="mrg-btn-1" onclick="mrg_step(1)" style="padding:9px;border-radius:10px;cursor:pointer;margin-bottom:8px;border:1.5px solid #2574B5;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.08)"><table style="width:100%;border-collapse:collapse;table-layout:fixed"><tbody><tr><td style="width:34px;vertical-align:top"><div style="width:26px;height:26px;border-radius:50%;background:#2574B5;color:#fff;font-size:12px;font-weight:800;text-align:center;line-height:26px">1</div></td><td style="vertical-align:top"><div style="font-size:13px;font-weight:700;line-height:1.25;color:#1b3139">Declarar a Tabela de Destino e a Tabela Fonte</div><div style="font-size:11px;color:#7a7974;margin-top:2px;line-height:1.35;word-break:break-word">MERGE INTO target_table target USING source_table source</div></td></tr></tbody></table></div><div id="mrg-btn-2" onclick="mrg_step(2)" style="padding:9px;border-radius:10px;cursor:pointer;margin-bottom:8px;border:1.5px solid transparent;background:#fff;box-shadow:none"><table style="width:100%;border-collapse:collapse;table-layout:fixed"><tbody><tr><td style="width:34px;vertical-align:top"><div style="width:26px;height:26px;border-radius:50%;background:#2574B5;color:#fff;font-size:12px;font-weight:800;text-align:center;line-height:26px">2</div></td><td style="vertical-align:top"><div style="font-size:13px;font-weight:700;line-height:1.25;color:#1b3139">Especificar a condição para o merge</div><div style="font-size:11px;color:#7a7974;margin-top:2px;line-height:1.35;word-break:break-word">ON target.id = source.id</div></td></tr></tbody></table></div><div id="mrg-btn-3" onclick="mrg_step(3)" style="padding:9px;border-radius:10px;cursor:pointer;margin-bottom:8px;border:1.5px solid transparent;background:#fff;box-shadow:none"><table style="width:100%;border-collapse:collapse;table-layout:fixed"><tbody><tr><td style="width:34px;vertical-align:top"><div style="width:26px;height:26px;border-radius:50%;background:#2574B5;color:#fff;font-size:12px;font-weight:800;text-align:center;line-height:26px">3</div></td><td style="vertical-align:top"><div style="font-size:13px;font-weight:700;line-height:1.25;color:#1b3139">Primeira cláusula WHEN para o merge</div><div style="font-size:11px;color:#7a7974;margin-top:2px;line-height:1.35;word-break:break-word">WHEN MATCHED AND source.status = 'update'</div></td></tr></tbody></table></div><div id="mrg-btn-4" onclick="mrg_step(4)" style="padding:9px;border-radius:10px;cursor:pointer;margin-bottom:8px;border:1.5px solid transparent;background:#fff;box-shadow:none"><table style="width:100%;border-collapse:collapse;table-layout:fixed"><tbody><tr><td style="width:34px;vertical-align:top"><div style="width:26px;height:26px;border-radius:50%;background:#2574B5;color:#fff;font-size:12px;font-weight:800;text-align:center;line-height:26px">4</div></td><td style="vertical-align:top"><div style="font-size:13px;font-weight:700;line-height:1.25;color:#1b3139">Segunda cláusula WHEN para o merge</div><div style="font-size:11px;color:#7a7974;margin-top:2px;line-height:1.35;word-break:break-word">WHEN MATCHED AND source.status = 'delete'</div></td></tr></tbody></table></div><div id="mrg-btn-5" onclick="mrg_step(5)" style="padding:9px;border-radius:10px;cursor:pointer;margin-bottom:8px;border:1.5px solid transparent;background:#fff;box-shadow:none"><table style="width:100%;border-collapse:collapse;table-layout:fixed"><tbody><tr><td style="width:34px;vertical-align:top"><div style="width:26px;height:26px;border-radius:50%;background:#2574B5;color:#fff;font-size:12px;font-weight:800;text-align:center;line-height:26px">5</div></td><td style="vertical-align:top"><div style="font-size:13px;font-weight:700;line-height:1.25;color:#1b3139">Cláusula WHEN NOT MATCHED para o merge</div><div style="font-size:11px;color:#7a7974;margin-top:2px;line-height:1.35;word-break:break-word">Inserir linhas não presentes no destino</div></td></tr></tbody></table></div><div id="mrg-btn-6" onclick="mrg_step(6)" style="padding:9px;border-radius:10px;cursor:pointer;margin-bottom:8px;border:1.5px solid transparent;background:#fff;box-shadow:none"><table style="width:100%;border-collapse:collapse;table-layout:fixed"><tbody><tr><td style="width:34px;vertical-align:top"><div style="width:26px;height:26px;border-radius:50%;background:#2574B5;color:#fff;font-size:12px;font-weight:800;text-align:center;line-height:26px">6</div></td><td style="vertical-align:top"><div style="font-size:13px;font-weight:700;line-height:1.25;color:#1b3139">Resultados Finais</div><div style="font-size:11px;color:#7a7974;margin-top:2px;line-height:1.35;word-break:break-word">target_table Totalmente Atualizada</div></td></tr></tbody></table></div></td><td id="mrg-p2" style="background:#F9F7F4;border:1.5px solid #e8e5e0;border-radius:12px;padding:14px;box-sizing:border-box;vertical-align:top;width:34%"><div style="font-size:15px;font-weight:800;margin-bottom:10px;color:#1b3139;">Tabelas</div><div id="mrg-tbl-1" style="display:block"><div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;margin-bottom:6px;color:#1b3139">source_table</div><table style="width:100%;border-collapse:collapse;background:#fff;table-layout:fixed"><thead><tr><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:14%">id</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:26%">users</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:36%">email</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:24%">status</th></tr></thead><tbody><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">1</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">peter</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">peter@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">delete</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">2</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">zebi</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">zebi@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">update</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">3</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">samarth</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">samarth@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">new</td></tr></tbody></table></div><div style="text-align:center;margin:4px 0 10px"><svg width="30" height="38" viewBox="0 0 38 48" xmlns="http://www.w3.org/2000/svg"><polygon points="19,48 0,27 11,27 11,0 27,0 27,27 38,27" fill="#1a2e3b"/></svg></div><div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;margin-bottom:6px;color:#1b3139">target_table Original</div><table style="width:100%;border-collapse:collapse;background:#fff;table-layout:fixed"><thead><tr><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:14%">id</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:26%">users</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:36%">email</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:24%">status</th></tr></thead><tbody><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">1</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">peter</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">peter@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">current</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">2</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">zebi</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">zebi@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">current</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">4</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">matt</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">matt@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">current</td></tr></tbody></table></div></div><div id="mrg-tbl-2" style="display:none"><div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;margin-bottom:6px;color:#1b3139">source_table</div><table style="width:100%;border-collapse:collapse;background:#fff;table-layout:fixed"><thead><tr><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:14%">id</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:26%">users</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:36%">email</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:24%">status</th></tr></thead><tbody><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">1</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">peter</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">peter@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">delete</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">2</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">zebi</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">zebi@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">update</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">3</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">samarth</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">samarth@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">new</td></tr></tbody></table></div><div style="text-align:center;margin:4px 0 10px"><svg width="30" height="38" viewBox="0 0 38 48" xmlns="http://www.w3.org/2000/svg"><polygon points="19,48 0,27 11,27 11,0 27,0 27,27 38,27" fill="#1a2e3b"/></svg></div><div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;margin-bottom:6px;color:#1b3139">target_table Atualizada</div><table style="width:100%;border-collapse:collapse;background:#fff;table-layout:fixed"><thead><tr><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:14%">id</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:26%">users</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:36%">email</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:24%">status</th></tr></thead><tbody><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">1</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">peter</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">peter@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">current</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">2</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">zebi</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">zebi@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">current</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">4</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">matt</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">matt@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">current</td></tr></tbody></table></div></div><div id="mrg-tbl-3" style="display:none"><div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;margin-bottom:6px;color:#1b3139">source_table</div><table style="width:100%;border-collapse:collapse;background:#fff;table-layout:fixed"><thead><tr><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:14%">id</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:26%">users</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:36%">email</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:24%">status</th></tr></thead><tbody><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">1</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">peter</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">peter@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">delete</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">2</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">zebi</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">zebi@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">update</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">3</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">samarth</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">samarth@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">new</td></tr></tbody></table></div><div style="text-align:center;margin:4px 0 10px"><svg width="30" height="38" viewBox="0 0 38 48" xmlns="http://www.w3.org/2000/svg"><polygon points="19,48 0,27 11,27 11,0 27,0 27,27 38,27" fill="#1a2e3b"/></svg></div><div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;margin-bottom:6px;color:#1b3139">target_table Atualizada</div><table style="width:100%;border-collapse:collapse;background:#fff;table-layout:fixed"><thead><tr><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:14%">id</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:26%">users</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:36%">email</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:24%">status</th></tr></thead><tbody><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">1</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">peter</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">peter@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">current</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">2</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">zebi</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">zebi@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">update</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">4</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">matt</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">matt@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">current</td></tr></tbody></table></div></div><div id="mrg-tbl-4" style="display:none"><div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;margin-bottom:6px;color:#1b3139">source_table</div><table style="width:100%;border-collapse:collapse;background:#fff;table-layout:fixed"><thead><tr><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:14%">id</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:26%">users</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:36%">email</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:24%">status</th></tr></thead><tbody><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFF0F0;color:#7a7a7a;text-decoration:line-through;">1</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFF0F0;color:#7a7a7a;text-decoration:line-through;">peter</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFF0F0;color:#7a7a7a;text-decoration:line-through;">peter@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFF0F0;color:#7a7a7a;text-decoration:line-through;">delete</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">2</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">zebi</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">zebi@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">update</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">3</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">samarth</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">samarth@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">new</td></tr></tbody></table></div><div style="text-align:center;margin:4px 0 10px"><svg width="30" height="38" viewBox="0 0 38 48" xmlns="http://www.w3.org/2000/svg"><polygon points="19,48 0,27 11,27 11,0 27,0 27,27 38,27" fill="#1a2e3b"/></svg></div><div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;margin-bottom:6px;color:#1b3139">target_table Atualizada</div><table style="width:100%;border-collapse:collapse;background:#fff;table-layout:fixed"><thead><tr><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:14%">id</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:26%">users</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:36%">email</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:24%">status</th></tr></thead><tbody><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFF0F0;color:#7a7a7a;text-decoration:line-through;">1</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFF0F0;color:#7a7a7a;text-decoration:line-through;">peter</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFF0F0;color:#7a7a7a;text-decoration:line-through;">peter@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFF0F0;color:#7a7a7a;text-decoration:line-through;">current</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">2</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">zebi</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">zebi@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">update</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">4</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">matt</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">matt@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">current</td></tr></tbody></table></div></div><div id="mrg-tbl-5" style="display:none"><div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;margin-bottom:6px;color:#1b3139">source_table</div><table style="width:100%;border-collapse:collapse;background:#fff;table-layout:fixed"><thead><tr><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:14%">id</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:26%">users</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:36%">email</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:24%">status</th></tr></thead><tbody><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFF0F0;color:#7a7a7a;text-decoration:line-through;">1</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFF0F0;color:#7a7a7a;text-decoration:line-through;">peter</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFF0F0;color:#7a7a7a;text-decoration:line-through;">peter@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFF0F0;color:#7a7a7a;text-decoration:line-through;">delete</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">2</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">zebi</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">zebi@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">update</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F0FFF0;">3</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F0FFF0;">samarth</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F0FFF0;">samarth@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F0FFF0;">new</td></tr></tbody></table></div><div style="text-align:center;margin:4px 0 10px"><svg width="30" height="38" viewBox="0 0 38 48" xmlns="http://www.w3.org/2000/svg"><polygon points="19,48 0,27 11,27 11,0 27,0 27,27 38,27" fill="#1a2e3b"/></svg></div><div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;margin-bottom:6px;color:#1b3139">target_table Atualizada</div><table style="width:100%;border-collapse:collapse;background:#fff;table-layout:fixed"><thead><tr><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:14%">id</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:26%">users</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:36%">email</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:24%">status</th></tr></thead><tbody><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">2</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">zebi</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">zebi@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFF0;">update</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">4</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">matt</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">matt@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">current</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F0FFF0;">3</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F0FFF0;">samarth</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F0FFF0;">samarth@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F0FFF0;">new</td></tr></tbody></table></div></div><div id="mrg-tbl-6" style="display:none"><div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;margin-bottom:6px;color:#1b3139">source_table</div><table style="width:100%;border-collapse:collapse;background:#fff;table-layout:fixed"><thead><tr><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:14%">id</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:26%">users</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:36%">email</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:24%">status</th></tr></thead><tbody><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">1</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">peter</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">peter@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">delete</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">2</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">zebi</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">zebi@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">update</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">3</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">samarth</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">samarth@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">new</td></tr></tbody></table></div><div style="text-align:center;margin:4px 0 10px"><svg width="30" height="38" viewBox="0 0 38 48" xmlns="http://www.w3.org/2000/svg"><polygon points="19,48 0,27 11,27 11,0 27,0 27,27 38,27" fill="#1a2e3b"/></svg></div><div style="margin-bottom:12px"><div style="font-size:13px;font-weight:700;margin-bottom:6px;color:#1b3139">target_table Totalmente Atualizada</div><table style="width:100%;border-collapse:collapse;background:#fff;table-layout:fixed"><thead><tr><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:14%">id</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:26%">users</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:36%">email</th><th style="background:#1B5162;color:#fff;text-align:left;padding:6px 8px;font-size:11px;border:1px solid #EEEDE9;box-sizing:border-box;width:24%">status</th></tr></thead><tbody><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">2</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">zebi</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">zebi@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">current</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">4</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">matt</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">matt@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#FFFFFF;">current</td></tr><tr><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">3</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">samarth</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">samarth@email</td><td style="padding:6px 8px;border:1px solid #EEEDE9;word-break:break-word;font-size:12px;box-sizing:border-box;background:#F9F7F4;">new</td></tr></tbody></table></div></div></td><td id="mrg-p3" style="background:#F9F7F4;border:1.5px solid #e8e5e0;border-radius:12px;padding:14px;box-sizing:border-box;vertical-align:top;width:40%"><div style="font-size:15px;font-weight:800;margin-bottom:10px;color:#1b3139;">SQL</div><div style="background:#fff;border:1.5px solid #e0e0e0;border-radius:10px;overflow:hidden"><table style="width:100%;border-collapse:collapse;table-layout:fixed;background:#f3f4f6;border-bottom:1px solid #e5e7eb"><tbody><tr><td style="width:auto;padding:8px 10px;font-size:12px;color:#5A6F77;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">MERGE INTO</td><td style="width:74px;padding:8px 10px;text-align:right"><button id="mrg-copy" onclick="mrg_copy()" style="padding:4px 10px;font-size:12px;background:#ddd;color:#333;border:1px solid #ccc;border-radius:4px;cursor:pointer;white-space:nowrap">Copiar</button></td></tr></tbody></table><pre id="mrg-code" style="margin:0;padding:12px 14px;background:#f8f8f8;font-family:Consolas,Monaco,monospace;font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word;overflow-x:auto;box-sizing:border-box"></pre></div><div id="mrg-hint" style="margin-top:10px;padding:10px 12px;border-left:4px solid #4299E0;background:rgba(66,153,224,0.08);border-radius:6px;font-size:12.5px;line-height:1.5"></div></td></tr></tbody></table><script>window.mrg_sql=['MERGE INTO target_table target', 'USING source_table source', 'ON target.id = source.id', "WHEN MATCHED AND source.status = 'update' THEN", '  UPDATE SET', '    target.email = source.email,', '    target.status = source.status', "WHEN MATCHED AND source.status = 'delete' THEN", '  DELETE', 'WHEN NOT MATCHED THEN', '  INSERT (id, first_name, email, sign_up_date, status)', '  VALUES (source.id, source.first_name, source.email, source.sign_up_date, source.status);'];window.mrg_n={1: 2, 2: 3, 3: 7, 4: 9, 5: 12, 6: 12};window.mrg_h={1: 'Declare the target and source tables used in the MERGE INTO statement.', 2: 'Define the matching key between source and target with ON target.id = source.id.', 3: 'Add the first WHEN MATCHED clause for updates.', 4: 'Add the second WHEN MATCHED clause for deletes.', 5: 'Add the WHEN NOT MATCHED clause for inserts.', 6: 'Review the final updated target_table.'};window.mrg_step=function(s){for(var i=1;i<=6;i++){var t=document.getElementById('mrg-tbl-'+i);if(t)t.style.display=(i==s?'block':'none');var b=document.getElementById('mrg-btn-'+i);if(b){b.style.borderColor=(i==s?'#2574B5':'transparent');b.style.boxShadow=(i==s?'0 2px 12px rgba(0,0,0,.08)':'none');}}document.getElementById('mrg-code').textContent=window.mrg_sql.slice(0,window.mrg_n[s]).join('\n');document.getElementById('mrg-hint').textContent=window.mrg_h[s];};window.mrg_copy=function(){var tx=document.getElementById('mrg-code').textContent;var b=document.getElementById('mrg-copy');var ta=document.createElement('textarea');ta.value=tx;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);b.textContent='\u2713 Copied!';setTimeout(function(){b.textContent='Copy';},2000);};mrg_step(1);window.mrg_fit=function(){var sh=document.getElementById('mrg-shell');if(!sh)return;var w=sh.parentNode.clientWidth||sh.clientWidth;var ws=['26%','34%','40%'];var narrow=w<820;for(var i=1;i<=3;i++){var p=document.getElementById('mrg-p'+i);if(!p)continue;if(narrow){p.style.display='block';p.style.width='auto';p.style.marginBottom=(i<3?'14px':'0');}else{p.style.display='table-cell';p.style.width=ws[i-1];p.style.marginBottom='0';}}};mrg_fit();window.addEventListener('resize',window.mrg_fit);</script></div>
+</section>
+<section class="notebook-cell">
+<h5>EXPANDIR PARA NOTAS ADICIONAIS</h5>
+<details>
+<ol>
+  <li><strong>Passo 1: Declarar a Tabela de Destino e a Tabela Fonte</strong></br>
+  <ul>
+  <li>MERGE INTO <code>target_table</code> target - Isso declara a tabela de destino, a tabela que você deseja atualizar, inserir ou excluir registros. O alias target é atribuído para referenciá-la posteriormente na query.</li>
+  <li>USING <code>source_table</code> source - Isso define a tabela fonte, a tabela que contém os novos dados ou alterações que você deseja aplicar ao destino. O alias source é atribuído a ela.</li>
+  </ul>
+  </li>
+
+  <br>
+  <li><strong>Passo 2: Especificar a Condição de merge</strong><br>
+  <code>ON target.id = source.id</code> define a condição de correspondência entre as tabelas fonte e de destino, normalmente utilizando uma chave única como <code>id</code>.
+  </li>
+
+  <br>
+  <li><strong>Passo 3: WHEN MATCHED - UPDATE</strong><br>
+  WHEN MATCHED AND source.status = 'update' THEN
+
+  Se uma linha existe em ambas as tabelas e a fonte indica que é uma atualização.
+
+  UPDATE SET  - Atualiza a tabela de destino com os novos valores da fonte:
+  <ul>
+  <li>email</li>
+  <li>status</li>
+  </ul>
+  </li>
+  <br>
+  <li><strong>Passo 4: WHEN MATCHED - DELETE</strong><br>
+  WHEN MATCHED AND source.status = 'delete' THEN DELETE
+
+  Se a linha existe em ambas as tabelas e a fonte indica que ela deve ser excluída, ela é removida da tabela de destino.
+
+  <br>
+  <li><strong>Passo 5: WHEN NOT MATCHED - INSERT</strong><br>
+  Se a linha existe na fonte, mas não na tabela de destino...
+
+  INSERT (...) VALUES (...) - Uma nova linha é inserida na tabela de destino com os valores provenientes da fonte.
+
+  <br>
+  <li><strong>Passo 6: Resultado Final</strong><br>
+  Este único comando MERGE INTO:
+  <ul>
+  <li>Atualiza linhas quando status = 'update'</li>
+  <li>Exclui linhas quando status = 'delete'</li>
+  <li>Insere novas linhas que não estão presentes na tabela de destino</li>
+  </ul>
+  <br>
+  Esse padrão é ideal para cargas de dados incrementais, CDC ou padrões SCD Tipo 1. A linha do Matt (id=4) não estava na tabela fonte, portanto permanece inalterada na tabela de destino.
+  </li>
+</ol>
+</details>
+</section>
+<section class="notebook-cell">
+<h2>F. Conclusão</h2>
+<ul>
+<li>Databricks oferece suporte a integração e colaboração mais amplas por meio de Lakehouse Federation, Zerobus, Open Sharing e Databricks Marketplace.</li>
+<li>Databricks Marketplace e Open Sharing permitem a descoberta, o acesso e o intercâmbio seguros de dados e ativos de IA sem cópias desnecessárias de dados.</li>
+<li><code>MERGE INTO</code> realiza atualizações, inserções e exclusões atômicas em tabelas do UC, oferecendo suporte a padrões de ingestão incremental como SCD, CDC e sincronização de dados.</li>
+</ul>
+</section>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightbox(event)">✕</button>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
+
+<script>
+if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
+function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
+function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});
+document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src);});});
+</script>
+</body>
+</html>

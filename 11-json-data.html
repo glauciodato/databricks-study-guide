@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ingestão de Dados JSON | Data Ingestion with LakeFlow Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117; --surface: #161b22; --surface-raised: #1c2129;
+    --border: #2a313a; --text: #e6edf3; --text-muted: #8b949e; --text-faint: #6e7681;
+    --accent: #ff6433; --accent-soft: rgba(255,100,51,0.12);
+    --green: #3fb950; --blue: #58a6ff; --purple: #bc8cff; --yellow: #d29922;
+    --radius: 12px;
+  }
+  body.light {
+    --bg: #f8f9fb; --surface: #ffffff; --surface-raised: #f0f2f5;
+    --border: #d8dce2; --text: #1a1d23; --text-muted: #5a6170; --text-faint: #8891a0;
+    --accent: #e0501e; --accent-soft: rgba(224,80,30,0.08);
+    --green: #1a8a3e; --blue: #2563eb; --purple: #7c3aed;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+  
+  .top-bar {
+    position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border);
+    padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
+  .top-bar a:hover { color:var(--accent); }
+  .top-bar .sep { color:var(--text-faint); font-size:11px; }
+  .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
+  
+  .layout { display:flex; min-height:calc(100vh - 50px); }
+  
+  .sidebar {
+    width:280px; min-width:280px; background:var(--surface); border-right:1px solid var(--border);
+    padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px);
+  }
+  .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
+  .sidebar a {
+    display:block; padding:6px 16px; font-size:12.5px; color:var(--text-muted); text-decoration:none;
+    border-left:2px solid transparent; line-height:1.5; transition:all 0.15s;
+  }
+  .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
+  .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
+  
+  .content { flex:1; max-width:900px; padding:32px 40px 80px; }
+  
+  .notebook-cell { margin-bottom:24px; }
+  .notebook-cell h1 { font-size:26px; font-weight:700; margin-bottom:12px; }
+  .notebook-cell h2 { font-size:21px; font-weight:700; margin:28px 0 12px; padding-top:20px; border-top:1px solid var(--border); }
+  .notebook-cell h3 { font-size:17px; font-weight:600; margin:20px 0 10px; }
+  .notebook-cell h5 { font-size:12px; font-weight:600; margin:14px 0 6px; color:var(--text-muted); }
+  .notebook-cell p { margin-bottom:10px; font-size:14.5px; }
+  .notebook-cell ul, .notebook-cell ol { margin:0 0 10px 20px; font-size:14.5px; }
+  .notebook-cell li { margin-bottom:4px; }
+  .notebook-cell code { font-family:'IBM Plex Mono',monospace; background:var(--surface-raised); padding:1px 5px; border-radius:3px; font-size:12.5px; }
+  .notebook-cell pre { background:var(--surface-raised); border:1px solid var(--border); border-radius:8px; padding:14px; overflow-x:auto; margin:10px 0; }
+  .notebook-cell pre code { background:none; padding:0; }
+  .notebook-cell img { max-width:100%; height:auto; border-radius:6px; cursor:zoom-in; }
+  .notebook-cell details { margin:10px 0; padding:10px 14px; background:var(--surface-raised); border-radius:6px; border:1px solid var(--border); font-size:13.5px; }
+  .notebook-cell details summary { cursor:pointer; font-weight:600; color:var(--text-muted); font-size:12px; }
+  .notebook-cell details p, .notebook-cell details li { color:var(--text-muted); font-size:13.5px; }
+  .notebook-cell svg { max-width:100%; height:auto; }
+  .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
+  .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
+  .notebook-cell th { background:var(--surface-raised); font-weight:600; }
+  
+  .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
+  
+  .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
+  .lightbox.open { display:flex; }
+  .lightbox img { max-width:95vw; max-height:92vh; border-radius:6px; box-shadow:0 8px 40px rgba(0,0,0,0.5); object-fit:contain; background:#fff; padding:6px; cursor:default; }
+  .lightbox .lb-close { position:fixed; top:12px; right:16px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+  @media(max-width:768px) {
+    .sidebar { display:none; }
+    .content { padding:20px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="index.html">← Curso</a>
+  <span class="sep">›</span>
+  <span class="title">Aula 11 — Ingestão de Dados JSON</span>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav-title">Aulas</div>
+    <a href="00-overview.html">00. Visão Geral do Curso</a>
+    <a href="01-data-engineering.html">01. Engenharia de Dados no Databricks</a>
+    <a href="03-cloud-storage.html">03. Ingestão de Dados de Cloud Storage</a>
+    <a href="06-metadata-columns.html">06. Colunas de Metadata na Ingestão</a>
+    <a href="08-rescued-data.html">08. Coluna de Dados Resgatados</a>
+    <a href="11-json-data.html" class="active">11. Ingestão de Dados JSON</a>
+    <a href="14-enterprise-data.html">14. Ingestão de Dados Corporativos</a>
+    <a href="16-additional-features.html">16. Features Adicionais e MERGE INTO</a>
+    <a href="99-summary.html">99. Resumo e Próximos Passos</a>
+  </nav>
+  <div class="content">
+<section class="notebook-cell">
+<h1>Aula - Ingestão de Dados Semiestruturados: JSON</h1>
+<h2>Visão Geral</h2>
+<p>Nesta aula, você aprenderá como a ingestão de dados semiestruturados, como JSON, permite a análise e transformação eficiente de entradas complexas e aninhadas em tabelas UC estruturadas para analítica avançada no Lakehouse.</p>
+<h2>Objetivos de Aprendizagem</h2>
+<p>Ao final desta aula, você será capaz de:</p>
+<ol>
+<li><strong>Descrever a estrutura dos dados JSON</strong> incluindo objetos, chaves, valores, objetos aninhados e arrays</li>
+<li><strong>Explicar três abordagens para trabalhar com colunas JSON</strong>: tipos de dados STRING, STRUCT e VARIANT</li>
+<li><strong>Mapear tipos JSON para tipos de dados do Databricks SQL</strong> e definir esquemas STRUCT para JSON aninhado</li>
+<li><strong>Usar <code>schema_of_json</code> e <code>from_json</code> para derivar e aplicar esquemas</strong> ao converter strings JSON em colunas STRUCT</li>
+<li><strong>Descrever o tipo de dado VARIANT</strong> e seus benefícios para dados semiestruturados</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h2>A. Visão Geral do JSON</h2>
+<p>A ingestão de dados semiestruturados como JSON permite a análise e transformação eficientes de entradas complexas e aninhadas em tabelas UC estruturadas para analítica avançada no Lakehouse.</p>
+<p>Entender o formato do JSON é importante porque ele afeta a forma como analisamos e transformamos os dados durante a ingestão.</p>
+<h5>Clique em cada termo para revisar a estrutura básica de um arquivo JSON.</h5>
+<p><br></p>
+<div style="max-width: 1100px; margin: 0 auto; font-family: sans-serif;">
+
+<style>
+.acc-wrap {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.acc-list {
+  flex: 0 0 240px;
+}
+
+.acc-item {
+  border: 2px solid #D6D6D6;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.acc-item.open { border-color: #5A5A5A; }
+
+.acc-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: #F4F4F4;
+  user-select: none;
+}
+
+.acc-item.open .acc-header { background: #E0E0E0; }
+
+.acc-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: #CECECE;
+  color: #2C2C2C;
+  font-size: 13pt;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.acc-item.open .acc-num { background: #5A5A5A; color: #fff; }
+
+.acc-summary {
+  flex: 1;
+  font-size: 14pt;
+  font-weight: 600;
+  color: #2C2C2C;
+}
+
+.acc-chevron {
+  font-size: 12pt;
+  color: #5A5A5A;
+  transition: transform 0.25s;
+}
+
+.acc-item.open .acc-chevron { transform: rotate(-90deg); }
+
+/* ── Right content panel ── */
+.acc-panel {
+  flex: 1;
+  min-height: 200px;
+  background: #F9F7F4;
+  border: 2px solid #EEEDE9;
+  border-radius: 10px;
+  padding: 24px;
+  font-size: 13pt;
+  color: #0B2026;
+  line-height: 1.7;
+}
+
+.acc-panel-detail {
+  margin-bottom: 16px;
+  font-size: 13pt;
+  color: #1B5162;
+  line-height: 1.7;
+}
+</style>
+
+<div class="acc-wrap">
+
+  <!-- Left: accordion list -->
+  <div class="acc-list" id="acc-container"></div>
+
+  <!-- Right: content panel -->
+  <div class="acc-panel" id="acc-panel">
+    <div style="color:#618794; font-size:12pt; font-style:italic;">
+      Selecione um termo à esquerda para ver sua descrição.
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<script>
+var ACC_DATA = [
+
+/* OBJECTS */
+{
+  summary: 'Objects',
+  detail: 'JSON data is made up of JSON objects, which are typically enclosed in curly brackets {}.',
+  fix: `# MAGIC <div style="font-family: sans-serif; color: #0B2026;">
+  <div style="display: flex; gap: 20px; align-items: flex-start;">
+    <div style="flex: 1; background: #fff; border: 2px solid #EEEDE9; border-radius: 10px; padding: 18px; font-family: monospace; font-size: 12pt; line-height: 1.7;">
+      <span style="color: #00A972;">{</span><br>
+      &nbsp;&nbsp;<span style="color: #00A972;">"name"</span>: "John Doe",<br>
+      &nbsp;&nbsp;<span style="color: #00A972;">"age"</span>: 35,<br>
+      &nbsp;&nbsp;<span style="color: #00A972;">"address"</span>: {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;"city": "Anytown",<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;"state": "CA"<br>
+      &nbsp;&nbsp;},<br>
+      &nbsp;&nbsp;<span style="color: #00A972;">"children"</span>: [<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;{ "name": "Owen", "age": 10 },<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;{ "name": "Eva", "age": 8 }<br>
+      &nbsp;&nbsp;]<br>
+      <span style="color: #00A972;">}</span>
+    </div>
+    <div style="flex: 0 0 220px;">
+      <div style="background: #fff; border: 2px solid #00A972; border-radius: 10px; padding: 16px; font-size: 13pt;">
+        <strong style="color: #00A972;">Objetos JSON</strong> são delimitados por <strong>chaves</strong> <code>{ }</code>
+      </div>
+    </div>
+  </div>
+</div>
+`
+},
+
+/* KEYS */
+{
+  summary: 'Keys',
+  detail: `Dentro das chaves, objetos JSON contêm pares de chave-valor.
+    <ul style="margin:8px 0 0 0; padding-left:18px;">
+      <li>Cada chave é sempre uma <strong>string</strong> entre aspas</li>
+      <li>Cada chave contém um <strong>valor</strong></li>
+    </ul>`,
+  fix: `# MAGIC <div style="font-family: sans-serif; color: #0B2026;">
+  <div style="display: flex; gap: 20px; align-items: flex-start;">
+    <div style="flex: 1; background: #fff; border: 2px solid #EEEDE9; border-radius: 10px; padding: 18px; font-family: monospace; font-size: 12pt; line-height: 1.7;">
+      {<br>
+      &nbsp;&nbsp;<strong style="color: #FF5F46;">"name"</strong>: "John Doe",<br>
+      &nbsp;&nbsp;<strong style="color: #FF5F46;">"age"</strong>: 35,<br>
+      &nbsp;&nbsp;<strong style="color: #FF5F46;">"address"</strong>: {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;"city": "Anytown",<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;"state": "CA"<br>
+      &nbsp;&nbsp;},<br>
+      &nbsp;&nbsp;<strong style="color: #FF5F46;">"children"</strong>: [<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;{ "name": "Owen", "age": 10 },<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;{ "name": "Eva", "age": 8 }<br>
+      &nbsp;&nbsp;]<br>
+      }
+    </div>
+    <div style="flex: 0 0 220px;">
+      <div style="background: #fff; border: 2px solid #FF5F46; border-radius: 10px; padding: 16px; font-size: 13pt;">
+        <strong style="color: #FF5F46;">Chaves</strong> são delimitadas por <strong>aspas</strong>
+      </div>
+    </div>
+  </div>
+</div>
+`
+},
+
+/* VALUES */
+{
+  summary: 'Values',
+  detail: `O valor de uma chave pode ser uma string, número, booleano, array, objeto ou nulo.
+    <ul style="margin:8px 0 0 0; padding-left:18px;">
+      <li>Objetos podem ser <strong>simples</strong> ou <strong>aninhados</strong></li>
+      <li>A complexidade depende de como os dados estão estruturados</li>
+      <li>Entender esse formato é importante para análise e transformação</li>
+    </ul>`,
+  fix: `# MAGIC <div style="font-family: sans-serif; color: #0B2026;">
+  <div style="display: flex; gap: 20px; align-items: flex-start;">
+    <div style="flex: 1; background: #fff; border: 2px solid #EEEDE9; border-radius: 10px; padding: 18px; font-family: monospace; font-size: 12pt; line-height: 1.9;">
+      {<br>
+      &nbsp;&nbsp;"name": "John Doe", <span style="color:white; background:#00A972; border-radius:4px; padding:1px 7px; font-size:10pt;">STRING</span><br>
+      &nbsp;&nbsp;"age": 35, <span style="color:white; background:#00A972; border-radius:4px; padding:1px 7px; font-size:10pt;">NUMÉRICO</span><br>
+      &nbsp;&nbsp;"address": { <span style="color:white; background:#00A972; border-radius:4px; padding:1px 7px; font-size:10pt;">OBJETO</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;"city": "Anytown",<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;"state": "CA"<br>
+      &nbsp;&nbsp;},<br>
+      &nbsp;&nbsp;"children": [ <span style="color:white; background:#00A972; border-radius:4px; padding:1px 7px; font-size:10pt;">ARRAY de OBJETOS</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;{ "name": "Owen", "age": 10 },<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;{ "name": "Eva", "age": 8 }<br>
+      &nbsp;&nbsp;]<br>
+      }
+    </div>
+    <div style="flex: 0 0 160px; background: #fff; border: 2px solid #00A972; border-radius: 10px; padding: 16px;">
+      <div style="font-size: 14pt; font-weight: 700; margin-bottom: 10px; color: #00A972;">Valores</div>
+      <ul style="font-size: 12pt; padding-left: 16px; margin: 0; line-height: 2.0;">
+        <li>String</li>
+        <li>Número</li>
+        <li>Booleano</li>
+        <li>Array</li>
+        <li>Objeto</li>
+      </ul>
+    </div>
+  </div>
+</div>
+`
+}
+
+];
+
+(function() {
+  var container = document.getElementById('acc-container');
+  ACC_DATA.forEach(function(item, i) {
+    var div = document.createElement('div');
+    div.className = 'acc-item';
+    div.innerHTML =
+      '<div class="acc-header" onclick="toggleAcc(' + i + ')">'
+      + '<div class="acc-num">' + (i + 1) + '</div>'
+      + '<div class="acc-summary">' + item.summary + '</div>'
+      + '<div class="acc-chevron">&#9654;</div>'
+      + '</div>';
+    container.appendChild(div);
+  });
+})();
+
+function toggleAcc(idx) {
+  var items   = document.querySelectorAll('.acc-item');
+  var panel   = document.getElementById('acc-panel');
+  var wasOpen = items[idx].classList.contains('open');
+
+  items.forEach(function(el) { el.classList.remove('open'); });
+
+  if (!wasOpen) {
+    items[idx].classList.add('open');
+    var d = ACC_DATA[idx];
+    panel.innerHTML =
+      '<div class="acc-panel-detail">' + d.detail + '</div>'
+      + '<div>' + d.fix + '</div>';
+  } else {
+    panel.innerHTML = '<div style="color:#618794; font-size:12pt; font-style:italic;">Selecione um termo à esquerda para ver sua descrição.</div>';
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<h2>B. Trabalhando com Colunas Formatadas em JSON</h2>
+<p>Ao trabalhar com dados JSON, é comum que após a ingestão uma ou mais colunas da sua tabela contenham strings formatadas em JSON como valores.</p>
+</section>
+<section class="notebook-cell">
+<h3>B1. Coluna STRING Formatada como JSON</h3>
+<p>A questão aqui é: como trabalhar com colunas que armazenam strings formatadas como JSON?</p>
+<p>Este é um cenário comum quando o JSON não é totalmente analisado durante a ingestão, ou quando dados JSON estão incorporados em outro campo, como uma mensagem de log ou uma estrutura aninhada.</p>
+</section>
+<section class="notebook-cell">
+<div style="max-width: 1000px; margin: 0 auto; font-family: sans-serif; color: #0b2026;">
+
+<table style="width: 100%; border-collapse: collapse; font-size: 13pt;">
+  <thead>
+    <tr style="background: #1B5162; color: white;">
+      <th style="padding: 10px 14px; border: 1px solid #EEEDE9;">json_column</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9; font-family: monospace;">
+        '{"name": "John Doe", "age": 35, "address": {"city": "Anytown", "state": "CA"}, "children": [{"name": "Owen", "age": 10}, {"name": "Eva", "age": 8}]}'
+      </td>
+    </tr>
+    <tr>
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9; font-family: monospace;">
+        '{"name": "Kristi Doe", "age": 40, "address": {"city": "Anytown", "state": "CA"}, "children": [{"name": "Steve", "age": 10}]}'
+      </td>
+    </tr>
+    <tr style="background: #F9F7F4;">
+      <td style="padding: 10px 14px; border: 1px solid #EEEDE9;">...</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<div style="background: #F9F7F4; border: 2px solid #1B5162; border-radius: 10px; padding: 16px; margin-bottom: 16px; text-align: center; font-size: 14pt;">
+  Colunas em tabelas podem conter <strong>strings formatadas em JSON</strong> como valores
+</div>
+</div>
+</section>
+<section class="notebook-cell">
+<h3>B2. Métodos de Coluna com Strings Formatadas em JSON</h3>
+<p>Vamos explorar técnicas para analisar, extrair e manipular essas strings JSON usando SQL ou operações com DataFrame, para que você possa nivelar e/ou acessar os campos aninhados como colunas comuns.</p>
+<h5>Clique nas tabs para alternar entre as abordagens utilizadas ao trabalhar com uma coluna de string formatada em JSON.</h5>
+<p><br></p>
+<div style="width:900px; max-width:100%; margin:auto;font-family:sans-serif;color:#0b2026;">
+
+<style>
+  .json-tabs { display:flex; border-bottom:2px solid #EEEDE9; margin-bottom:0; }
+  .json-tab {
+    padding:10px 18px; border:none; background:none;
+    font-size:14pt; font-weight:bold; color:#888; cursor:pointer;
+    border-bottom:3px solid transparent; margin-bottom:-2px;
+    transition:color 0.2s, border-color 0.2s;
+  }
+  .json-tab.t1.active { color:#4299E0; border-bottom:3px solid #4299E0; }
+  .json-tab.t2.active { color:#00A972; border-bottom:3px solid #00A972; }
+  .json-tab.t3.active { color:#FF5F46; border-bottom:3px solid #FF5F46; }
+
+  .json-panel { display:none; padding:24px 0 4px 0; }
+  .json-panel.active { display:block; animation:fadeIn 0.22s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+
+  .json-infobox {
+    background:#F9F7F4; border-radius:10px;
+    padding:18px 22px; margin-bottom:20px;
+  }
+  .json-infobox .box-title { font-size:16pt; font-weight:bold; margin-bottom:12px; }
+  .json-infobox ul { font-size:14pt; line-height:1.8; padding-left:20px; margin:0; }
+  .json-infobox li { margin-bottom:8px; }
+  .json-infobox li:last-child { margin-bottom:0; }
+
+  .sql-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+  .sql-kw { background:#FFAB00; color:white; border-radius:4px; padding:4px 14px; font-family:monospace; font-size:13pt; font-weight:700; }
+  .sql-expr { font-family:monospace; font-size:12pt; }
+  .sql-arrow { font-size:22pt; color:#00A972; line-height:1; }
+  .sql-result { border:2px solid #EEEDE9; border-radius:6px; padding:7px 14px; font-family:monospace; font-size:12pt; background:#FAFAF8; }
+
+  .map-table { width:100%; border-collapse:collapse; font-size:14pt; border-radius:8px; overflow:hidden; margin-top:4px; }
+  .map-table thead tr { background:#1B5162; color:white; }
+  .map-table thead th { padding:12px 16px; border:1px solid #2a6a7f; text-align:left; font-weight:700; }
+  .map-table tbody tr:nth-child(odd)  { background:#F9F7F4; }
+  .map-table tbody tr:nth-child(even) { background:white; }
+  .map-table tbody tr:hover { background:rgba(0,169,114,0.08); }
+  .map-table tbody td { padding:11px 16px; border:1px solid #EEEDE9; font-size:14pt; }
+
+  .variant-badge {
+    margin-top:18px; background:#FF5F46; color:white;
+    border-radius:6px; padding:8px 16px; font-size:13pt;
+    font-weight:700; display:inline-block;
+  }
+
+  .opening-statement {
+    font-size:14pt; line-height:1.85; color:#0b2026;
+    margin-bottom:24px;
+  }
+  .pill {
+    display:inline; padding:2px 9px; border-radius:999px;
+    font-weight:700; font-size:13pt; white-space:nowrap;
+  }
+  .pill-blue   { background:rgba(66,153,224,0.12); color:#2574B5; border:1.5px solid #4299E0; }
+  .pill-green  { background:rgba(0,169,114,0.12);  color:#00865e; border:1.5px solid #00A972; }
+  .pill-orange { background:rgba(255,95,70,0.12);  color:#d94028; border:1.5px solid #FF5F46; }
+</style>
+
+<!-- TAB BAR -->
+<div class="json-tabs">
+  <button class="json-tab t1 active" onclick="switchJsonTab(1)">Abordagem 1: STRING</button>
+  <button class="json-tab t2"        onclick="switchJsonTab(2)">Abordagem 2: STRUCT</button>
+  <button class="json-tab t3"        onclick="switchJsonTab(3)">Abordagem 3: VARIANT</button>
+</div>
+
+<!-- PANEL 1: STRING -->
+<div class="json-panel active" id="jpanel1">
+  Uma técnica para trabalhar com uma coluna de string formatada em JSON é acessar os valores diretamente da coluna do tipo de dado STRING.<br><br>
+  <div class="json-infobox" style="border:2px solid #4299E0;">
+    <ul>
+      <li>JSON pode ser armazenado como uma <strong>STRING</strong> simples</li>
+      <li>Pode conter qualquer conteúdo JSON sem restrições — é apenas texto bruto</li>
+      <li>Menos eficiente em comparação com abordagens tipadas</li>
+    </ul>
+  </div>
+  <br>
+  <div class="sql-row">
+    <div class="sql-kw">SELECT</div>
+    <div class="sql-expr">json_column:name</div>
+    <div class="sql-arrow">→</div>
+    <div class="sql-result">John Doe</div>
+  </div>
+  <div class="sql-row">
+    <div class="sql-kw">SELECT</div>
+    <div class="sql-expr">json_column:address:city</div>
+    <div class="sql-arrow">→</div>
+    <div class="sql-result">Anytown</div>
+  </div>
+</div>
+<!-- PANEL 2: STRUCT -->
+<div class="json-panel" id="jpanel2">
+  Outro método para trabalhar com uma coluna de string formatada em JSON é converter a coluna para o tipo de dado STRUCT.<br><br>
+  <div class="json-infobox" style="border:2px solid #00A972;">
+    <ul>
+      <li>Você pode analisar dados JSON em um tipo <strong>STRUCT</strong> com um esquema definido</li>
+      <li><strong>STRUCT impõe o esquema JSON</strong>, garantindo que os tipos de dados e a estrutura sejam consistentes</li>
+      <li>É <strong>mais eficiente para consultas</strong> do que uma STRING formatada em JSON</li>
+    </ul>
+  </div>
+  <table class="map-table" style="margin-left: auto; margin-right: auto;">
+    <thead>
+      <tr>
+        <th>Tipos de String JSON</th>
+        <th>Tipo de Dado do Databricks SQL</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>String</td>  <td><strong>STRING</strong></td></tr>
+      <tr><td>Number</td>  <td><strong>INT / FLOAT / DOUBLE</strong></td></tr>
+      <tr><td>Boolean</td> <td><strong>BOOLEAN</strong></td></tr>
+      <tr><td>Object</td>  <td><strong>STRUCT &lt;&gt;</strong></td></tr>
+      <tr><td>Array</td>   <td><strong>ARRAY &lt;&gt;</strong></td></tr>
+    </tbody>
+  </table>
+</div>
+<!-- PANEL 3: VARIANT -->
+<div class="json-panel" id="jpanel3">
+  Você também pode usar o novo tipo de dado de coluna VARIANT.
+  <br><br>
+  <div class="json-infobox" style="border:2px solid #FF5F46;">
+    <ul>
+      <li>Pode armazenar <strong>qualquer tipo de dado</strong>, incluindo JSON — ideal para dados <strong>semiestruturados</strong></li>
+      <li><strong>Altamente flexível</strong> — nenhum esquema necessário antecipadamente</li>
+      <li><strong>Desempenho aprimorado</strong> em relação aos métodos existentes de STRING e STRUCT</li>
+    </ul>
+    <div class="variant-badge">Public Preview as of 2025 Q2</div>
+  </div>
+</div>
+<script>
+function switchJsonTab(n) {
+  var colors = ["#4299E0","#00A972","#FF5F46"];
+  for (var i = 1; i <= 3; i++) {
+    document.getElementById('jpanel' + i).classList.remove('active');
+    var t = document.querySelectorAll('.json-tab')[i-1];
+    t.classList.remove('active');
+    t.style.color = '#888';
+    t.style.borderBottom = '3px solid transparent';
+  }
+  document.getElementById('jpanel' + n).classList.add('active');
+  var active = document.querySelectorAll('.json-tab')[n-1];
+  active.classList.add('active');
+  active.style.color = colors[n-1];
+  active.style.borderBottom = '3px solid ' + colors[n-1];
+}
+</script>
+</div>
+</section>
+<section class="notebook-cell">
+<h5>EXPANDIR PARA NOTAS ADICIONAIS</h5>
+<details>
+
+<ol>
+<li><strong>Tipo de Dado STRING</strong><br>
+Uma técnica para trabalhar com uma coluna de string formatada em JSON é acessar os valores diretamente a partir da coluna do tipo de dado STRING.
+
+- Uma coluna pode simplesmente armazenar dados JSON como uma STRING simples
+- Por ser armazenada como string, a coluna pode conter qualquer string JSON sem restrições
+- No entanto, essa abordagem tem desempenho inferior em comparação com abordagens tipadas como STRUCT
+
+Para acessar subcampos em colunas de string formatadas em JSON, você pode usar a sintaxe de dois-pontos (:).
+
+Por exemplo, se sua coluna se chama json_column e você deseja acessar o subcampo "name", você o especificaria como: json_column:name
+
+Essa sintaxe permite extrair campos específicos diretamente da string JSON armazenada na coluna.</li>
+
+<li><strong>Tipo de Dado STRUCT</strong><br>
+Outro método para trabalhar com uma coluna de string formatada em JSON é converter a coluna para o tipo de dado STRUCT.
+
+- Você pode analisar dados JSON em um tipo STRUCT definindo um esquema
+- O STRUCT impõe o esquema JSON, garantindo que os tipos de dados e a estrutura sejam consistentes
+- Consultar um STRUCT é mais eficiente do que trabalhar com uma STRING formatada em JSON bruta.</li>
+
+<br>
+<li><strong>Tipo de Dado VARIANT</strong><br>
+O tipo de dado VARIANT é a abordagem mais recente para trabalhar com dados JSON no Databricks.
+
+A partir do segundo trimestre de 2025, o VARIANT está em <strong>pré-visualização pública</strong>. Os principais benefícios incluem:
+
+- Pode armazenar <strong>qualquer tipo de dado</strong>, incluindo JSON, tornando-o ideal para dados semiestruturados
+- <strong>Altamente flexível</strong>, adaptando-se a diferentes formatos de dados sem esquemas rígidos
+- Oferece <strong>desempenho aprimorado</strong> em relação aos métodos existentes (STRING e STRUCT)
+
+Fique atento ao lançamento de sua Disponibilidade Geral (GA).</li>
+</ol>
+</details>
+</section>
+<section class="notebook-cell">
+<h2>C. Convertendo Strings Formatadas em JSON como STRUCTS</h2>
+<h5>Clique em um passo para destacar as partes relevantes do JSON e do STRUCT.</h5>
+<p><br></p>
+<div style="width:100%;max-width:1120px;margin:0 auto;font-family:'Segoe UI',sans-serif;color:#0B2026;">
+
+<style>
+.struct3-shell{
+ display:grid;
+ grid-template-columns: minmax(290px, 0.92fr) minmax(340px, 1.16fr) minmax(290px, 0.92fr);
+ gap:14px;
+ align-items:start;
+}
+
+.struct3-panel{
+ background:#F9F7F4;
+ border:1.5px solid #e8e5e0;
+ border-radius:12px;
+ padding:14px;
+ box-sizing:border-box;
+ min-height:560px;
+}
+
+.struct3-title{
+ font-size:14pt;
+ font-weight:800;
+ margin-bottom:10px;
+ color:#1b3139;
+}
+
+/* code columns */
+.code-card{
+ background:#fff;
+ border:1.5px solid #e0ddd8;
+ border-radius:10px;
+ padding:12px 14px;
+ min-height:470px;
+ transition:border-color .2s, box-shadow .2s;
+}
+.code-card.focus{
+ border-color:#2574B5;
+ box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.code-block-lite{
+ font-family:Consolas, Monaco, monospace;
+ font-size:14px;
+ line-height:0.7;
+}
+.line{
+ display:block;
+ padding:0 6px;
+ margin:1px 0;
+ border-radius:4px;
+ transition:.2s;
+}
+.line.hl{
+ background:#ffd9d2;
+ font-weight:700;
+}
+
+/* middle steps */
+.struct-steps{
+ display:flex;
+ flex-direction:column;
+ gap:8px;
+}
+
+.struct-step{
+ background:#fff;
+ border:1.5px solid #e8e5e0;
+ border-radius:10px;
+ transition:.2s;
+ cursor:pointer;
+}
+.struct-step.active{
+ border-color:var(--step-color);
+ box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+.struct-step-head{
+ display:flex;
+ gap:10px;
+ align-items:flex-start;
+ padding:11px 12px;
+}
+.struct-step-num{
+ width:28px;
+ height:28px;
+ border-radius:50%;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ color:#fff;
+ font-size:14px;
+ font-weight:800;
+ flex-shrink:0;
+}
+.struct-step-title{
+ font-size:12pt;
+ font-weight:700;
+ line-height:1.35;
+ color:#1b3139;
+ flex:1;
+ word-break:break-word;
+}
+
+@media (max-width: 1050px){
+ .struct3-shell{
+  grid-template-columns: 1fr;
+ }
+ .struct3-panel{
+  min-height:auto;
+ }
+ .code-card{
+  min-height:auto;
+ }
+}
+</style>
+
+<div class="struct3-shell">
+
+ <!-- LEFT: JSON -->
+ <div class="struct3-panel">
+  <div class="struct3-title">String formatada em JSON</div>
+  <div class="code-card" id="jsonBox">
+   <div class="code-block-lite">
+<span class="line" id="j1">{</span>
+<span class="line" id="j2"> "name": "John Doe",</span>
+<span class="line" id="j3"> "age": 35,</span>
+<span class="line" id="j4"> "address": {</span>
+<span class="line" id="j5"> "city": "Anytown",</span>
+<span class="line" id="j6"> "state": "CA"</span>
+<span class="line" id="j7"> },</span>
+<span class="line" id="j8"> "children": [</span>
+<span class="line" id="j9"> {</span>
+<span class="line" id="j10"> "name": "Owen",</span>
+<span class="line" id="j11"> "age": 10</span>
+<span class="line" id="j12"> },</span>
+<span class="line" id="j13"> {</span>
+<span class="line" id="j14"> "name": "Eva",</span>
+<span class="line" id="j15"> "age": 8</span>
+<span class="line" id="j16"> }</span>
+<span class="line" id="j17"> ]</span>
+<span class="line" id="j18">}</span>
+   </div>
+  </div>
+ </div>
+
+ <!-- MIDDLE: Steps -->
+ <div class="struct3-panel">
+  <div class="struct3-title">Os passos</div>
+
+  <div class="struct-steps">
+
+   <div class="struct-step active" style="--step-color:#2574B5;" data-step="1" onclick="setStructStep(1)">
+    <div class="struct-step-head">
+     <div class="struct-step-num" style="background:#2574B5;">1</div>
+     <div class="struct-step-title">Definir o esquema da string <br>formatada em JSON</div>
+    </div>
+   </div>
+
+   <div class="struct-step" style="--step-color:#E05A2B;" data-step="2" onclick="setStructStep(2)">
+    <div class="struct-step-head">
+     <div class="struct-step-num" style="background:#E05A2B;">2</div>
+     <div class="struct-step-title">Especificar o tipo de dado STRUCT para armazenar a <br>string formatada em JSON</div>
+    </div>
+   </div>
+
+   <div class="struct-step" style="--step-color:#02A36F;" data-step="3" onclick="setStructStep(3)">
+    <div class="struct-step-head">
+     <div class="struct-step-num" style="background:#02A36F;">3</div>
+     <div class="struct-step-title">Especificar os tipos de dado STRING e INT <br>para as keys name e age</div>
+    </div>
+   </div>
+
+   <div class="struct-step" style="--step-color:#618794;" data-step="4" onclick="setStructStep(4)">
+    <div class="struct-step-head">
+     <div class="struct-step-num" style="background:#618794;">4</div>
+     <div class="struct-step-title">A key address contém um tipo de dado STRUCT <br>com as keys city e state</div>
+    </div>
+   </div>
+
+   <div class="struct-step" style="--step-color:#1C3037;" data-step="5" onclick="setStructStep(5)">
+    <div class="struct-step-head">
+     <div class="struct-step-num" style="background:#1C3037;">5</div>
+     <div class="struct-step-title">A key children contém um ARRAY <br>de STRUCTS</div>
+    </div>
+   </div>
+
+  </div>
+ </div>
+
+ <!-- RIGHT: STRUCT -->
+ <div class="struct3-panel">
+  <div class="struct3-title">Esquema STRUCT</div>
+  <div class="code-card" id="structBox">
+   <div class="code-block-lite">
+<span class="line" id="s1">STRUCT&lt;</span>
+<span class="line" id="s2"> name: STRING,</span>
+<span class="line" id="s3"> age: INT,</span>
+<span class="line" id="s4"> address: STRUCT&lt;</span>
+<span class="line" id="s5"> city: STRING,</span>
+<span class="line" id="s6"> state: STRING</span>
+<span class="line" id="s7"> &gt;,</span>
+<span class="line" id="s8"> children: ARRAY&lt;</span>
+<span class="line" id="s9"> STRUCT&lt;</span>
+<span class="line" id="s10"> name: STRING,</span>
+<span class="line" id="s11"> age: INT</span>
+<span class="line" id="s12"> &gt;</span>
+<span class="line" id="s13"> &gt;</span>
+<span class="line" id="s14">&gt;</span>
+   </div>
+  </div>
+ </div>
+
+</div>
+
+<script>
+const structStepMap = {
+ 1: {
+  jsonBox: true,
+  structBox: true,
+  json: [],
+  struct: []
+ },
+ 2: {
+  jsonBox: false,
+  structBox: false,
+  json: ["j1", "j18"],
+  struct: ["s1", "s14"]
+ },
+ 3: {
+  jsonBox: false,
+  structBox: false,
+  json: ["j2","j3"],
+  struct: ["s2","s3"]
+ },
+ 4: {
+  jsonBox: false,
+  structBox: false,
+  json: ["j4","j5","j6","j7"],
+  struct: ["s4","s5","s6","s7"]
+ },
+ 5: {
+  jsonBox: false,
+  structBox: false,
+  json: ["j8","j9","j10","j11","j12","j13","j14","j15","j16","j17"],
+  struct: ["s8","s9","s10","s11","s12","s13"]
+ }
+};
+
+function clearStructHighlights() {
+ document.querySelectorAll('.line').forEach(el => el.classList.remove('hl'));
+ document.getElementById('jsonBox').classList.remove('focus');
+ document.getElementById('structBox').classList.remove('focus');
+ document.querySelectorAll('.struct-step').forEach(el => el.classList.remove('active'));
+}
+
+function setStructStep(step) {
+ clearStructHighlights();
+
+ const cfg = structStepMap[step];
+ document.querySelector('.struct-step[data-step="' + step + '"]').classList.add('active');
+
+ if (cfg.jsonBox) document.getElementById('jsonBox').classList.add('focus');
+ if (cfg.structBox) document.getElementById('structBox').classList.add('focus');
+
+ cfg.json.forEach(id => document.getElementById(id).classList.add('hl'));
+ cfg.struct.forEach(id => document.getElementById(id).classList.add('hl'));
+}
+
+setStructStep(1);
+</script>
+</div>
+</section>
+<section class="notebook-cell">
+<h5>EXPANDIR PARA NOTAS ADICIONAIS</h5>
+<details>
+
+Agora, vamos percorrer o processo de mapeamento de uma STRING formatada em JSON para uma coluna STRUCT.
+
+- O primeiro passo é definir o esquema, ou estrutura, da string formatada em JSON. Definir o esquema informa ao Databricks como interpretar cada parte da string JSON e convertê-la nos tipos de dados apropriados dentro de um STRUCT.
+- Primeiro, o tipo de dado `STRUCT<>` é usado para armazenar toda a estrutura da string formatada em JSON. Ele atua como um contêiner para todos os campos definidos no JSON, preservando seus tipos de dados e hierarquia dentro de uma única coluna.
+- Em seguida, percorra os pares key-value do JSON um a um e defina a estrutura para cada campo.
+- A key `name` contém um valor do tipo string, enquanto a key `age` contém um valor do tipo inteiro.
+- A key `address` contém outro objeto, que é representado como um `STRUCT` aninhado. Esse `STRUCT` aninhado inclui duas keys: `city` e `state`. Tanto `city` quanto `state` utilizam o tipo de dado string.
+- A key `children` contém um `ARRAY` de `STRUCTS`. Cada `STRUCT` dentro do array inclui duas keys: `name` e `age`. A key `name` contém um valor do tipo string, e a key `age` contém um valor do tipo inteiro.
+
+</details>
+</section>
+<section class="notebook-cell">
+<h2>D. Estrutura da String JSON</h2>
+<p>Após revisar como mapear uma STRING formatada em JSON para uma coluna STRUCT, vamos aprender como determinar facilmente a estrutura da string JSON.</p>
+<p>Isso pode ser feito em dois passos:</p>
+<ol>
+<li>Obter o <strong>schema</strong> da string formatada em JSON usando <code>schema_of_json</code></li>
+<li>Usar a função <strong><code>from_json</code></strong> para aplicar o schema e analisar a coluna</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h3>D1. Passo 1: Derivando o Schema com <code>schema_of_json</code></h3>
+<p>Em vez de definir o schema manualmente, você pode usar a função integrada <code>schema_of_json</code> para derivar automaticamente o schema a partir de uma string JSON de exemplo.</p>
+<p>Basta passar uma string no formato JSON como argumento para essa função, e ela retornará o schema (estrutura) inferido.</p>
+</section>
+<section class="notebook-cell">
+<div style="max-width: 1500px; margin: 0 auto; font-family: sans-serif; color: #0b2026;">
+<div style="display: flex; gap: 24px; align-items: flex-start;">
+  <!-- Left: JSON -->
+  <div style="flex: 0 0 340px; background: #F9F7F4; border: 2px solid #EEEDE9; border-radius: 10px; padding: 16px; font-family: monospace; font-size: 14pt; line-height: 1.5;">
+    {<br>
+    &nbsp;&nbsp;"name": "John Doe",<br>
+    &nbsp;&nbsp;"age": 35,<br>
+    &nbsp;&nbsp;"address": {<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;"city": "Anytown",<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;"state": "CA"<br>
+    &nbsp;&nbsp;},<br>
+    &nbsp;&nbsp;"children": [<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;{ "name": "Owen", "age": 10 },<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;{ "name": "Eva", "age": 8 }<br>
+    &nbsp;&nbsp;]<br>
+    }
+  </div>
+  <!-- Right: Steps -->
+  <div style="flex: 1;">
+    <div style="margin-bottom: 14px; font-size: 14pt;">
+      Podemos <strong>derivar o esquema</strong> da coluna STRING formatada em JSON com <code>schema_of_json</code>
+    </div><br>
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+      <div style="background: #FF5F46; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: 700;">1</div>
+      <div style="font-size: 14pt; font-weight: 600;">Obter o esquema</div>
+    </div>
+    <div style="background: #F9F7F4; border: 2px solid #FF5F46; border-radius: 8px; padding: 14px; font-family: monospace; font-size: 14pt; margin-bottom: 14px;">
+      <span style="color: #4299E0; font-weight: 700;">SELECT</span> schema_of_json(<span style="color: #00A972;">'sample-json-string'</span>)
+    </div>
+    <div style="font-size: 13pt; color: #618794;">
+      A função retorna a <strong>estrutura</strong> da string formatada em JSON
+    </div>
+  </div>
+  <div style="display:flex; align-items:center; justify-content:center;">
+    <div style="font-size:20px; color:#0b2c33;"><br><br><br><br><br><br>→</div>
+  </div>
+  <div style="flex: 1; background: #F9F7F4; border: 2px solid #FF5F46; border-radius: 10px; padding: 18px; font-family: monospace; font-size: 14pt; line-height: 1.6;">
+    <span style="color: #FF5F46; font-weight: 700;">STRUCT</span>&lt;<br>
+    &nbsp;&nbsp;<span style="color: #4299E0;">name</span>: STRING,<br>
+    &nbsp;&nbsp;<span style="color: #4299E0;">age</span>: INT,<br>
+    &nbsp;&nbsp;<span style="color: #4299E0;">address</span>: <span style="color: #FF5F46; font-weight: 700;">STRUCT</span>&lt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;city: STRING,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;state: STRING<br>
+    &nbsp;&nbsp;&gt;,<br>
+    &nbsp;&nbsp;<span style="color: #4299E0;">children</span>: <span style="color: #FF5F46; font-weight: 700;">ARRAY</span>&lt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #FF5F46; font-weight: 700;">STRUCT</span>&lt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: STRING,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;age: INT<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&gt;<br>
+    &nbsp;&nbsp;&gt;<br>
+    &gt;
+  </div>
+</div>
+</div>
+</section>
+<section class="notebook-cell">
+<h5>EXPANDIR PARA NOTAS ADICIONAIS</h5>
+<details>
+
+Basta passar uma string de exemplo no formato JSON como argumento para esta função, e ela retornará o esquema (estrutura) inferido.
+
+</details>
+</section>
+<section class="notebook-cell">
+<h3>D2. Passo 2: Analisando JSON com <code>from_json</code></h3>
+<p>Depois de ter a estrutura da string formatada em JSON, você pode usar a função <strong><code>from_json</code></strong> do Spark. Essa função recebe a string JSON e o esquema especificado obtido no passo anterior, e retorna uma coluna do tipo STRUCT.</p>
+<p>Usar <code>from_json</code> criará uma nova coluna com o tipo de dado STRUCT, contendo os dados JSON analisados de acordo com o esquema definido.</p>
+</section>
+<section class="notebook-cell">
+<div style="max-width: 1000px; margin: 0 auto; font-family: sans-serif; color: #0b2026;">
+<div style="display: flex; gap: 24px; align-items: flex-start;">
+  <!-- Left: STRUCT schema -->
+  <div style="flex: 0 0 320px; background: #F9F7F4; border: 2px solid #EEEDE9; border-radius: 10px; padding: 16px; font-family: monospace; font-size: 14pt; line-height: 1.5;">
+    STRUCT&lt;<br>
+    &nbsp;&nbsp;name: STRING,<br>
+    &nbsp;&nbsp;age: INT,<br>
+    &nbsp;&nbsp;address: STRUCT&lt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;city: STRING,<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;state: STRING<br>
+    &nbsp;&nbsp;&gt;,<br>
+    &nbsp;&nbsp;children: ARRAY&lt;<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;STRUCT&lt;name: STRING, age: INT&gt;<br>
+    &nbsp;&nbsp;&gt;<br>
+    &gt;
+  </div>
+  <!-- Right: from_json -->
+  <div style="flex: 1;">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+      <div style="background: #FF5F46; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: 700;">2</div>
+      <div style="font-size: 14pt; font-weight: 600;">Aplicar o esquema com from_json</div>
+    </div>
+    <div style="background: #F9F7F4; border: 2px solid #FF5F46; border-radius: 8px; padding: 14px; font-family: monospace; font-size: 14pt;">
+      <span style="color: #4299E0; font-weight: 700;">SELECT</span> from_json(json_col, <span style="color: #00A972;">'json-struct-schema'</span>) <span style="color: #4299E0; font-weight: 700;">AS</span> struct_column
+      <span style="color: #4299E0; font-weight: 700;">FROM</span> table
+    </div><br>
+    <div style="margin-bottom: 14px; font-size: 14pt;">
+      A função <code>from_json</code> retorna uma <strong>coluna struct</strong> usando a string JSON e o esquema especificado
+    </div>
+  </div>
+</div>
+</div>
+</section>
+<section class="notebook-cell">
+<h2>E. Conclusão</h2>
+<p>Nesta aula, você aprendeu a trabalhar com dados JSON semiestruturados no Databricks:</p>
+<ul>
+<li><strong>Estrutura JSON</strong>: Objetos delimitados por chaves contêm pares Key-value. Os valores podem ser strings, números, booleanos, arrays ou objetos aninhados.</li>
+<li><strong>Três abordagens</strong> para trabalhar com colunas no formato JSON:</li>
+<li><strong>STRING</strong>: Simples, porém com menor desempenho. O JSON é armazenado como texto bruto.</li>
+<li><strong>STRUCT</strong>: Faz o parse do JSON com um esquema definido. Impõe estrutura e é mais eficiente para consultas.</li>
+<li><strong>VARIANT</strong>: A abordagem mais recente (prévia pública). Altamente flexível e com desempenho aprimorado.</li>
+<li><strong>Conversão de JSON para STRUCT</strong> requer o mapeamento dos tipos JSON para os tipos do Databricks SQL (STRING, INT, BOOLEAN, STRUCT&lt;&gt;, ARRAY&lt;&gt;).</li>
+<li>Use <strong><code>schema_of_json</code></strong> para derivar automaticamente o esquema a partir de uma string JSON de exemplo.</li>
+<li>Use <strong><code>from_json</code></strong> para fazer o parse de uma coluna de string JSON em uma coluna STRUCT utilizando o esquema derivado.</li>
+</ul>
+<h3>Próximos Passos</h3>
+<p>Na próxima seção, você trabalhará de forma prática com dados JSON, fazendo o parse e a transformação de colunas no formato JSON utilizando essas técnicas.</p>
+</section>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightbox(event)">✕</button>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
+
+<script>
+if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
+function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
+function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});
+document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src);});});
+</script>
+</body>
+</html>

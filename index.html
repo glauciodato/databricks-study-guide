@@ -3,99 +3,115 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Databricks Data Engineer Study Guide</title>
+<title>Data Ingestion with LakeFlow Connect | Databricks Study Guide</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #0e1117; --surface: #161b22; --surface-raised: #1c2129;
     --border: #2a313a; --text: #e6edf3; --text-muted: #8b949e; --text-faint: #6e7681;
-    --accent: #ff6433; --accent-soft: rgba(255,100,51,0.12); --accent-text: #ff8c66;
-    --green: #3fb950; --blue: #58a6ff; --purple: #bc8cff; --yellow: #d29922;
+    --accent: #ff6433; --accent-soft: rgba(255,100,51,0.12);
     --radius: 12px;
   }
   body.light {
     --bg: #f8f9fb; --surface: #ffffff; --surface-raised: #f0f2f5;
     --border: #d8dce2; --text: #1a1d23; --text-muted: #5a6170; --text-faint: #8891a0;
-    --accent: #e0501e; --accent-soft: rgba(224,80,30,0.08); --accent-text: #c94418;
-    --green: #1a8a3e; --blue: #2563eb; --purple: #7c3aed;
+    --accent: #e0501e; --accent-soft: rgba(224,80,30,0.08);
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; }
-  .hero { text-align:center; margin-bottom:48px; }
-  .hero .logo { font-size:12px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
-  .hero h1 { font-size:32px; font-weight:700; margin-bottom:12px; line-height:1.25; }
-  .hero p { color:var(--text-muted); font-size:16px; max-width:500px; margin:0 auto; line-height:1.7; }
-  .chapters { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; max-width:900px; width:100%; }
-  .ch-card {
-    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
-    padding:28px 24px; text-decoration:none; color:var(--text); transition:all 0.2s;
-    display:flex; flex-direction:column; gap:8px;
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:40px 20px; }
+  .hero { text-align:center; margin-bottom:40px; }
+  .hero .logo { font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); margin-bottom:6px; }
+  .hero h1 { font-size:28px; font-weight:700; margin-bottom:10px; line-height:1.3; }
+  .hero p { color:var(--text-muted); font-size:14px; max-width:520px; margin:0 auto; line-height:1.7; }
+  .lessons { max-width:700px; margin:0 auto; }
+  .lesson-card {
+    display:flex; align-items:center; gap:16px; background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); padding:16px 20px; margin-bottom:8px; text-decoration:none; color:var(--text); transition:all 0.2s;
   }
-  .ch-card:hover { border-color:var(--accent); transform:translateY(-2px); box-shadow:0 4px 20px rgba(0,0,0,0.15); }
-  .ch-card .ch-num { font-size:12px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; }
-  .ch-card .ch-title { font-size:17px; font-weight:700; line-height:1.35; }
-  .ch-card .ch-desc { font-size:13px; color:var(--text-muted); line-height:1.6; }
-  .ch-card .ch-meta { font-size:12px; color:var(--text-faint); margin-top:auto; padding-top:12px; border-top:1px solid var(--border); }
-  .c1 .ch-num { color:var(--accent); }
-  .c2 .ch-num { color:var(--blue); }
-  .c3 .ch-num { color:var(--purple); }
-  .c4 .ch-num { color:var(--green); }
-  .theme-btn { position:fixed; bottom:20px; right:20px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:44px; height:44px; border-radius:50%; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,0.15); }
-  @media(max-width:600px) { .chapters { grid-template-columns:1fr; } .hero h1 { font-size:24px; } }
+  .lesson-card:hover { border-color:var(--accent); transform:translateX(4px); }
+  .lesson-num { font-size:12px; font-weight:700; color:var(--text-faint); min-width:28px; }
+  .lesson-info { flex:1; }
+  .lesson-title { font-size:14px; font-weight:600; line-height:1.3; }
+  .lesson-desc { font-size:12px; color:var(--text-muted); margin-top:2px; }
+  .lesson-arrow { color:var(--text-faint); font-size:16px; }
+  .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
 </style>
 </head>
 <body>
 
 <div class="hero">
-  <div class="logo">Databricks</div>
-  <h1>Data Engineer<br>Study Guide</h1>
-  <p>Selecione um capítulo para estudar. Cada página carrega apenas o conteúdo e imagens daquele capítulo.</p>
+  <div class="logo">Databricks Academy · PT-BR</div>
+  <h1>Data Ingestion with<br>LakeFlow Connect</h1>
+  <p>Curso completo sobre ingestão de dados com LakeFlow Connect na Databricks Data Intelligence Platform. 9 aulas com diagramas interativos.</p>
 </div>
 
-<div class="chapters">
-  <a href="capitulo-1.html" class="ch-card c1">
-    <div class="ch-num">Capítulo 1</div>
-    <div class="ch-title">Data Ingestion with Lakeflow Connect</div>
-    <div class="ch-desc">CTAS, COPY INTO, Auto Loader, metadata columns, rescued data, JSON parsing, enterprise connectors e MERGE INTO.</div>
-    <div class="ch-meta">7 lições · 1 quiz · 17 diagramas</div>
+<div class="lessons">
+  <a href="00-overview.html" class="lesson-card">
+    <span class="lesson-num">00</span>
+    <div class="lesson-info">
+      <div class="lesson-title">Visão Geral do Curso</div>
+    </div>
+    <span class="lesson-arrow">→</span>
   </a>
-  <a href="capitulo-2.html" class="ch-card c2">
-    <div class="ch-num">Capítulo 2</div>
-    <div class="ch-title">Deploy Workloads with Lakeflow Jobs</div>
-    <div class="ch-desc">Jobs, Tasks, DAGs, compute, parameters, triggers, conditional/iterative tasks, monitoring e best practices.</div>
-    <div class="ch-meta">7 lições · 1 quiz · 24 diagramas</div>
+  <a href="01-data-engineering.html" class="lesson-card">
+    <span class="lesson-num">01</span>
+    <div class="lesson-info">
+      <div class="lesson-title">Engenharia de Dados no Databricks</div>
+    </div>
+    <span class="lesson-arrow">→</span>
   </a>
-  <a href="capitulo-3.html" class="ch-card c3">
-    <div class="ch-num">Capítulo 3</div>
-    <div class="ch-title">Spark Declarative Pipelines</div>
-    <div class="ch-desc">Streaming Tables, Materialized Views, Expectations, CDC, SCD Type 1/2, AUTO CDC INTO e pipeline deployment.</div>
-    <div class="ch-meta">6 lições · 3 steppers · 16 diagramas</div>
+  <a href="03-cloud-storage.html" class="lesson-card">
+    <span class="lesson-num">03</span>
+    <div class="lesson-info">
+      <div class="lesson-title">Ingestão de Dados de Cloud Storage</div>
+    </div>
+    <span class="lesson-arrow">→</span>
   </a>
-  <a href="capitulo-4.html" class="ch-card c4">
-    <div class="ch-num">Capítulo 4</div>
-    <div class="ch-title">DevOps Essentials for Data Engineering</div>
-    <div class="ch-desc">SWE practices, modularização PySpark, CI/CD, unit tests, integration tests, Git e Declarative Automation Bundles.</div>
-    <div class="ch-meta">9 lições (CI + CD) · 11 diagramas</div>
+  <a href="06-metadata-columns.html" class="lesson-card">
+    <span class="lesson-num">06</span>
+    <div class="lesson-info">
+      <div class="lesson-title">Colunas de Metadata na Ingestão</div>
+    </div>
+    <span class="lesson-arrow">→</span>
+  </a>
+  <a href="08-rescued-data.html" class="lesson-card">
+    <span class="lesson-num">08</span>
+    <div class="lesson-info">
+      <div class="lesson-title">Coluna de Dados Resgatados</div>
+    </div>
+    <span class="lesson-arrow">→</span>
+  </a>
+  <a href="11-json-data.html" class="lesson-card">
+    <span class="lesson-num">11</span>
+    <div class="lesson-info">
+      <div class="lesson-title">Ingestão de Dados JSON</div>
+    </div>
+    <span class="lesson-arrow">→</span>
+  </a>
+  <a href="14-enterprise-data.html" class="lesson-card">
+    <span class="lesson-num">14</span>
+    <div class="lesson-info">
+      <div class="lesson-title">Ingestão de Dados Corporativos</div>
+    </div>
+    <span class="lesson-arrow">→</span>
+  </a>
+  <a href="16-additional-features.html" class="lesson-card">
+    <span class="lesson-num">16</span>
+    <div class="lesson-info">
+      <div class="lesson-title">Features Adicionais e MERGE INTO</div>
+    </div>
+    <span class="lesson-arrow">→</span>
+  </a>
+  <a href="99-summary.html" class="lesson-card">
+    <span class="lesson-num">99</span>
+    <div class="lesson-info">
+      <div class="lesson-title">Resumo e Próximos Passos</div>
+    </div>
+    <span class="lesson-arrow">→</span>
   </a>
 </div>
 
-
-<div class="hero" style="margin-top:48px;margin-bottom:32px;">
-  <div class="logo" style="color:var(--green);">Laboratórios</div>
-  <h1 style="font-size:24px;">Notebooks Oficiais</h1>
-  <p style="font-size:14px;">Material original da Databricks Academy em português, com diagramas e código interativos.</p>
-</div>
-
-<div class="chapters" style="max-width:460px;">
-  <a href="lab-ch1-intro.html" class="ch-card c1">
-    <div class="ch-num">Capítulo 1 · Lab</div>
-    <div class="ch-title">Engenharia de Dados no Databricks</div>
-    <div class="ch-desc">LakeFlow Connect, métodos de ingestão (batch, incremental, streaming), Delta Lake e Arquitetura Medallion.</div>
-    <div class="ch-meta">Aula completa · 6 seções · Diagramas interativos</div>
-  </a>
-</div>
-
-<button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'" title="Alternar tema">☀️</button>
+<button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
 <script>if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}</script>
 </body>
 </html>
