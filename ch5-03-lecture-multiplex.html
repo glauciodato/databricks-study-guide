@@ -1,87 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Multiplex Streaming, Delta Sinks e Iceberg | Advanced SDP</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0e1117; --surface: #161b22; --surface-raised: #1c2129;
-    --border: #2a313a; --text: #e6edf3; --text-muted: #8b949e; --text-faint: #6e7681;
-    --accent: #ff6433; --accent-soft: rgba(255,100,51,0.12);
-    --green: #3fb950; --blue: #58a6ff; --purple: #bc8cff; --yellow: #d29922;
-    --radius: 12px;
-  }
-  body.light {
-    --bg: #f8f9fb; --surface: #ffffff; --surface-raised: #f0f2f5;
-    --border: #d8dce2; --text: #1a1d23; --text-muted: #5a6170; --text-faint: #8891a0;
-    --accent: #e0501e; --accent-soft: rgba(224,80,30,0.08);
-    --green: #1a8a3e; --blue: #2563eb; --purple: #7c3aed;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
-  .top-bar { position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border); padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-  .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
-  .top-bar a:hover { color:var(--accent); }
-  .top-bar .sep { color:var(--text-faint); font-size:11px; }
-  .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
-  .layout { display:flex; min-height:calc(100vh - 50px); }
-  .sidebar { width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border); padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px); }
-  .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
-  .sidebar a { display:block; padding:6px 16px; font-size:12px; color:var(--text-muted); text-decoration:none; border-left:2px solid transparent; line-height:1.5; transition:all 0.15s; }
-  .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
-  .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
-  .content { flex:1; max-width:900px; padding:32px 40px 80px; }
-  .notebook-cell { margin-bottom:24px; }
-  .notebook-cell h1 { font-size:26px; font-weight:700; margin-bottom:12px; }
-  .notebook-cell h2 { font-size:21px; font-weight:700; margin:28px 0 12px; padding-top:20px; border-top:1px solid var(--border); }
-  .notebook-cell h3 { font-size:17px; font-weight:600; margin:20px 0 10px; }
-  .notebook-cell h4 { font-size:15px; font-weight:600; margin:16px 0 8px; }
-  .notebook-cell h5 { font-size:12px; font-weight:600; margin:14px 0 6px; color:var(--text-muted); }
-  .notebook-cell p { margin-bottom:10px; font-size:14.5px; }
-  .notebook-cell ul, .notebook-cell ol { margin:0 0 10px 20px; font-size:14.5px; }
-  .notebook-cell li { margin-bottom:4px; }
-  .notebook-cell code { font-family:'IBM Plex Mono',monospace; background:var(--surface-raised); padding:1px 5px; border-radius:3px; font-size:12.5px; }
-  .notebook-cell pre { background:var(--surface-raised); border:1px solid var(--border); border-radius:8px; padding:14px; overflow-x:auto; margin:10px 0; }
-  .notebook-cell pre code { background:none; padding:0; }
-  .notebook-cell img { max-width:100%; height:auto; border-radius:6px; cursor:zoom-in; }
-  .notebook-cell details { margin:10px 0; padding:10px 14px; background:var(--surface-raised); border-radius:6px; border:1px solid var(--border); font-size:13.5px; }
-  .notebook-cell details summary { cursor:pointer; font-weight:600; color:var(--text-muted); font-size:12px; }
-  .notebook-cell svg { max-width:100%; height:auto; }
-  .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
-  .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
-  .notebook-cell th { background:var(--surface-raised); font-weight:600; }
-
-  /* Code blocks with copy */
-  .code-block { position:relative; margin:12px 0; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
-  .code-header { display:flex; align-items:center; justify-content:space-between; padding:6px 12px; background:var(--surface); border-bottom:1px solid var(--border); }
-  .code-lang { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); }
-  .copy-btn { background:none; border:1px solid var(--border); color:var(--text-muted); font-size:11px; padding:3px 10px; border-radius:4px; cursor:pointer; font-family:inherit; transition:all 0.15s; }
-  .copy-btn:hover { color:var(--text); border-color:var(--text-muted); }
-  .copy-btn.copied { color:var(--green); border-color:var(--green); }
-  .code-block pre { margin:0; border:none; border-radius:0; background:var(--surface-raised); }
-
-  .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
-  .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
-  .lightbox.open { display:flex; }
-  .lightbox img { max-width:95vw; max-height:92vh; border-radius:6px; box-shadow:0 8px 40px rgba(0,0,0,0.5); object-fit:contain; background:#fff; padding:6px; cursor:default; }
-  .lightbox .lb-close { position:fixed; top:12px; right:16px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-  @media(max-width:768px) { .sidebar { display:none; } .content { padding:20px 16px 60px; } }
-</style>
-</head>
-<body>
-<div class="top-bar">
-  <a href="index.html">← Início</a>
-  <span class="sep">›</span>
-  <a href="capitulo-5.html">Capítulo 5</a>
-  <span class="sep">›</span>
-  <span class="title">3. Multiplex Streaming, Delta Sinks e Iceberg</span>
-</div>
-<div class="layout">
-  <nav class="sidebar">
-    <div class="nav-title">Capítulo 5 · Advanced SDP</div>
-    <a href="ch5-00-overview.html">📋 0. Visão Geral do Curso</a>
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Multiplex Streaming, Delta Sinks e Iceberg | Advanced SDP</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"><style>:root{--bg:#0e1117;--surface:#161b22;--surface-raised:#1c2129;--border:#2a313a;--text:#e6edf3;--text-muted:#8b949e;--text-faint:#6e7681;--accent:#ff6433;--accent-soft:rgba(255,100,51,0.12);--green:#3fb950;--blue:#58a6ff;--purple:#bc8cff;--yellow:#d29922;--radius:12px}body.light{--bg:#f8f9fb;--surface:#fff;--surface-raised:#f0f2f5;--border:#d8dce2;--text:#1a1d23;--text-muted:#5a6170;--text-faint:#8891a0;--accent:#e0501e;--accent-soft:rgba(224,80,30,0.08);--green:#1a8a3e;--blue:#2563eb;--purple:#7c3aed}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}.top-bar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.top-bar a{color:var(--text-muted);text-decoration:none;font-size:13px}.top-bar a:hover{color:var(--accent)}.top-bar .sep{color:var(--text-faint);font-size:11px}.top-bar .title{font-size:14px;font-weight:600;color:var(--text);flex:1}.layout{display:flex;min-height:calc(100vh - 50px)}.sidebar{width:300px;min-width:300px;background:var(--surface);border-right:1px solid var(--border);padding:20px 0;overflow-y:auto;position:sticky;top:50px;height:calc(100vh - 50px)}.sidebar .nav-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint);padding:0 16px;margin-bottom:8px}.sidebar a{display:block;padding:6px 16px;font-size:12px;color:var(--text-muted);text-decoration:none;border-left:2px solid transparent;line-height:1.5;transition:all 0.15s}.sidebar a:hover{color:var(--text);background:var(--surface-raised)}.sidebar a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}.content{flex:1;max-width:900px;padding:32px 40px 80px}.notebook-cell{margin-bottom:24px}.notebook-cell h1{font-size:26px;font-weight:700;margin-bottom:12px}.notebook-cell h2{font-size:21px;font-weight:700;margin:28px 0 12px;padding-top:20px;border-top:1px solid var(--border)}.notebook-cell h3{font-size:17px;font-weight:600;margin:20px 0 10px}.notebook-cell h4{font-size:15px;font-weight:600;margin:16px 0 8px}.notebook-cell h5{font-size:12px;font-weight:600;margin:14px 0 6px;color:var(--text-muted)}.notebook-cell p{margin-bottom:10px;font-size:14.5px}.notebook-cell ul,.notebook-cell ol{margin:0 0 10px 20px;font-size:14.5px}.notebook-cell li{margin-bottom:4px}.notebook-cell code{font-family:'IBM Plex Mono',monospace;background:var(--surface-raised);padding:1px 5px;border-radius:3px;font-size:12.5px}.notebook-cell pre{background:var(--surface-raised);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;margin:10px 0}.notebook-cell pre code{background:none;padding:0}.notebook-cell img{max-width:100%;height:auto;border-radius:6px;cursor:zoom-in}.notebook-cell details{margin:10px 0;padding:10px 14px;background:var(--surface-raised);border-radius:6px;border:1px solid var(--border);font-size:13.5px}.notebook-cell details summary{cursor:pointer;font-weight:600;color:var(--text-muted);font-size:12px}.notebook-cell svg{max-width:100%;height:auto}.notebook-cell table{width:100%;border-collapse:collapse;margin:10px 0}.notebook-cell th,.notebook-cell td{padding:6px 10px;border:1px solid var(--border);font-size:13px}.notebook-cell th{background:var(--surface-raised);font-weight:600}.code-block{position:relative;margin:12px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden}.code-header{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:var(--surface);border-bottom:1px solid var(--border)}.code-lang{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint)}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;font-family:inherit;transition:all 0.15s}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}.copy-btn.copied{color:var(--green);border-color:var(--green)}.code-block pre{margin:0;border:none;border-radius:0;background:var(--surface-raised)}.theme-btn{position:fixed;bottom:16px;right:16px;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:200}.lightbox{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);cursor:zoom-out;align-items:center;justify-content:center;padding:20px}.lightbox.open{display:flex}.lightbox img{max-width:95vw;max-height:92vh;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,0.5);object-fit:contain;background:#fff;padding:6px;cursor:default}.lightbox .lb-close{position:fixed;top:12px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}@media(max-width:768px){.sidebar{display:none}.content{padding:20px 16px 60px}}</style></head><body><div class="top-bar"><a href="index.html">← Início</a><span class="sep">›</span><a href="capitulo-5.html">Capítulo 5</a><span class="sep">›</span><span class="title">3. Multiplex Streaming, Delta Sinks e Iceberg</span></div><div class="layout"><nav class="sidebar"><div class="nav-title">Capítulo 5 · Advanced SDP</div>    <a href="ch5-00-overview.html">📋 0. Visão Geral do Curso</a>
     <a href="ch5-01-lecture-multi-flows.html">📖 1. Multi Flows, Expectations e Liquid Clustering</a>
     <a href="ch5-02-demo-multi-flow.html">⚙️ 2. Demo: Multi Flow SDP + Liquid Clustering</a>
     <a href="ch5-03-lecture-multiplex.html" class="active">📖 3. Multiplex Streaming, Delta Sinks e Iceberg</a>
@@ -91,10 +8,7 @@
     <a href="ch5-07-lecture-quality.html">📖 7. Advanced Data Quality e Quarantine Pattern</a>
     <a href="ch5-08-demo-quality.html">⚙️ 8. Demo: Advanced Quality + Quarantine</a>
     <a href="ch5-09-lab-pipeline.html">🧪 9. Lab: Multi-Source Ecommerce Pipeline</a>
-    <a href="ch5-99-summary.html">📋 99. Resumo e Próximos Passos</a>
-  </nav>
-  <div class="content">
-<section class="notebook-cell">
+    <a href="ch5-99-summary.html">📋 99. Resumo e Próximos Passos</a></nav><div class="content"><section class="notebook-cell">
 <div style="text-align: center; line-height: 0; padding-top: 9px;">
   <img
     src="https://databricks.com/wp-content/uploads/2018/03/db-academy-rgb-1200px.png"
@@ -104,23 +18,23 @@
 </section>
 <section class="notebook-cell">
 <h1>Lecture - Introduction to Multiplex Streaming, Delta Sinks, and Iceberg Reads</h1>
-<p>This lecture introduces three advanced concepts used in Spark Declarative Pipelines: the <strong>Multiplex pattern</strong> for efficiently ingesting mixed event streams, <strong>Delta Sinks</strong> for writing streaming data to external tables, and <strong>Iceberg reads via Delta UniForm</strong> for enabling cross-platform access to Delta tables.</p>
+<p>Esta aula apresenta three advanced concepts used in Spark Declarative Pipelines: the <strong>Multiplex pattern</strong> for efficiently ingesting mixed event streams, <strong>Delta Sinks</strong> for writing streaming data to external tables, and <strong>Iceberg reads via Delta UniForm</strong> for enabling acesso cross-platform to Delta tables.</p>
 <h2>Objetivos de Aprendizado</h2>
-<p>By the end of this lecture, you will be able to:</p>
+<p>Ao final desta aula, você será capaz de:</p>
 <ul>
 <li>Explain the <strong>Multiplex pattern</strong> and how fan-out works for mixed event streams</li>
 <li>Describe what a <strong>Delta Sink</strong> is and when to use it over managed streaming tables</li>
-<li>Explain how <strong>Delta UniForm</strong> enables Iceberg reads without data duplication</li>
+<li>Explain how <strong>Delta UniForm</strong> enables Iceberg reads sem duplicação de dados</li>
 <li>Understand how these three concepts <strong>chain together</strong> in a single pipeline</li>
 </ul>
 </section>
 <section class="notebook-cell">
 <h2>A. The Multiplex Pattern</h2>
-<p>The Multiplex pattern addresses a common production challenge: efficiently processing multiple event types that arrive through a single data transport mechanism.</p>
+<p>The Multiplex pattern addresses a common production challenge: efficiently processing múltiplos tipos de eventos that arrive through um único transporte de dados mechanism.</p>
 </section>
 <section class="notebook-cell">
 <h3>A1. The Problem: One Stream, Many Schemas</h3>
-<p>In production environments, multiple business systems often share a <strong>single data transport</strong> such as:
+<p>Em ambientes de produção, multiple business systems often share a <strong>single data transport</strong> como por exemplo:
 - One Kafka topic
 - One cloud storage path<br />
 - One message queue</p>
@@ -192,7 +106,7 @@ mermaid.initialize({ startOnLoad: true, theme: "default" });
 </section>
 <section class="notebook-cell">
 <h2>B. Sinks</h2>
-<p>Sinks provide a mechanism to write streaming data from a Spark Declarative Pipeline to external Delta tables that exist outside the pipeline's managed scope.</p>
+<p>Sinks provide a mechanism to write streaming data from a Spark Declarative Pipeline to external Delta tables that exist fora do pipeline's managed scope.</p>
 <div style="display:flex;justify-content:left;margin:32px 0;">
 <div class="mermaid" style="min-width:750px;">
 flowchart LR
@@ -286,7 +200,7 @@ mermaid.initialize({
 </section>
 <section class="notebook-cell">
 <h3>B2. Managed Tables vs. Sinks</h3>
-<p>Every standard dataset in a Spark Declarative Pipeline — streaming table or materialized view — is <strong>owned and managed by the pipeline</strong>. A <strong>sink</strong> breaks this intentionally: it lets the pipeline write streaming data to a <strong>plain Delta table that exists outside the pipeline's managed scope</strong>.</p>
+<p>Every standard dataset in a Spark Declarative Pipeline — streaming table or materialized view — is <strong>owned and managed by the pipeline</strong>. A <strong>sink</strong> breaks this intentionally: it lets the pipeline write streaming data to a <strong>plain Delta table that exists fora do pipeline's managed scope</strong>.</p>
 <div style="display:flex;gap:0;margin:24px 0;align-items:stretch;">
 
   <div style="flex:1;background:#E8F5E9;border-top:4px solid #388E3C;border-radius:12px 0 0 12px;padding:24px;">
@@ -419,7 +333,7 @@ def my_sink_flow():
 </section>
 <section class="notebook-cell">
 <h2>C. Iceberg Reads via Delta UniForm</h2>
-<p>Delta UniForm enables cross-platform access to Delta tables by automatically generating Apache Iceberg metadata without duplicating the underlying data.</p>
+<p>Delta UniForm enables acesso cross-platform to Delta tables by automatically generating Apache Iceberg metadata sem duplicar os dados subjacentes.</p>
 </section>
 <section class="notebook-cell">
 <h3>C1. The Cross-Platform Challenge</h3>
@@ -551,7 +465,7 @@ mermaid.initialize({
       <div style="font-weight:bold;font-size:13px;color:#333;">Column Mapping Mode</div>
       <div style="font-size:13px;color:#555;margin-top:2px;">
         <strong>Property:</strong> <code style="font-size:12px;">'delta.columnMapping.mode' = 'name'</code><br>
-        Ensures column identifiers are consistent between Delta and Iceberg schemas, preventing schema drift and enabling seamless cross-platform access.
+        Ensures column identifiers are consistent between Delta and Iceberg schemas, preventing schema drift and enabling seamless acesso cross-platform.
       </div>
     </div>
   </div>
@@ -580,9 +494,9 @@ mermaid.initialize({
 <div style="background:#FFEBEE;border-left:4px solid #F44336;border-radius:4px;padding:14px 18px;margin:16px 0;">
   <div style="font-weight:bold;font-size:14px;color:#B71C1C;margin-bottom:6px;">⚠️ Iceberg Reads Only Work on Plain Delta Tables</div>
   <div style="font-size:14px;color:#333;">
-    <strong>Nota:</strong> Pipeline-managed <b>streaming tables</b> and <b>materialized views</b> cannot have Iceberg reads enabled. Only a plain external Delta table—such as one created via a <b>Delta Sink</b>—supports UniForm. This bridge is required for cross-platform access.
+    <strong>Note:</strong> Pipeline-managed <b>streaming tables</b> and <b>materialized views</b> cannot have Iceberg reads enabled. Only a plain external Delta table—such as one created via a <b>Delta Sink</b>—supports UniForm. This bridge is required for acesso cross-platform.
     <br><br>
-    <strong>Additional Details:</strong> Setting these properties is a one-time operation, but must be done before any data is written. Once enabled, Iceberg metadata is kept in sync automatically, allowing tools like Snowflake, Trino, and Athena to query the same Delta table.
+    <strong>Detalhes Adicionais:</strong> Setting these properties is a one-time operation, but must be done before any data is written. Once enabled, Iceberg metadata is kept in sync automatically, allowing tools like Snowflake, Trino, and Athena to query the same Delta table.
   </div>
 </div>
 
@@ -594,7 +508,7 @@ mermaid.initialize({
 </div>
 </section>
 <section class="notebook-cell">
-<h4>EXPAND FOR ADDITIONAL DETAILS</h4>
+<h4>EXPANDIR PARA DETALHES ADICIONAIS</h4>
 <details>
 
 
@@ -647,7 +561,7 @@ Both Delta Lake and Apache Iceberg are built on the same foundation: <strong>Par
 </section>
 <section class="notebook-cell">
 <h2>D. Connecting the Concepts</h2>
-<p>These three concepts work together to solve complex real-world data pipeline requirements.Each concept solves a distinct problem. Together they form a complete pattern for pipelines that need real-time processing and cross-platform access.</p>
+<p>These three concepts work together to solve complex real-world data pipeline requirements.Each concept solves a distinct problem. Together they form a complete pattern for pipelines that need real-time processing and acesso cross-platform.</p>
 </section>
 <section class="notebook-cell">
 <div class="mermaid" style="min-width:800px;">
@@ -674,7 +588,7 @@ mermaid.initialize({
 </script>
 </section>
 <section class="notebook-cell">
-<h4>EXPAND FOR ADDITIONAL DETAILS</h4>
+<h4>EXPANDIR PARA DETALHES ADICIONAIS</h4>
 <details>
 
 ### Combined Advanced Pipeline Pattern
@@ -685,7 +599,7 @@ mermaid.initialize({
 - **Output**: Domain-specific silver tables
 
 #### 2. Delta Sink
-- **Problem**: Need external table for cross-platform access
+- **Problem**: Need external table for acesso cross-platform
 - **Solution**: `dp.create_sink()` + `@dp.append_flow`
 - **Output**: Plain Delta table outside pipeline scope
 
@@ -697,27 +611,4 @@ mermaid.initialize({
 </section>
 <section class="notebook-cell">
 <p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
-</section>
-  </div>
-</div>
-<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
-  <button class="lb-close" onclick="closeLightbox(event)">✕</button>
-  <img id="lb-img" src="" alt="">
-</div>
-<button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
-<script>
-if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
-function copyCode(btn){
-  var code=btn.closest('.code-block').querySelector('code').textContent;
-  navigator.clipboard.writeText(code).then(function(){
-    btn.textContent='✅ Copiado!';btn.classList.add('copied');
-    setTimeout(function(){btn.textContent='📋 Copiar';btn.classList.remove('copied');},2000);
-  });
-}
-function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
-function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});
-document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src);});});
-</script>
-</body>
-</html>
+</section></div></div><div class="lightbox" id="lightbox" onclick="closeLightbox(event)"><button class="lb-close" onclick="closeLightbox(event)">✕</button><img id="lb-img" src="" alt=""></div><button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button><script>if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙'}function copyCode(b){var c=b.closest('.code-block').querySelector('code').textContent;navigator.clipboard.writeText(c).then(function(){b.textContent='✅ Copiado!';b.classList.add('copied');setTimeout(function(){b.textContent='📋 Copiar';b.classList.remove('copied')},2000)})}function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden'}function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow=''}document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e)});document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src)})});</script></body></html>
