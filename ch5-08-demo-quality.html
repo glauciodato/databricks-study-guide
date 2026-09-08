@@ -15,7 +15,7 @@
 <section class="notebook-cell">
 <div style="text-align: center; line-height: 0; padding-top: 9px;">
   <img
-    src="https://databricks.com/wp-content/uploads/2018/03/db-academy-rgb-1200px.png"
+    src="§0§
     alt="Databricks Learning"
   >
 </div>
@@ -24,7 +24,7 @@
 <h1>Demo - Advanced Data Quality Checks and Expectations in Spark Declarative Pipelines</h1>
 <h2>Visão Geral</h2>
 <p>This demonstration showcases enterprise-grade data quality management using Spark Declarative Pipelines (Lakeflow) with advanced quality expectations and quarantine patterns. You will build a comprehensive medallion architecture that implements three critical data engineering patterns: range-based validation, automatic schema evolution, and zero-loss quarantine processing.</p>
-<p>The demo simulates a real-world scenario where order data arrives with varying quality levels and evolving schemas. Using official Databricks patterns, you will process this data through bronze, silver, and gold layers while implementing robust quality controls that catch data anomalies, handle schema changes seamlessly, and ensure zero data loss through intelligent quarantine mechanisms.</p>
+<p>The demo simulates a do mundo real scenario where order data arrives with varying quality levels and evolving schemas. Using official Databricks patterns, you will process this data through bronze, silver, and gold layers while implementing robust quality controls that catch data anomalies, handle schema changes seamlessly, and ensure zero data loss through intelligent quarantine mechanisms.</p>
 <p>This demonstration uses a two-run approach: Run 1 establishes a clean baseline with 157 perfect records to validate the quality framework, while Run 2 introduces 60 records containing intentional quality issues and schema evolution to demonstrate the system's resilience and monitoring capabilities.</p>
 <h2>Objetivos de Aprendizado</h2>
 <p>By the end of this demonstration, you will be able to:</p>
@@ -58,7 +58,7 @@ Before starting this notebook, select the required compute environment listed be
 </section>
 <section class="notebook-cell">
 <h2>Visão Geral da Arquitetura da Demo</h2>
-<p>This demo demonstrates how to build a robust data pipeline using Databricks medallion architecture, focusing on data quality enforcement and schema flexibility.</p>
+<p>This demo demonstra como construir a robust data pipeline using Databricks medallion architecture, focusing on data quality enforcement and schema flexibility.</p>
 <h3>Key Patterns Demonstrated</h3>
 <p><strong>1. Advanced Data Quality Checks</strong>
 - Enforce comprehensive data quality rules: NOT NULL for business keys, numeric range validations, and temporal checks
@@ -72,7 +72,7 @@ Before starting this notebook, select the required compute environment listed be
 - Tracks which specific rules failed for each record with detailed failure reasons
 - Enables parallel processing of valid and invalid data streams</p>
 <h3>Demo Pipeline Architecture</h3>
-<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/dq/dq_pipeline_overview.png" alt="Complete Pipeline Run 1" width="1200"></p>
+<p><img src="§0§ Techniques with Apache Spark Declarative Pipelines/Includes/images/dq/dq_pipeline_overview.png" alt="Complete Pipeline Run 1" width="1200"></p>
 <h3>Demo Execution Flow</h3>
 <ul>
 <li><strong>Run 1:</strong> Clean baseline data (157 records) — all pass quality checks, establishes 100% quality baseline</li>
@@ -141,8 +141,8 @@ The catalog name is derived from your Databricks username and follows this patte
 </div>
 </section>
 <section class="notebook-cell">
-<h3>A1. Configure Your Catalog and Schema</h3>
-<p>Execute a célula abaixo to initialize your environment. This setup step performs the following actions:</p>
+<h3>A1. Configurar Seu Catalog e Schema</h3>
+<p>Execute a célula abaixo para inicializar seu ambiente. This setup step performs o seguinte actions:</p>
 <ul>
 <li><strong>Creates or validates catalog access</strong> when running outside of a Databricks provided Vocareum workspace</li>
 <li><strong>Creates four schemas</strong> in your specified catalog:<ul>
@@ -178,7 +178,7 @@ The catalog name is derived from your Databricks username and follows this patte
 
 If you do not have permission to create a new catalog but already have one available, you can explicitly specify an existing catalog by using the `catalog_forced` argument in the `build_user_catalog_name` function.
 
-This function is defined in the notebook: `./Includes/Classroom-Configuração-dq`
+This function is defined in the notebook: `./Includes/Classroom-Setup-dq`
 
   </div>
 </details>
@@ -186,16 +186,16 @@ This function is defined in the notebook: `./Includes/Classroom-Configuração-d
 </section>
 <section class="notebook-cell">
 <h3>A2. Verify Volume Path Configuration</h3>
-<p>Execute a célula abaixo to view the value of the <code>my_vol_path</code> variable and confirm that it references your <strong>your-catalog.dq_1_bronze</strong> path. This path will be used to dynamically reference your source volumes throughout this demonstration.</p>
+<p>Execute a célula abaixo para ver o valor de the <code>my_vol_path</code> variable and confirm that it references your <strong>your-catalog.dq_1_bronze</strong> path. This path will be used to dynamically reference your source volumes throughout this demonstration.</p>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>print(my_vol_path)</code></pre></div></section>
 <section class="notebook-cell">
-<h2>B. Explorar os Dados Fonte Characteristics</h2>
-<p>Before building the pipeline, examine the source data to understand its structure, quality characteristics, and schema evolution patterns. This analysis will inform our quality expectation design.</p>
+<h2>B. Explorar as Características dos Dados Fonte</h2>
+<p>Antes de construir the pipeline, examine os dados fonte to understand its structure, quality characteristics, and schema evolution patterns. This analysis will inform our quality expectation design.</p>
 </section>
 <section class="notebook-cell">
 <h3>B1. Examine Available Data Files</h3>
-<p>View all files available in your <strong>ops</strong> volume. Note que it contains multiple files that will be incrementally moved to the <code>sales</code> volume for processing, simulating real-world data arrival patterns.</p>
+<p>View all files available in your <strong>ops</strong> volume. Note que it contains multiple files that will be incrementally moved to the <code>sales</code> volume for processing, simulating do mundo real data arrival patterns.</p>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># List files in volume
 display(spark.sql(f"LIST '{my_vol_path}/ops'"))</code></pre></div></section>
@@ -243,11 +243,11 @@ display(spark.sql(f"LIST '{my_vol_path}/sales'"))</code></pre></div></section>
 </section>
 <section class="notebook-cell">
 <h2>C. Criar o Spark Declarative Pipeline</h2>
-<p>Agora que understand the data characteristics and quality challenges, create the Spark Declarative Pipeline with comprehensive data quality expectations and quarantine handling.</p>
+<p>Now that we understand the data characteristics and quality challenges, create the Spark Declarative Pipeline with comprehensive data quality expectations and quarantine handling.</p>
 </section>
 <section class="notebook-cell">
 <h3>C1. Enable the Lakeflow Pipelines Editor</h3>
-<p>Complete the following steps to confirm or enable the <strong>Lakeflow Pipelines Editor</strong>:</p>
+<p>Complete os seguintes passos to confirm or enable the <strong>Lakeflow Pipelines Editor</strong>:</p>
 <ol>
 <li>
 <p>In the top-right corner of the workspace, select your <strong>account icon</strong> <img alt="Account Icon" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/account_icon.png" /> (<em>Your icon letter will differ</em>).  </p>
@@ -265,7 +265,7 @@ display(spark.sql(f"LIST '{my_vol_path}/sales'"))</code></pre></div></section>
 </section>
 <section class="notebook-cell">
 <h3>C2. Create a Apache Spark™ Declarative Pipeline</h3>
-<p>Complete the following steps to create your Spark Declarative Pipeline using the Lakeflow Pipelines Editor:</p>
+<p>Complete os seguintes passos to create your Spark Declarative Pipeline using the Lakeflow Pipelines Editor:</p>
 <ol>
 <li>
 <p>In the main navigation pane, right-click <strong>Jobs &amp; Pipelines</strong> and select <strong>Open link in New Tab</strong>.  </p>
@@ -298,7 +298,7 @@ display(spark.sql(f"LIST '{my_vol_path}/sales'"))</code></pre></div></section>
 <section class="notebook-cell">
 <h3>C3. Configure Pipeline Parameters</h3>
 <ol>
-<li>Execute a célula abaixo to retrieve the key-value pairs needed to set your pipeline configuration parameters for the <strong>source volume</strong>.</li>
+<li>Execute a célula abaixo para retrieve the key-value pairs needed to set your pipeline configuration parameters for the <strong>source volume</strong>.</li>
 </ol>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>config_parameters = [
@@ -433,9 +433,9 @@ function fallbackCopy(text) {
 </section>
 <section class="notebook-cell">
 <h3>D2. Create Clean Bronze Table</h3>
-<p>Create a streaming intermediate Bronze table that performs safe type casting from the raw ingested data, without applying any quality checks. This step ensures clean type conversion before data validation.</p>
+<p>Create a streaming intermediate Bronze table that performs safe type casting from the raw ingested data, without applying any quality checks. Este passo ensures clean type conversion before data validation.</p>
 <ul>
-<li>Creates a clean streaming Bronze table from the source data stream.</li>
+<li>Creates a clean streaming Bronze table from os dados fonte stream.</li>
 <li>Uses <code>TRY_CAST</code> to safely convert data types (dates, numbers) without failing on bad data.</li>
 <li>Passes through all columns without applying any data quality filters yet.</li>
 </ul>
@@ -531,7 +531,7 @@ function fallbackCopy(text) {
 - The <code>source</code> configuration parameter matches your volume path
 - Serverless compute is selected and running</p>
 <p><strong>Expected Checkpoint Results:</strong></p>
-<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/dq/checkpoint_bronze.png" alt="Bronze Layer Results" width="1200"></p>
+<p><img src="§3§ Techniques with Apache Spark Declarative Pipelines/Includes/images/dq/checkpoint_bronze.png" alt="Bronze Layer Results" width="1200"></p>
 </section>
 <section class="notebook-cell">
 <h3>D4. Query and Analyze Bronze Layer</h3>
@@ -545,13 +545,13 @@ function fallbackCopy(text) {
 <h2>E. Criar a Silver Layer with Expectations e Lógica de Quarantine</h2>
 <ul>
 <li>In this layer, we will first type-cast columns to their appropriate data formats.</li>
-<li>Next, we will apply data quality expectations.</li>
+<li>Em seguida, vamos apply data quality expectations.</li>
 <li>Finally, based on these expectations, we will separate the data into two tables: one for clean records and one for invalid records, using inverse logic.</li>
 </ul>
 </section>
 <section class="notebook-cell">
 <h3>E1. Understanding Data Quality Expectations Framework</h3>
-<p>Before creating tables with expectations, understand the expectation framework and why each validation is critical for enterprise data quality.</p>
+<p>Antes de criar tables with expectations, understand the expectation framework and why each validation is critical for enterprise data quality.</p>
 <p><strong>Expectation Syntax:</strong></p>
 <pre><code class="language-sql">CONSTRAINT &lt;constraint_name&gt; 
   EXPECT (&lt;condition&gt;) 
@@ -593,7 +593,7 @@ function fallbackCopy(text) {
 - <strong>Parallel processing</strong>: Valid and invalid records flow to separate tables simultaneously</p>
 <blockquote>
 <p><strong>Learn More:</strong><br />
-💡 For comprehensive information on quarantine frameworks and best practices, see the <a href="https://docs.databricks.com/aws/en/ldp/expectation-patterns?language=Python%20Module#quarantine-invalid-records">Databricks documentation on expectation patterns and quarantining invalid records</a>.</p>
+💡 For comprehensive information on quarantine frameworks and melhor práticas, see the <a href="https://docs.databricks.com/aws/en/ldp/expectation-patterns?language=Python%20Module#quarantine-invalid-records">Databricks documentation on expectation patterns and quarantining invalid records</a>.</p>
 </blockquote>
 </section>
 <section class="notebook-cell">
@@ -606,7 +606,7 @@ function fallbackCopy(text) {
 </section>
 <section class="notebook-cell">
 <h3>E4. Create Quarantine Table with Quality Expectations</h3>
-<p>Add the following code to your <code>silver_transformations.sql</code> file. This creates the main quarantine table with all 6 data quality expectations defined.</p>
+<p>Add o seguinte código to your <code>silver_transformations.sql</code> file. This creates the main quarantine table with all 6 data quality expectations defined.</p>
 </section>
 <section class="notebook-cell">
 <p><button onclick="copyBlock()">Copy to clipboard</button></p>
@@ -660,7 +660,7 @@ CREATE OR REFRESH STREAMING TABLE dq_2_silver.sales_silver_dq_demo
   CONSTRAINT valid_discount_range
     EXPECT (discount_pct IS NULL OR (discount_pct >= 0 AND discount_pct <= 100)),
 
-  -- Since the data is static, we check that order_date falls between 01-01-2026 and 4 years prior, em vez de using the current date.
+  -- Since the data is static, we check that order_date falls between 01-01-2026 and 4 years prior, instead of using the current date.
   CONSTRAINT valid_date_range 
     EXPECT (order_date IS NULL OR 
         (order_date >= DATE_SUB(DATE '2026-01-01', 1460) AND 
@@ -1104,7 +1104,7 @@ function fallbackCopy(text) {
 - Serverless compute is selected and running
 - Volume paths are accessible and contain data files</p>
 <p><strong>Expected Pipeline Graph:</strong></p>
-<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/dq/checkpoint_run_1.png" alt="Complete Pipeline Run 1" width="1200"></p>
+<p><img src="§1§ Techniques with Apache Spark Declarative Pipelines/Includes/images/dq/checkpoint_run_1.png" alt="Complete Pipeline Run 1" width="1200"></p>
 </section>
 <section class="notebook-cell">
 <h3>G2. Validate First Run Results - Clean Baseline</h3>
@@ -1166,7 +1166,7 @@ function fallbackCopy(text) {
 </section>
 <section class="notebook-cell">
 <h3>G3. Query and Analyze Results</h3>
-<p>Execute the following queries to verify silver and gold layers result:
+<p>Execute o seguinte queries to verify silver and gold layers result:
 - Records in <strong>sales_silver_quarantined_demo</strong> should be zero
 - Quality Score should be <strong>100%</strong>
 - Querying on <strong>sales_analytics_demo</strong> MV for insight</p>
@@ -1209,7 +1209,7 @@ copy_files(copy_from=ops_path, copy_to=sales_path, n=2)</code></pre></div></sect
 - Invalid records are systematically quarantined with detailed failure reasons
 - Valid records continue to flow to analytics tables</p>
 <p><strong>Expected Pipeline Results:</strong></p>
-<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/dq/checkpoint_run_2.png" alt="Pipeline Run 2 with Quality Issues" width="1200"></p>
+<p><img src="§0§ Techniques with Apache Spark Declarative Pipelines/Includes/images/dq/checkpoint_run_2.png" alt="Pipeline Run 2 with Quality Issues" width="1200"></p>
 </section>
 <section class="notebook-cell">
 <h3>H4. Analyze Run 2 Results - Quality Issues Detected</h3>
@@ -1330,7 +1330,7 @@ copy_files(copy_from=ops_path, copy_to=sales_path, n=2)</code></pre></div></sect
 - <strong>Actionable quality insights</strong> for continuous data improvement</p>
 </section>
 <section class="notebook-cell">
-<p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
+<p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="§0§ target="_blank">Apache Software Foundation</a>.<br/><br/><a href="§1§ target="_blank">Privacy Policy</a> | <a href="§2§ target="_blank">Terms of Use</a> | <a href="§3§ target="_blank">Support</a></p>
 </section>
 </div></div>
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)"><button class="lb-close" onclick="closeLightbox(event)">✕</button><img id="lb-img" src="" alt=""></div><button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button><script>if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙'}function copyCode(b){var c=b.closest('.code-block').querySelector('code').textContent;navigator.clipboard.writeText(c).then(function(){b.textContent='✅ Copiado!';b.classList.add('copied');setTimeout(function(){b.textContent='📋 Copiar';b.classList.remove('copied')},2000)})}function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden'}function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow=''}document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e)});document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src)})});</script></body></html>

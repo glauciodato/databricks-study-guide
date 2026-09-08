@@ -14,100 +14,69 @@
 </nav><div class="content">
 <section class="notebook-cell">
 <div style="text-align: center; line-height: 0; padding-top: 9px;">
-  <img
-    src="https://databricks.com/wp-content/uploads/2018/03/db-academy-rgb-1200px.png"
-    alt="Databricks Learning"
-  >
+  <img src="https://databricks.com/wp-content/uploads/2018/03/db-academy-rgb-1200px.png" alt="Databricks Learning">
 </div>
 </section>
 <section class="notebook-cell">
-<h1>Lecture - Resumo e Próximos Passos</h1>
+<h1>Aula — Resumo e Próximos Passos</h1>
 </section>
 <section class="notebook-cell">
 <h2>A. O que Você Realizou</h2>
-<p>Congratulations on completing <strong>Advanced Techniques with Apache Spark™ Declarative Pipelines</strong>! Throughout this course, you built real, production-relevant pipelines and applied patterns that directly transfer to enterprise data engineering work.</p>
+<p>Parabéns por completar <strong>Técnicas Avançadas com Apache Spark™ Declarative Pipelines</strong>! Ao longo deste curso, você construiu pipelines reais e relevantes para produção, e aplicou padrões que se transferem diretamente para trabalho de data engineering empresarial.</p>
 <table>
 <thead>
 <tr>
-<th>Area</th>
-<th>What You Can Now Do</th>
+<th>Área</th>
+<th>O que Você Agora Pode Fazer</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Multi-Flow Pipelines</strong></td>
-<td>Design pipelines that merge multiple source streams into a single Bronze target using explicit <code>CREATE FLOW</code> and <code>@dp.append_flow</code> definitions.</td>
+<td><strong>Multi-Flow + Clustering</strong></td>
+<td>Escrever de múltiplas fontes em um único target com explicit flows, aplicar Liquid Clustering para otimização de queries e enforçar data quality com expectations</td>
 </tr>
 <tr>
-<td><strong>Liquid Clustering</strong></td>
-<td>Configure <code>CLUSTER BY AUTO</code> and manual clustering keys on streaming tables, and understand when each approach is appropriate.</td>
+<td><strong>Multiplex + Sinks + Iceberg</strong></td>
+<td>Implementar o padrão multiplex (ingestão única, fan out por tipo), escrever em tabelas externas via Delta sinks e habilitar leitura cross-platform com Delta UniForm</td>
 </tr>
 <tr>
-<td><strong>Data Quality Expectations</strong></td>
-<td>Apply WARN, DROP ROW, and FAIL UPDATE violation modes, and build layered quality strategies across Bronze, Silver, and Gold layers.</td>
+<td><strong>CDC Avançado</strong></td>
+<td>Automatizar SCD Type 2 com AUTO CDC INTO, rastrear histórico completo de mudanças e analisar resultados com gold materialized views</td>
 </tr>
 <tr>
-<td><strong>Multiplex Pattern</strong></td>
-<td>Ingest mixed-schema event streams through a single pipeline and fan out to per-entity Silver tables.</td>
-</tr>
-<tr>
-<td><strong>Delta Sinks and Iceberg Reads</strong></td>
-<td>Write streaming output to external Delta tables using <code>dp.create_sink</code>, and enable Delta UniForm for cross-platform Iceberg access.</td>
-</tr>
-<tr>
-<td><strong>Change Data Capture</strong></td>
-<td>Distinguish SCD Type 1 vs. Type 2, and implement CDC pipelines using <code>AUTO CDC INTO</code> for both patterns.</td>
-</tr>
-<tr>
-<td><strong>Advanced Data Quality</strong></td>
-<td>Write range-based and NULL-tolerant constraints, handle schema evolution in Bronze, and implement the Quarantine Pattern for zero-data-loss pipelines.</td>
+<td><strong>Qualidade Avançada</strong></td>
+<td>Projetar ingestão resiliente com STRING types, aplicar o padrão quarantine para zero perda de dados e escolher entre DROP ROW e quarantine baseado em requisitos de negócio</td>
 </tr>
 </tbody>
 </table>
 </section>
 <section class="notebook-cell">
 <h2>B. Recursos Adicionais</h2>
-<p>Explore the following resources to deepen your understanding and stay current with platform updates.</p>
-<h3>B1. Core Documentation</h3>
+<p>Explore os seguintes recursos para aprofundar seu entendimento e se manter atualizado com as atualizações da plataforma.</p>
+<h3>B1. Documentação Core</h3>
 <ul>
-<li>
-<p><a href="https://docs.databricks.com/aws/en/dlt/index.html">Apache Spark Declarative Pipelines Visão Geral</a> — Comprehensive reference for pipeline concepts, syntax, and configuration options.</p>
-</li>
-<li>
-<p><a href="https://docs.databricks.com/aws/en/ldp/cdc">AUTO CDC APIs — Simplify Change Data Capture</a> — Full reference for <code>AUTO CDC INTO</code>, including SCD Type 1 and Type 2 configuration options.</p>
-</li>
-<li>
-<p><a href="https://docs.databricks.com/aws/en/delta/uniform.html">Delta UniForm Documentation</a> — Learn about enabling Iceberg reads on Delta tables, supported configurations, and known limitations.</p>
-</li>
-<li>
-<p><a href="https://docs.databricks.com/aws/en/dlt/expectations.html">Data Quality Expectations in Pipelines</a> — Reference for defining constraints, violation modes, and monitoring quality metrics in the pipeline UI.</p>
-</li>
-<li>
-<p><a href="https://docs.databricks.com/aws/en/delta/clustering.html">Liquid Clustering for Delta Tables</a> — Guidance on configuring, monitoring, and optimizing Liquid Clustering.</p>
-</li>
+<li><a href="https://docs.databricks.com/aws/en/dlt/index.html">Visão Geral de Apache Spark Declarative Pipelines</a> — Referência abrangente para conceitos de pipeline, configuração e APIs</li>
+<li><a href="https://docs.databricks.com/aws/en/ldp/cdc-tutorial">Tutorial AUTO CDC INTO</a> — Guia passo a passo para implementar CDC</li>
+<li><a href="https://docs.databricks.com/en/delta/uniform.html">Delta UniForm</a> — Habilitar interoperabilidade cross-platform com Iceberg</li>
 </ul>
-<h3>B2. Blogs and Announcements</h3>
+<h3>B2. Databricks Community e Blogs</h3>
 <ul>
-<li>
-<p><a href="https://docs.databricks.com/aws/en/release-notes/">Databricks Release Notes</a> — Stay informed about new features, improvements, and platform updates.</p>
-</li>
-<li>
-<p><a href="https://www.databricks.com/product/data-engineering/spark-declarative-pipelines">Announcing Apache Spark Declarative Pipelines</a> — Visão Geral of SDP's evolution and production-ready features.</p>
-</li>
+<li><a href="https://www.databricks.com/blog">Blog Databricks</a> — Anúncios de features, melhores práticas e cases de clientes</li>
+<li><a href="https://community.databricks.com/">Fórum da Comunidade Databricks</a> — Faça perguntas e compartilhe soluções</li>
 </ul>
 </section>
 <section class="notebook-cell">
 <h2>C. Próximos Passos</h2>
-<p>Continue building your Databricks skills with additional training and certification resources.</p>
-<h3>C1. Continue Your Learning</h3>
-<p>Expand your data and AI knowledge through Databricks self-paced and instructor-led training. These courses help you deepen your technical skills and gain hands-on experience with the Databricks platform.</p>
-<p>Visit the <a href="https://www.databricks.com/learn/training/home">Databricks Training and Certification</a></p>
-<h3>C2. Earn a Certification</h3>
-<p>Validate your Databricks expertise by earning an official credential. Certifications demonstrate your ability to apply Databricks technologies in real-world data and AI workloads.</p>
-<p>Visit the <a href="https://www.databricks.com/learn/training/certification">Databricks Certification and Badging</a></p>
+<p>Continue construindo suas habilidades Databricks com treinamentos e recursos de certificação adicionais.</p>
+<h3>C1. Continue Seu Aprendizado</h3>
+<p>Expanda seu conhecimento em dados e IA através de treinamento self-paced e instrutor-led da Databricks. Esses cursos ajudam a aprofundar habilidades técnicas e ganhar proficiência prática na plataforma.</p>
+<h3>C2. Obtenha Certificação</h3>
+<p>Valide sua expertise com certificações Databricks reconhecidas pela indústria:
+- <strong>Databricks Certified Data Engineer Associate</strong> — Demonstra competência com conceitos de data engineering e a plataforma Databricks
+- <strong>Databricks Certified Data Engineer Professional</strong> — Valida habilidades avançadas em design, implementação e operação de soluções de data engineering</p>
 </section>
 <section class="notebook-cell">
-<p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
+<p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="§0§ target="_blank">Apache Software Foundation</a>.<br/><br/><a href="§1§ target="_blank">Privacy Policy</a> | <a href="§2§ target="_blank">Terms of Use</a> | <a href="§3§ target="_blank">Support</a></p>
 </section>
 </div></div>
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)"><button class="lb-close" onclick="closeLightbox(event)">✕</button><img id="lb-img" src="" alt=""></div><button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button><script>if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙'}function copyCode(b){var c=b.closest('.code-block').querySelector('code').textContent;navigator.clipboard.writeText(c).then(function(){b.textContent='✅ Copiado!';b.classList.add('copied');setTimeout(function(){b.textContent='📋 Copiar';b.classList.remove('copied')},2000)})}function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden'}function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow=''}document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e)});document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src)})});</script></body></html>
