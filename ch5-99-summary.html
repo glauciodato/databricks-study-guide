@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resumo e Próximos Passos | Advanced SDP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117; --surface: #161b22; --surface-raised: #1c2129;
+    --border: #2a313a; --text: #e6edf3; --text-muted: #8b949e; --text-faint: #6e7681;
+    --accent: #ff6433; --accent-soft: rgba(255,100,51,0.12);
+    --green: #3fb950; --blue: #58a6ff; --purple: #bc8cff; --yellow: #d29922;
+    --radius: 12px;
+  }
+  body.light {
+    --bg: #f8f9fb; --surface: #ffffff; --surface-raised: #f0f2f5;
+    --border: #d8dce2; --text: #1a1d23; --text-muted: #5a6170; --text-faint: #8891a0;
+    --accent: #e0501e; --accent-soft: rgba(224,80,30,0.08);
+    --green: #1a8a3e; --blue: #2563eb; --purple: #7c3aed;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+  .top-bar {
+    position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border);
+    padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
+  .top-bar a:hover { color:var(--accent); }
+  .top-bar .sep { color:var(--text-faint); font-size:11px; }
+  .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
+  .layout { display:flex; min-height:calc(100vh - 50px); }
+  .sidebar {
+    width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border);
+    padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px);
+  }
+  .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
+  .sidebar a {
+    display:block; padding:6px 16px; font-size:12px; color:var(--text-muted); text-decoration:none;
+    border-left:2px solid transparent; line-height:1.5; transition:all 0.15s;
+  }
+  .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
+  .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
+  .content { flex:1; max-width:900px; padding:32px 40px 80px; }
+  .notebook-cell { margin-bottom:24px; }
+  .notebook-cell h1 { font-size:26px; font-weight:700; margin-bottom:12px; }
+  .notebook-cell h2 { font-size:21px; font-weight:700; margin:28px 0 12px; padding-top:20px; border-top:1px solid var(--border); }
+  .notebook-cell h3 { font-size:17px; font-weight:600; margin:20px 0 10px; }
+  .notebook-cell h4 { font-size:15px; font-weight:600; margin:16px 0 8px; }
+  .notebook-cell h5 { font-size:12px; font-weight:600; margin:14px 0 6px; color:var(--text-muted); }
+  .notebook-cell p { margin-bottom:10px; font-size:14.5px; }
+  .notebook-cell ul, .notebook-cell ol { margin:0 0 10px 20px; font-size:14.5px; }
+  .notebook-cell li { margin-bottom:4px; }
+  .notebook-cell code { font-family:'IBM Plex Mono',monospace; background:var(--surface-raised); padding:1px 5px; border-radius:3px; font-size:12.5px; }
+  .notebook-cell pre { background:var(--surface-raised); border:1px solid var(--border); border-radius:8px; padding:14px; overflow-x:auto; margin:10px 0; }
+  .notebook-cell pre code { background:none; padding:0; }
+  .notebook-cell img { max-width:100%; height:auto; border-radius:6px; cursor:zoom-in; }
+  .notebook-cell details { margin:10px 0; padding:10px 14px; background:var(--surface-raised); border-radius:6px; border:1px solid var(--border); font-size:13.5px; }
+  .notebook-cell details summary { cursor:pointer; font-weight:600; color:var(--text-muted); font-size:12px; }
+  .notebook-cell svg { max-width:100%; height:auto; }
+  .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
+  .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
+  .notebook-cell th { background:var(--surface-raised); font-weight:600; }
+  .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
+  .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
+  .lightbox.open { display:flex; }
+  .lightbox img { max-width:95vw; max-height:92vh; border-radius:6px; box-shadow:0 8px 40px rgba(0,0,0,0.5); object-fit:contain; background:#fff; padding:6px; cursor:default; }
+  .lightbox .lb-close { position:fixed; top:12px; right:16px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  @media(max-width:768px) { .sidebar { display:none; } .content { padding:20px 16px 60px; } }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="index.html">← Início</a>
+  <span class="sep">›</span>
+  <a href="capitulo-5.html">Capítulo 5</a>
+  <span class="sep">›</span>
+  <span class="title">99. Resumo e Próximos Passos</span>
+</div>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav-title">Capítulo 5 · Advanced SDP</div>
+    <a href="ch5-00-overview.html">📋 0. Visão Geral do Curso</a>
+    <a href="ch5-01-lecture-multi-flows.html">📖 1. Multi Flows, Expectations e Liquid Clustering</a>
+    <a href="ch5-02-demo-multi-flow.html">⚙️ 2. Demo: Multi Flow SDP + Liquid Clustering</a>
+    <a href="ch5-03-lecture-multiplex.html">📖 3. Multiplex Streaming, Delta Sinks e Iceberg</a>
+    <a href="ch5-04-demo-multiplex.html">⚙️ 4. Demo: Multiplex Streaming + Delta Sinks</a>
+    <a href="ch5-05-lecture-cdc.html">📖 5. CDC Review (SCD Type 1 e 2)</a>
+    <a href="ch5-06-demo-cdc.html">⚙️ 6. Demo: AUTO CDC SCD Type 2</a>
+    <a href="ch5-07-lecture-quality.html">📖 7. Advanced Data Quality e Quarantine Pattern</a>
+    <a href="ch5-08-demo-quality.html">⚙️ 8. Demo: Advanced Quality + Quarantine</a>
+    <a href="ch5-09-lab-pipeline.html">🧪 9. Lab: Multi-Source Ecommerce Pipeline</a>
+    <a href="ch5-99-summary.html" class="active">📋 99. Resumo e Próximos Passos</a>
+  </nav>
+  <div class="content">
+<section class="notebook-cell">
+<div style="text-align: center; line-height: 0; padding-top: 9px;">
+  <img
+    src="https://databricks.com/wp-content/uploads/2018/03/db-academy-rgb-1200px.png"
+    alt="Databricks Learning"
+  >
+</div>
+</section>
+<section class="notebook-cell">
+<h1>Lecture - Summary and Next Steps</h1>
+</section>
+<section class="notebook-cell">
+<h2>A. What You Accomplished</h2>
+<p>Congratulations on completing <strong>Advanced Techniques with Apache Spark™ Declarative Pipelines</strong>! Throughout this course, you built real, production-relevant pipelines and applied patterns that directly transfer to enterprise data engineering work.</p>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>What You Can Now Do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Multi-Flow Pipelines</strong></td>
+<td>Design pipelines that merge multiple source streams into a single Bronze target using explicit <code>CREATE FLOW</code> and <code>@dp.append_flow</code> definitions.</td>
+</tr>
+<tr>
+<td><strong>Liquid Clustering</strong></td>
+<td>Configure <code>CLUSTER BY AUTO</code> and manual clustering keys on streaming tables, and understand when each approach is appropriate.</td>
+</tr>
+<tr>
+<td><strong>Data Quality Expectations</strong></td>
+<td>Apply WARN, DROP ROW, and FAIL UPDATE violation modes, and build layered quality strategies across Bronze, Silver, and Gold layers.</td>
+</tr>
+<tr>
+<td><strong>Multiplex Pattern</strong></td>
+<td>Ingest mixed-schema event streams through a single pipeline and fan out to per-entity Silver tables.</td>
+</tr>
+<tr>
+<td><strong>Delta Sinks and Iceberg Reads</strong></td>
+<td>Write streaming output to external Delta tables using <code>dp.create_sink</code>, and enable Delta UniForm for cross-platform Iceberg access.</td>
+</tr>
+<tr>
+<td><strong>Change Data Capture</strong></td>
+<td>Distinguish SCD Type 1 vs. Type 2, and implement CDC pipelines using <code>AUTO CDC INTO</code> for both patterns.</td>
+</tr>
+<tr>
+<td><strong>Advanced Data Quality</strong></td>
+<td>Write range-based and NULL-tolerant constraints, handle schema evolution in Bronze, and implement the Quarantine Pattern for zero-data-loss pipelines.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="notebook-cell">
+<h2>B. Additional Resources</h2>
+<p>Explore the following resources to deepen your understanding and stay current with platform updates.</p>
+<h3>B1. Core Documentation</h3>
+<ul>
+<li>
+<p><a href="https://docs.databricks.com/aws/en/dlt/index.html">Apache Spark Declarative Pipelines Overview</a> — Comprehensive reference for pipeline concepts, syntax, and configuration options.</p>
+</li>
+<li>
+<p><a href="https://docs.databricks.com/aws/en/ldp/cdc">AUTO CDC APIs — Simplify Change Data Capture</a> — Full reference for <code>AUTO CDC INTO</code>, including SCD Type 1 and Type 2 configuration options.</p>
+</li>
+<li>
+<p><a href="https://docs.databricks.com/aws/en/delta/uniform.html">Delta UniForm Documentation</a> — Learn about enabling Iceberg reads on Delta tables, supported configurations, and known limitations.</p>
+</li>
+<li>
+<p><a href="https://docs.databricks.com/aws/en/dlt/expectations.html">Data Quality Expectations in Pipelines</a> — Reference for defining constraints, violation modes, and monitoring quality metrics in the pipeline UI.</p>
+</li>
+<li>
+<p><a href="https://docs.databricks.com/aws/en/delta/clustering.html">Liquid Clustering for Delta Tables</a> — Guidance on configuring, monitoring, and optimizing Liquid Clustering.</p>
+</li>
+</ul>
+<h3>B2. Blogs and Announcements</h3>
+<ul>
+<li>
+<p><a href="https://docs.databricks.com/aws/en/release-notes/">Databricks Release Notes</a> — Stay informed about new features, improvements, and platform updates.</p>
+</li>
+<li>
+<p><a href="https://www.databricks.com/product/data-engineering/spark-declarative-pipelines">Announcing Apache Spark Declarative Pipelines</a> — Overview of SDP's evolution and production-ready features.</p>
+</li>
+</ul>
+</section>
+<section class="notebook-cell">
+<h2>C. Next Steps</h2>
+<p>Continue building your Databricks skills with additional training and certification resources.</p>
+<h3>C1. Continue Your Learning</h3>
+<p>Expand your data and AI knowledge through Databricks self-paced and instructor-led training. These courses help you deepen your technical skills and gain hands-on experience with the Databricks platform.</p>
+<p>Visit the <a href="https://www.databricks.com/learn/training/home">Databricks Training and Certification</a></p>
+<h3>C2. Earn a Certification</h3>
+<p>Validate your Databricks expertise by earning an official credential. Certifications demonstrate your ability to apply Databricks technologies in real-world data and AI workloads.</p>
+<p>Visit the <a href="https://www.databricks.com/learn/training/certification">Databricks Certification and Badging</a></p>
+</section>
+<section class="notebook-cell">
+<p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
+</section>
+  </div>
+</div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightbox(event)">✕</button>
+  <img id="lb-img" src="" alt="">
+</div>
+<button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
+<script>
+if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
+function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
+function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});
+document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src);});});
+</script>
+</body>
+</html>

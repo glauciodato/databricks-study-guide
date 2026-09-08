@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab: Multi-Source Ecommerce Pipeline | Advanced SDP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117; --surface: #161b22; --surface-raised: #1c2129;
+    --border: #2a313a; --text: #e6edf3; --text-muted: #8b949e; --text-faint: #6e7681;
+    --accent: #ff6433; --accent-soft: rgba(255,100,51,0.12);
+    --green: #3fb950; --blue: #58a6ff; --purple: #bc8cff; --yellow: #d29922;
+    --radius: 12px;
+  }
+  body.light {
+    --bg: #f8f9fb; --surface: #ffffff; --surface-raised: #f0f2f5;
+    --border: #d8dce2; --text: #1a1d23; --text-muted: #5a6170; --text-faint: #8891a0;
+    --accent: #e0501e; --accent-soft: rgba(224,80,30,0.08);
+    --green: #1a8a3e; --blue: #2563eb; --purple: #7c3aed;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+  .top-bar {
+    position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border);
+    padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
+  .top-bar a:hover { color:var(--accent); }
+  .top-bar .sep { color:var(--text-faint); font-size:11px; }
+  .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
+  .layout { display:flex; min-height:calc(100vh - 50px); }
+  .sidebar {
+    width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border);
+    padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px);
+  }
+  .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
+  .sidebar a {
+    display:block; padding:6px 16px; font-size:12px; color:var(--text-muted); text-decoration:none;
+    border-left:2px solid transparent; line-height:1.5; transition:all 0.15s;
+  }
+  .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
+  .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
+  .content { flex:1; max-width:900px; padding:32px 40px 80px; }
+  .notebook-cell { margin-bottom:24px; }
+  .notebook-cell h1 { font-size:26px; font-weight:700; margin-bottom:12px; }
+  .notebook-cell h2 { font-size:21px; font-weight:700; margin:28px 0 12px; padding-top:20px; border-top:1px solid var(--border); }
+  .notebook-cell h3 { font-size:17px; font-weight:600; margin:20px 0 10px; }
+  .notebook-cell h4 { font-size:15px; font-weight:600; margin:16px 0 8px; }
+  .notebook-cell h5 { font-size:12px; font-weight:600; margin:14px 0 6px; color:var(--text-muted); }
+  .notebook-cell p { margin-bottom:10px; font-size:14.5px; }
+  .notebook-cell ul, .notebook-cell ol { margin:0 0 10px 20px; font-size:14.5px; }
+  .notebook-cell li { margin-bottom:4px; }
+  .notebook-cell code { font-family:'IBM Plex Mono',monospace; background:var(--surface-raised); padding:1px 5px; border-radius:3px; font-size:12.5px; }
+  .notebook-cell pre { background:var(--surface-raised); border:1px solid var(--border); border-radius:8px; padding:14px; overflow-x:auto; margin:10px 0; }
+  .notebook-cell pre code { background:none; padding:0; }
+  .notebook-cell img { max-width:100%; height:auto; border-radius:6px; cursor:zoom-in; }
+  .notebook-cell details { margin:10px 0; padding:10px 14px; background:var(--surface-raised); border-radius:6px; border:1px solid var(--border); font-size:13.5px; }
+  .notebook-cell details summary { cursor:pointer; font-weight:600; color:var(--text-muted); font-size:12px; }
+  .notebook-cell svg { max-width:100%; height:auto; }
+  .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
+  .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
+  .notebook-cell th { background:var(--surface-raised); font-weight:600; }
+  .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
+  .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
+  .lightbox.open { display:flex; }
+  .lightbox img { max-width:95vw; max-height:92vh; border-radius:6px; box-shadow:0 8px 40px rgba(0,0,0,0.5); object-fit:contain; background:#fff; padding:6px; cursor:default; }
+  .lightbox .lb-close { position:fixed; top:12px; right:16px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  @media(max-width:768px) { .sidebar { display:none; } .content { padding:20px 16px 60px; } }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="index.html">← Início</a>
+  <span class="sep">›</span>
+  <a href="capitulo-5.html">Capítulo 5</a>
+  <span class="sep">›</span>
+  <span class="title">9. Lab: Multi-Source Ecommerce Pipeline</span>
+</div>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav-title">Capítulo 5 · Advanced SDP</div>
+    <a href="ch5-00-overview.html">📋 0. Visão Geral do Curso</a>
+    <a href="ch5-01-lecture-multi-flows.html">📖 1. Multi Flows, Expectations e Liquid Clustering</a>
+    <a href="ch5-02-demo-multi-flow.html">⚙️ 2. Demo: Multi Flow SDP + Liquid Clustering</a>
+    <a href="ch5-03-lecture-multiplex.html">📖 3. Multiplex Streaming, Delta Sinks e Iceberg</a>
+    <a href="ch5-04-demo-multiplex.html">⚙️ 4. Demo: Multiplex Streaming + Delta Sinks</a>
+    <a href="ch5-05-lecture-cdc.html">📖 5. CDC Review (SCD Type 1 e 2)</a>
+    <a href="ch5-06-demo-cdc.html">⚙️ 6. Demo: AUTO CDC SCD Type 2</a>
+    <a href="ch5-07-lecture-quality.html">📖 7. Advanced Data Quality e Quarantine Pattern</a>
+    <a href="ch5-08-demo-quality.html">⚙️ 8. Demo: Advanced Quality + Quarantine</a>
+    <a href="ch5-09-lab-pipeline.html" class="active">🧪 9. Lab: Multi-Source Ecommerce Pipeline</a>
+    <a href="ch5-99-summary.html">📋 99. Resumo e Próximos Passos</a>
+  </nav>
+  <div class="content">
+<section class="notebook-cell">
+<div style="text-align: center; line-height: 0; padding-top: 9px;">
+  <img
+    src="https://databricks.com/wp-content/uploads/2018/03/db-academy-rgb-1200px.png"
+    alt="Databricks Learning"
+  >
+</div>
+</section>
+<section class="notebook-cell">
+<h1>Lab - Building Multi-Source E-commerce Pipeline with Spark Declarative Pipelines</h1>
+</section>
+<section class="notebook-cell">
+<h2>Lab Scenario</h2>
+<p>You are a data engineer working for an e-commerce company that receives orders from two channels: their website and mobile app. These channels store data in different formats and may have some similarities and differences in how they capture order information. Your role is to build a streaming data pipeline using Spark Declarative Pipelines that can process data from these different channels and generate weekly revenue reports for business stakeholders.</p>
+<p>This lab will demonstrate advanced techniques including multi-flow ingestion, stream-static joins, data quality expectations, and materialized views for analytics.</p>
+</section>
+<section class="notebook-cell">
+<h2>A. Classroom Setup</h2>
+<p>Follow the cells below to set up your workspace for the lab.</p>
+<div style="
+  border-left: 4px solid #1976d2;
+  background: #e3f2fd;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+  <strong style="display:block; color:#0d47a1; margin-bottom:6px; font-size:1.1em;">
+    Option 1 - Databricks Academy Provided Workspace (Vocareum Workspace)
+  </strong>
+  <div style="color:#333;">
+
+- If you are running this notebook in a <strong>Databricks Academy provided Vocareum workspace</strong>, your Unity Catalog catalog is already created for you.
+
+- Your catalog name matches your Vocareum username and looks like:
+    <strong>labuser12345</strong> (series of unique numbers)
+  </div>
+</div>
+
+<div style="
+  border-left: 4px solid #1976d2;
+  background: #e3f2fd;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+  <strong style="display:block; color:#0d47a1; margin-bottom:6px; font-size:1.1em;">
+    Option 2 - Other Workspaces or Databricks Free Edition
+  </strong>
+  <div style="color:#333;">
+
+- If you are running this notebook in your own Databricks workspace or Databricks Free Edition, the setup will
+<strong>create a Unity Catalog catalog and schema for you</strong>.
+  - **Create catalog permission is required.**
+
+- The catalog name is derived from your Databricks username and follows this pattern: <strong>labuser_username</strong>
+  </div>
+</div>
+
+<div style="
+  border-left: 4px solid #f44336;
+  background: #ffebee;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+  <strong style="display:block; color:#c62828; margin-bottom:6px; font-size: 1.1em;">Do Not Run in Production Environments</strong>
+  <div style="color:#333;">
+  <ul>
+      <li>Only run this notebook in <strong>development or sandbox workspaces</strong>.</li>
+      <li>Do not run this in production environments. The setup script creates a catalog and schemas in your workspace.</li>
+  </ul>
+  </div>
+</div>
+</section>
+<section class="notebook-cell">
+<h3>A1. Configure Your Catalog and Schema</h3>
+<p>Run the cell below to initialize your environment. This setup step does the following:
+    - <strong>Assumes you have permission to create a catalog</strong> when running outside of a Databricks provided Vocareum workspace
+    - Creates three schemas in your specified catalog:
+        - <strong>lab_1_bronze</strong>
+        - <strong>lab_2_silver</strong>
+        - <strong>lab_3_gold</strong>
+    - Creates <code>ops</code> and <code>source</code> volumes in your <strong>YOUR_LABUSER_CATALOG.lab_1_bronze</strong> schema, and adds sample files to your volumes.
+    - Verifies your selected compute environment</p>
+<pre><code>This ensures that all schemas, tables and objects are created in your catalog.
+</code></pre>
+<blockquote>
+<p><strong>Important:</strong> You must have permission to create catalogs in your own non-Vocareum workspace. If you do not have the required permissions, this step will fail. Review the note below before continuing.</p>
+</blockquote>
+</section>
+<section class="notebook-cell">
+<div style="
+  border-left: 4px solid #ff9800;
+  background: #fff3e0;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+
+  <strong style="display:block; color:#e65100; margin-bottom:6px; font-size: 1.1em;">
+    Troubleshooting Setup - Missing Create Catalog Permissions
+  </strong>
+<details>
+  <div style="color:#333;">
+
+If you do not have permission to create a new catalog but already have one available, you can explicitly specify an existing catalog by using the `catalog_forced` argument in the `build_user_catalog_name` function.
+
+This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
+
+  </div>
+</details>
+</div>
+</section>
+<section class="notebook-cell">
+<h3>A2. Verify Volume Path Configuration</h3>
+<p>Run the cell below to view the value of the <code>my_vol_path</code> variable.</p>
+<p>Confirm that the value references your <strong>your-catalog.lab_1_bronze</strong> path. This will be used to dynamically reference your source volumes throughout this lab.</p>
+</section>
+<section class="notebook-cell">
+<h2>B. Explore Source Data Characteristics</h2>
+<p>Before building our pipeline, let's understand the structure and characteristics of our source data. This e-commerce company receives orders from two different channels, each with its own data format and schema variations.</p>
+</section>
+<section class="notebook-cell">
+<h3>B1. Understanding Data File Structure</h3>
+<p>Our pipeline will process data from multiple sources, each stored in different volumes with specific formats and purposes:</p>
+</section>
+<section class="notebook-cell">
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Destination Volume</th>
+<th>Format</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>web_orders_1.csv</code></td>
+<td>web_orders</td>
+<td>CSV</td>
+<td>Web channel orders</td>
+</tr>
+<tr>
+<td><code>app_orders_1.json</code></td>
+<td>app_orders</td>
+<td>JSON</td>
+<td>Mobile app orders</td>
+</tr>
+<tr>
+<td><code>product_catalog.csv</code></td>
+<td>ops</td>
+<td>CSV</td>
+<td>Static product reference data</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="notebook-cell">
+<h3>B2. Listing Data in Destination Volumes</h3>
+<p>Let's examine the files available in each volume to understand our data sources.</p>
+</section>
+<section class="notebook-cell">
+<h4>1. Operations Volume</h4>
+<p>The operations volume contains static reference data like product catalogs.</p>
+</section>
+<section class="notebook-cell">
+<h4>2. Web Orders Volume</h4>
+<p>The web orders volume contains CSV files with order data from the company's website.</p>
+</section>
+<section class="notebook-cell">
+<h4>3. App Orders Volume</h4>
+<p>The app orders volume contains JSON files with order data from the mobile application.</p>
+</section>
+<section class="notebook-cell">
+<h3>B3. Analyzing Data Structure and Content</h3>
+<p>Now let's examine the actual data structure and content from each source to understand schema differences and commonalities.</p>
+</section>
+<section class="notebook-cell">
+<h4>1. Analyzing Operations Data</h4>
+<p>The operations volume contains product catalog information that will be used for enriching order data.</p>
+</section>
+<section class="notebook-cell">
+<h4>2. Analyzing Web Orders Data</h4>
+<p>Web orders are stored in CSV format and contain web-specific metadata like browser and session information.</p>
+</section>
+<section class="notebook-cell">
+<h4>3. Analyzing App Orders Data</h4>
+<p>App orders are stored in JSON format and contain app-specific metadata like app version and device model.</p>
+</section>
+<section class="notebook-cell">
+<h4>Checkpoint - Data Exploration</h4>
+<p>Confirm the following data counts:
+- Web orders: Rows loaded from <code>web_orders_1.csv</code>
+- App orders: Rows loaded from <code>app_orders_1.json</code>
+- Product catalog: 50 products</p>
+<p><strong>TROUBLESHOOTING:</strong> If any file shows 0 rows, verify <code>my_vol_path</code> is correct and all files were uploaded successfully.</p>
+</section>
+<section class="notebook-cell">
+<h2>C. Create the Spark Declarative Pipeline</h2>
+<p>Now we'll create our Spark Declarative Pipeline using the Apache Spark™ Pipelines Editor to process data from multiple sources.</p>
+</section>
+<section class="notebook-cell">
+<h3>C1. Enable the Apache Spark™ Pipelines Editor</h3>
+<p>Complete the following steps to confirm or enable the <strong>Apache Spark™ Pipelines Editor</strong>:</p>
+<ol>
+<li>
+<p>In the top-right corner of the workspace, select your <strong>account icon</strong> <img alt="Account Icon" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/account_icon.png" /> (<em>Your icon letter will differ</em>).  </p>
+</li>
+<li>
+<p>Right-click <strong>Settings</strong> and choose <strong>Open link in new tab</strong>.  </p>
+</li>
+<li>
+<p>In the left sidebar, select <strong>Developer</strong> under <strong>User</strong>.  </p>
+</li>
+<li>
+<p>In the <strong>Experimental features</strong> section, locate <strong>Apache Spark™ Pipelines Editor</strong> and toggle it <strong>on</strong>.</p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h3>C2. Create a Apache Spark™ Spark Declarative Pipeline</h3>
+<p>Complete the following steps to create your Spark Declarative Pipeline using the Apache Spark™ Pipelines Editor:</p>
+<ol>
+<li>
+<p>In the main navigation pane, right-click <strong>Jobs &amp; Pipelines</strong> and select <strong>Open link in New Tab</strong>.  </p>
+</li>
+<li>
+<p>In the new tab, select <strong>Create → ETL Pipeline</strong>.  </p>
+</li>
+</ol>
+<p><strong>NOTE:</strong> If prompted to <strong>Try the new Apache Spark™ Pipelines Editor</strong>, choose <strong>Enable Apache Spark™ Pipelines Editor</strong>. This appears only if you did not complete the previous step.  </p>
+<ol>
+<li>Configure the pipeline settings:</li>
+<li><strong>Pipeline Name</strong>: <code>lab_ecommerce_yourname</code></li>
+<li><strong>Default Catalog</strong>: <code>YOUR_LABUSER_CATALOG</code></li>
+<li>
+<p><strong>Default Schema</strong>: <code>lab_1_bronze</code><br />
+<strong>NOTE:</strong> Clear the selected schema using the cross icon to view all schemas.</p>
+</li>
+<li>
+<p><strong>Rename pipeline components</strong>:</p>
+</li>
+<li>Rename the <strong>transformations</strong> folder to <code>ecommerce_pipeline</code></li>
+<li>
+<p>Rename <strong>my_transformation.py</strong> file to <code>bronze_ingestion.sql</code></p>
+</li>
+<li>
+<p>Leave the <strong>Apache Spark™ Pipelines Editor</strong> page open for the next steps.</p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h3>C3. Configure Pipeline Parameters</h3>
+<p>Pipeline parameters allow us to dynamically reference our source volumes across different environments.</p>
+</section>
+<section class="notebook-cell">
+<ol>
+<li>Run the cell below to retrieve the key-value pairs needed to set your pipeline configuration parameters for the source volumes.</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<ol>
+<li>Copy the paths above and add each one as a configuration parameter in your <strong>Spark Declarative Pipeline</strong>.</li>
+</ol>
+<p>This will allow your pipeline to reference each volume through parameters.</p>
+<ol>
+<li>
+<p>Select <strong>Settings</strong> in your pipeline tab  </p>
+</li>
+<li>
+<p>Under <strong>Configuration</strong>, select <strong>Add configuration</strong></p>
+</li>
+<li>
+<p>For each <strong>Key</strong>, enter the key name shown above  </p>
+</li>
+<li>
+<p>For each <strong>Value</strong>, enter the corresponding volume path  </p>
+</li>
+<li>
+<p>Select <strong>Save</strong></p>
+</li>
+</ol>
+<p><strong>NOTE:</strong> For more details on configuration parameters, see the Databricks documentation: <a href="https://docs.databricks.com/aws/en/ldp/parameters">Use parameters with Apache Spark™ Declarative Pipelines</a></p>
+</section>
+<section class="notebook-cell">
+<h2>D. Bronze Layer — Multi-Flow Ingestion</h2>
+<p>We have orders data coming from two sources: <strong>web and app</strong>. The Bronze layer will use multi-flow ingestion to combine data from both sources into a unified table.</p>
+<p>To build the Bronze layer, follow these three steps:
+1. Create a Bronze table that can accept data from both sources.
+2. Create a flow for web orders data.
+3. Create a flow for app orders data.</p>
+</section>
+<section class="notebook-cell">
+<h3>D1. Understand the Multi-Flow Design</h3>
+<p>Both channels share core order columns but differ in channel-specific metadata:</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Web CSV</th>
+<th>App JSON</th>
+<th>Bronze Handling</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>order_id</strong>, <strong>customer_id</strong>, <strong>sku</strong></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Both flows</td>
+</tr>
+<tr>
+<td><strong>discount_code</strong></td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Schema hint applied</td>
+</tr>
+<tr>
+<td><strong>browser</strong>, <strong>session_id</strong></td>
+<td>Yes</td>
+<td>No</td>
+<td>Web-only; NULL for app</td>
+</tr>
+<tr>
+<td><strong>app_version</strong>, <strong>device_model</strong></td>
+<td>No</td>
+<td>Yes</td>
+<td>App-only; NULL for web</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="notebook-cell">
+<h3>D2. Creating Bronze Table</h3>
+<p>Create a <strong>Bronze</strong> streaming table that acts as a single raw landing table for both web and app orders using <code>CREATE OR REPLACE STREAMING TABLE</code>.</p>
+<p><strong>Requirements:</strong>
+- Create the table in the <strong>lab_1_bronze</strong> schema and name the table <strong>combined_orders_raw</strong>.<br />
+- Include:
+  - All common columns.
+  - Source‑specific columns.<br />
+  - Future‑facing columns that may not exist yet in current files (<code>discount_code</code>).<br />
+- Add metadata columns:
+  - <strong>source_file</strong> (file path or logical source name)<br />
+  - <strong>file_mod_time</strong> (<code>TIMESTAMP</code>)<br />
+  - <strong>ingestion_time</strong> (<code>TIMESTAMP</code>)<br />
+- Use <code>STRING</code> for all business columns, and <code>TIMESTAMP</code> only for the time metadata columns. <br />
+- In <code>TBLPROPERTIES</code>, set <code>pipelines.reset.allowed = false</code>.  </p>
+<p><strong>To Do:</strong>
+Using these requirements, write the full <code>CREATE OR REPLACE STREAMING TABLE</code> statement, including all columns, data types, <code>COMMENT</code>, and <code>TBLPROPERTIES</code>.</p>
+</section>
+<section class="notebook-cell">
+<h5>CODE ANSWER - Bronze Table Structure</h5>
+<details>
+  <summary>EXPAND FOR SOLUTION CODE</summary>
+
+<button onclick="copyBlock()">Copy to clipboard</button>
+
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+----------------------------------------------------------------
+-- STEP 1: Define the unified Bronze streaming table
+-- All business columns stored as STRING for schema flexibility.
+-- ----------------------------------------------------------------
+CREATE OR REPLACE STREAMING TABLE lab_1_bronze.combined_orders_raw
+(
+  order_id          STRING,
+  order_date        STRING,
+  customer_id       STRING,
+  sku               STRING,
+  model             STRING,
+  category          STRING,
+  order_type        STRING,
+  channel           STRING,
+  quantity          STRING,
+  unit_price        STRING,
+  discount_code     STRING,
+  discount_amount   STRING,
+  total_amount      STRING,
+  payment_method    STRING,
+  order_status      STRING,
+  city              STRING,
+  region            STRING,
+  ship_date         STRING,
+  browser           STRING,
+  session_id        STRING,
+  os                STRING,
+  app_version       STRING,
+  device_model      STRING,
+  source_file       STRING,
+  file_mod_time     TIMESTAMP,
+  ingestion_time    TIMESTAMP
+)
+COMMENT "Unified Bronze streaming table - web and app orders combined via multi-flow ingestion."
+TBLPROPERTIES (
+  'pipelines.reset.allowed' = false
+);
+</code></pre>
+
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } catch (err) {
+    console.error("Fallback copy failed:", err);
+    alert("Could not copy to clipboard. Please copy manually.");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</details>
+</section>
+<section class="notebook-cell">
+<h3>D3. Creating Flows for Each Source</h3>
+<p>Now that our Bronze table is ready, we will create two flows: one for app orders and another for web orders. Each flow will ingest data into our streaming Bronze table.</p>
+</section>
+<section class="notebook-cell">
+<h4>1. App Orders Flow</h4>
+<p>Now, we are going to create a flow for ingesting App Orders:
+- Create a flow to ingest <strong>JSON</strong> app orders using <code>read_files</code>.
+- Cast all business fields to <code>STRING</code> for schema flexibility.
+- Add metadata columns (<code>source_file</code>, <code>file_mod_time</code>) and <code>ingestion_time</code>.
+- Insert data into the unified Bronze table using <code>INSERT INTO ... BY NAME</code> to align columns by name.</p>
+</section>
+<section class="notebook-cell">
+<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+-- ----------------------------------------------------------------
+-- STEP 2: App Orders Flow
+-- Reads JSON files from the app_orders volume.
+-- Web-specific columns set to NULL.
+-- ----------------------------------------------------------------
+CREATE FLOW app_orders_flow
+AS INSERT INTO lab_1_bronze.combined_orders_raw BY NAME
+SELECT
+  CAST(order_id        AS STRING)  AS order_id,
+  CAST(order_date      AS STRING)  AS order_date,
+  CAST(customer_id     AS STRING)  AS customer_id,
+  CAST(sku             AS STRING)  AS sku,
+  CAST(model           AS STRING)  AS model,
+  CAST(category        AS STRING)  AS category,
+  CAST(order_type      AS STRING)  AS order_type,
+  CAST(channel         AS STRING)  AS channel,
+  CAST(quantity        AS STRING)  AS quantity,
+  CAST(unit_price      AS STRING)  AS unit_price,
+  CAST(discount_code   AS STRING)  AS discount_code,
+  CAST(discount_amount AS STRING)  AS discount_amount,
+  CAST(total_amount    AS STRING)  AS total_amount,
+  CAST(payment_method  AS STRING)  AS payment_method,
+  CAST(order_status    AS STRING)  AS order_status,
+  CAST(city            AS STRING)  AS city,
+  CAST(region          AS STRING)  AS region,
+  CAST(ship_date       AS STRING)  AS ship_date,
+  CAST(os              AS STRING)  AS os,
+  CAST(app_version     AS STRING)  AS app_version,
+  CAST(device_model    AS STRING)  AS device_model,
+  _metadata.file_name              AS source_file,
+  _metadata.file_modification_time AS file_mod_time,
+  current_timestamp()              AS ingestion_time
+FROM STREAM read_files(
+  '${app_orders_source}',
+  format => 'json',
+  schemaHints => 'discount_code STRING'
+);
+
+
+</code></pre>
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } catch (err) {
+    console.error("Fallback copy failed:", err);
+    alert("Could not copy to clipboard. Please copy manually.");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<h4>2. Web Orders Flow</h4>
+<p>Create a <strong>flow</strong> for web orders that writes into the unified <strong>lab_1_bronze.combined_orders_raw</strong> table using <code>CREATE FLOW</code> command.</p>
+<p><strong>Requirements:</strong>
+- Read all the columns from the web orders source using <code>read_files()</code>
+- Select and cast all business columns to <code>STRING</code> for schema flexibility.<br />
+- Populate the metadata columns to track lineage:<br />
+  - <strong>source_file</strong> from <code>_metadata.file_name</code><br />
+  - <strong>file_mod_time</strong> from <code>_metadata.file_modification_time</code><br />
+  - <strong>ingestion_time</strong> using <code>current_timestamp()</code> 
+- Use <code>schemaHints =&gt; 'discount_code STRING'</code> in <code>read_files()</code> so that the <strong>discount_code</strong> column is detected even if it is missing in some CSV files. <br />
+- Use <code>AS INSERT INTO lab_1_bronze.combined_orders_raw BY NAME</code> so columns align by name with the Bronze table schema.</p>
+<p><strong>To Do:</strong></p>
+<p>Using these requirements, write the full flow for web orders yourself.</p>
+</section>
+<section class="notebook-cell">
+<h5>CODE ANSWER - Web Orders Flow</h5>
+<details>
+  <summary>EXPAND FOR SOLUTION CODE</summary>
+
+<button onclick="copyBlock()">Copy to clipboard</button>
+
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+-- ----------------------------------------------------------------
+-- STEP 3: Web Orders Flow
+-- Reads CSV files from the web_orders volume.
+-- App-specific columns set to NULL.
+-- ----------------------------------------------------------------
+CREATE FLOW web_orders_flow
+AS INSERT INTO lab_1_bronze.combined_orders_raw BY NAME
+SELECT
+  CAST(order_id        AS STRING)  AS order_id,
+  CAST(order_date      AS STRING)  AS order_date,
+  CAST(customer_id     AS STRING)  AS customer_id,
+  CAST(sku             AS STRING)  AS sku,
+  CAST(model           AS STRING)  AS model,
+  CAST(category        AS STRING)  AS category,
+  CAST(order_type      AS STRING)  AS order_type,
+  CAST(channel         AS STRING)  AS channel,
+  CAST(quantity        AS STRING)  AS quantity,
+  CAST(unit_price      AS STRING)  AS unit_price,
+  CAST(discount_code   AS STRING)  AS discount_code,
+  CAST(discount_amount AS STRING)  AS discount_amount,
+  CAST(total_amount    AS STRING)  AS total_amount,
+  CAST(payment_method  AS STRING)  AS payment_method,
+  CAST(order_status    AS STRING)  AS order_status,
+  CAST(city            AS STRING)  AS city,
+  CAST(region          AS STRING)  AS region,
+  CAST(ship_date       AS STRING)  AS ship_date,
+  CAST(browser         AS STRING)  AS browser,
+  CAST(session_id      AS STRING)  AS session_id,
+  CAST(os              AS STRING)  AS os,
+  _metadata.file_name              AS source_file,
+  _metadata.file_modification_time AS file_mod_time,
+  current_timestamp()              AS ingestion_time
+FROM STREAM read_files(
+  '${web_orders_source}',
+  format      => 'csv',
+  header      => true,
+  schemaHints => 'discount_code STRING'
+);
+</code></pre>
+
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</details>
+</section>
+<section class="notebook-cell">
+<h3>D4. Run and Explore the Pipeline</h3>
+<ol>
+<li>
+<p>Run the Spark Declarative Pipeline and confirm that it completes successfully.</p>
+</li>
+<li>
+<p>In the Apache Spark™ Pipelines Editor, explore your pipeline run:</p>
+</li>
+<li>Confirm that <strong>200</strong> rows were ingested into the <strong>combined_orders_raw</strong> table from both source volumes.</li>
+<li>Select the <strong>combined_orders_raw</strong> table and open the <strong>Data</strong> tab to preview all ingested business event records.</li>
+<li>Observe that web-specific columns like <strong>browser</strong> and <strong>session_id</strong> are populated only for web source records, while app-specific columns like <strong>device_model</strong> and <strong>app_version</strong> are populated only for app source records (and are NULL for web records).</li>
+</ol>
+<p><strong>TROUBLESHOOTING:</strong> If your pipeline does not run successfully, make sure your volumes are created and your configuration parameters are set correctly.</p>
+</section>
+<section class="notebook-cell">
+<h3>D5. Confirming Ingestion of Records</h3>
+<p>Let's verify that our multi-flow ingestion is working correctly by examining the ingested data.</p>
+</section>
+<section class="notebook-cell">
+<h4>Checkpoint - Bronze Layer</h4>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Expected</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>web_orders_1.csv</code></td>
+<td>Web rows ingested</td>
+<td><strong>browser</strong> and <strong>session_id</strong> populated</td>
+</tr>
+<tr>
+<td><code>app_orders_1.json</code></td>
+<td>App rows ingested</td>
+<td><strong>app_version</strong> and <strong>device_model</strong> populated</td>
+</tr>
+</tbody>
+</table>
+<p><strong>TROUBLESHOOTING:</strong> If one flow shows 0 rows, check that the pipeline configuration parameter points to the correct volume path.</p>
+</section>
+<section class="notebook-cell">
+<h2>E. Silver Layer — Expectations and Stream-Static Join</h2>
+<p>The Silver layer will clean and validate our data using expectations, then enrich it with product catalog information through a stream-static join.</p>
+</section>
+<section class="notebook-cell">
+<h3>E1. Understand the Data Quality Expectations</h3>
+<p>Data quality expectations ensure that only valid data flows through our pipeline. Here are the constraints we'll implement:</p>
+<table>
+<thead>
+<tr>
+<th>Constraint Name</th>
+<th>Expectation</th>
+<th>Action</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>valid_order_id</code></td>
+<td><code>order_id IS NOT NULL</code></td>
+<td><strong>FAIL UPDATE</strong></td>
+<td>Primary key — NULL breaks all downstream joins</td>
+</tr>
+<tr>
+<td><code>valid_sku</code></td>
+<td><code>sku IS NOT NULL</code></td>
+<td><strong>DROP ROW</strong></td>
+<td>No product reference = unusable for analytics</td>
+</tr>
+<tr>
+<td><code>positive_quantity</code></td>
+<td><code>quantity &gt;= 1</code></td>
+<td><strong>DROP ROW</strong></td>
+<td>Quantity of zero or less is not a valid sale</td>
+</tr>
+<tr>
+<td><code>positive_unit_price</code></td>
+<td><code>unit_price &gt; 0</code></td>
+<td><strong>WARN</strong> (default)</td>
+<td>Flags pricing anomalies without blocking the pipeline</td>
+</tr>
+<tr>
+<td><code>valid_total_amount</code></td>
+<td><code>total_amount &gt;= 0</code></td>
+<td><strong>WARN</strong> (default)</td>
+<td>Flags negative totals for review</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="notebook-cell">
+<h3>E2. Create the Silver SQL File</h3>
+<ol>
+<li>
+<p>On your <strong>ecommerce_pipeline</strong> folder select the kebab menu and select <strong>Create File</strong></p>
+</li>
+<li>
+<p>Select the language as <strong>SQL</strong></p>
+</li>
+<li>
+<p>Name the file <code>silver_transformation.sql</code></p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h3>E3. Create the Silver Table</h3>
+<p><strong>Instructions:</strong>
+- Create a Silver streaming table named <strong>orders_clean</strong> in the <strong>lab_2_silver</strong> schema.
+- Use <code>CREATE OR REFRESH STREAMING TABLE</code> and select from <code>STREAM lab_1_bronze.combined_orders_raw</code>.
+- Add data quality constraints using <code>CONSTRAINT</code> and <code>EXPECT</code> for key columns.
+- Use <code>CLUSTER BY AUTO</code> for automatic clustering.
+- Cast raw fields to correct types with <code>TRY_CAST</code>.
+- Add a table comment describing the table.</p>
+<p><strong>Requirements:</strong>
+- <strong>Table:</strong> <strong>orders_clean</strong>
+- <strong>Columns:</strong> Cast fields like <strong>order_date</strong> (<code>TIMESTAMP</code>), <strong>quantity</strong> (<code>INT</code>), <strong>unit_price</strong>, <strong>discount_amount</strong>, <strong>total_amount</strong> (<code>DOUBLE</code>), <strong>ship_date</strong> (<code>DATE</code>).
+- <strong>Constraints:</strong>
+  - <code>valid_order_id</code>: <strong>order_id</strong> IS NOT NULL, <code>ON VIOLATION FAIL UPDATE</code>
+  - <code>valid_sku</code>: <strong>sku</strong> IS NOT NULL, <code>ON VIOLATION DROP ROW</code>
+  - <code>positive_quantity</code>: <strong>quantity</strong> &gt;= 1, <code>ON VIOLATION DROP ROW</code>
+  - <code>positive_unit_price</code>: <strong>unit_price</strong> &gt; 0 (WARN)
+  - <code>valid_total_amount</code>: <strong>total_amount</strong> &gt;= 0 (WARN)</p>
+<p><strong>To Do:</strong>
+Using these requirements, write the full code for the Silver table.</p>
+</section>
+<section class="notebook-cell">
+<h5>CODE ANSWER - Silver Table With Expectations and Liquid Clustering Enabled</h5>
+<details>
+  <summary>EXPAND FOR SOLUTION CODE</summary>
+
+<button onclick="copyBlock()">Copy to clipboard</button>
+
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+-- ----------------------------------------------------------------
+-- STEP 1: Silver clean orders
+-- ----------------------------------------------------------------
+CREATE OR REFRESH STREAMING TABLE lab_2_silver.orders_clean
+(
+  -- FAIL: order_id is the primary key
+  CONSTRAINT valid_order_id
+    EXPECT (order_id IS NOT NULL)
+    ON VIOLATION FAIL UPDATE,
+
+  -- DROP: rows without a SKU are unusable for analytics
+  CONSTRAINT valid_sku
+    EXPECT (sku IS NOT NULL)
+    ON VIOLATION DROP ROW,
+
+  -- DROP: quantity less than 1 is not a valid sale
+  CONSTRAINT positive_quantity
+    EXPECT (quantity >= 1)
+    ON VIOLATION DROP ROW,
+
+  -- WARN: flags pricing anomalies; row passes through
+  CONSTRAINT positive_unit_price
+    EXPECT (unit_price > 0),
+
+  -- WARN: flags negative totals; row passes through
+  CONSTRAINT valid_total_amount
+    EXPECT (total_amount >= 0)
+)
+COMMENT "Silver clean orders - type-cast, quality-validated, liquid-clustered."
+CLUSTER BY AUTO
+AS
+SELECT
+  order_id,
+  TRY_CAST(order_date      AS TIMESTAMP) AS order_date,
+  customer_id,
+  sku,
+  model,
+  category,
+  order_type,
+  channel,
+  TRY_CAST(quantity        AS INT)       AS quantity,
+  TRY_CAST(unit_price      AS DOUBLE)    AS unit_price,
+  discount_code,
+  TRY_CAST(discount_amount AS DOUBLE)    AS discount_amount,
+  TRY_CAST(total_amount    AS DOUBLE)    AS total_amount,
+  payment_method,
+  order_status,
+  city,
+  region,
+  TRY_CAST(ship_date       AS DATE)      AS ship_date,
+  browser,
+  os,
+  session_id,
+  app_version,
+  device_model,
+  source_file,
+  ingestion_time
+FROM STREAM lab_1_bronze.combined_orders_raw;
+</code></pre>
+
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } catch (err) {
+    console.error("Fallback copy failed:", err);
+    alert("Could not copy to clipboard. Please copy manually.");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</details>
+</section>
+<section class="notebook-cell">
+<h3>E4. Ingesting Product Catalog</h3>
+<p>Create a <strong>materialized view</strong> in the Silver layer to hold the static product catalog reference.</p>
+<p><strong>Requirements:</strong></p>
+<ul>
+<li>Name the view as <strong>lab_2_silver.product_catalog_ref</strong>.   </li>
+<li>Read the <code>product_catalog.csv</code> file using <code>read_files</code> with:</li>
+<li><code>format =&gt; 'csv'</code>  </li>
+<li><code>header =&gt; true</code>  </li>
+<li>Select and type-cast columns:</li>
+<li><strong>sku</strong>  </li>
+<li><strong>brand</strong>  </li>
+<li><strong>category</strong> as <strong>catalog_category</strong>  </li>
+<li><strong>list_price</strong> cast to <code>DOUBLE</code> as <strong>list_price</strong>  </li>
+<li><strong>is_active</strong> cast to <code>BOOLEAN</code> as <strong>is_active</strong>  </li>
+<li>Add a table comment indicating it is a product catalog reference with brand, category, and list price per SKU.</li>
+</ul>
+<p><strong>To Do:</strong>
+Using these requirements, write the full statement/code for the view.</p>
+</section>
+<section class="notebook-cell">
+<h5>CODE ANSWER - Creating Product Catalog Reference as Materialized View</h5>
+<details>
+  <summary>EXPAND FOR SOLUTION CODE</summary>
+
+<button onclick="copyBlock()">Copy to clipboard</button>
+
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+-- ----------------------------------------------------------------
+-- STEP 2: Product catalog as a materialized view (static reference)
+-- Used as the static side of the stream-static join below.
+-- ----------------------------------------------------------------
+CREATE OR REFRESH MATERIALIZED VIEW lab_2_silver.product_catalog_ref
+COMMENT "Product catalog reference - brand, category, and list price per SKU."
+AS
+SELECT
+  sku,
+  brand,
+  category                    AS catalog_category,
+  CAST(list_price AS DOUBLE)  AS list_price,
+  CAST(is_active  AS BOOLEAN) AS is_active
+FROM read_files(
+  '${product_catalog_source}',
+  format => 'csv',
+  header => true
+);
+</code></pre>
+
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } catch (err) {
+    console.error("Fallback copy failed:", err);
+    alert("Could not copy to clipboard. Please copy manually.");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</details>
+</section>
+<section class="notebook-cell">
+<h3>E5. Join Orders Clean Table with Product Catalog</h3>
+<p>We will enrich the <strong>orders_clean</strong> table with product catalog attributes using a stream-static join.</p>
+<p><strong>Key Features:</strong>
+- Use a stream-static <strong>LEFT JOIN</strong> to retain all orders, even if the <strong>SKU</strong> is missing in the catalog.
+- Add product attributes from the catalog:
+  - <strong>brand</strong>
+  - <strong>catalog_category</strong>
+  - <strong>list_price</strong>
+  - <strong>is_active</strong> (as <strong>sku_is_active</strong>)
+- Calculate <strong>price_vs_catalog</strong> as the difference between the order's <strong>unit_price</strong> and the catalog's <strong>list_price</strong>.</p>
+</section>
+<section class="notebook-cell">
+<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+-- ----------------------------------------------------------------
+-- STEP 3: Enriched orders — stream-static join
+-- Streaming side : orders_clean
+-- Static side    : product_catalog_ref (re-read on every trigger)
+-- LEFT JOIN retains all orders even if the SKU is not in catalog.
+-- ----------------------------------------------------------------
+CREATE OR REFRESH STREAMING TABLE lab_2_silver.orders_enriched
+COMMENT "Enriched Silver orders - stream-static join adds brand, catalog category, and list price."
+CLUSTER BY AUTO
+AS
+SELECT
+  o.order_id,
+  DATE(o.order_date)                     AS order_date,
+  o.customer_id,
+  o.sku,
+  o.model,
+  o.order_type,
+  o.channel,
+  o.quantity,
+  o.unit_price,
+  o.discount_code,
+  o.discount_amount,
+  o.total_amount,
+  o.payment_method,
+  o.order_status,
+  o.city,
+  o.region,
+  o.ship_date,
+  o.source_file,
+  p.brand,
+  p.catalog_category,
+  p.list_price,
+  ROUND(o.unit_price - p.list_price, 2)  AS price_vs_catalog,
+  p.is_active                             AS sku_is_active
+FROM STREAM lab_2_silver.orders_clean AS o
+LEFT JOIN lab_2_silver.product_catalog_ref AS p
+  ON o.sku = p.sku;
+</code></pre>
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } catch (err) {
+    console.error("Fallback copy failed:", err);
+    alert("Could not copy to clipboard. Please copy manually.");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<h3>E6. Run and Explore the Pipeline</h3>
+<ol>
+<li>
+<p>Run the Spark Declarative Pipeline and confirm it completes successfully.</p>
+</li>
+<li>
+<p>In the Apache Spark™ Pipelines Editor, review your pipeline run:</p>
+</li>
+<li>
+<p>Confirm that <strong>0</strong> new records were ingested into <strong>combined_orders_raw</strong>.</p>
+</li>
+<li>
+<p><strong>orders_clean</strong> should show <strong>192</strong> records, with 2 expectations met and 3 unmet.</p>
+</li>
+<li>
+<p>Hover over <strong>orders_clean</strong> in the pipeline graph to see <strong>8</strong> records dropped and <strong>8</strong> records with warnings. Click on "Expectations" for details:</p>
+<ul>
+<li><strong>8</strong> records dropped due to the <code>positive_quantity</code> constraint.</li>
+<li><strong>10</strong> records triggered warnings for the <code>positive_unit_price</code> constraint.</li>
+<li><strong>2</strong> records failed both constraints, so the graph shows <strong>8</strong> failed for <code>positive_unit_price</code>, but actually <strong>10</strong> failed.</li>
+</ul>
+</li>
+<li>
+<p><strong>product_catalog_ref</strong> should have <strong>50</strong> records.</p>
+</li>
+<li>
+<p><strong>orders_enriched</strong> should have joined columns from <strong>product_catalog_ref</strong> and also show <strong>192</strong> records.</p>
+</li>
+</ol>
+<p><strong>TROUBLESHOOTING:</strong> If your pipeline does not run successfully, check that your volumes and configuration parameters are set correctly.</p>
+<h4>Checkpoint - Silver Layer</h4>
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/lab/lab_checkpoint_1.png" alt="Silver Layer Checkpoint" width="1200"></p>
+</section>
+<section class="notebook-cell">
+<h3>E7. Confirming Transformation of Records</h3>
+<p>Let's verify that our Silver layer transformations are working correctly.</p>
+</section>
+<section class="notebook-cell">
+<h4>Checkpoint — Silver Layer</h4>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Expected</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>orders_clean</strong></td>
+<td>Bronze rows minus any DROP violations</td>
+</tr>
+<tr>
+<td><strong>orders_enriched</strong></td>
+<td>Equal to orders_clean — LEFT JOIN retains all rows</td>
+</tr>
+<tr>
+<td><strong>Expectations tab (pipeline UI)</strong></td>
+<td>5 constraints shown</td>
+</tr>
+<tr>
+<td><strong>Enrichment</strong></td>
+<td>brand, catalog_category, list_price populated for known SKUs</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="notebook-cell">
+<h2>F. Gold Layer — Business Analytics Materialized Views</h2>
+<p>The Gold layer provides business-ready analytics tables optimized for reporting and dashboards.</p>
+</section>
+<section class="notebook-cell">
+<h3>F1. Create the Gold Analytics SQL File</h3>
+<ol>
+<li>
+<p>On your <strong>ecommerce_pipeline</strong> folder select the kebab menu and select <strong>Create File</strong></p>
+</li>
+<li>
+<p>Select the language as <strong>SQL</strong></p>
+</li>
+<li>
+<p>Name the file <code>gold_analytics.sql</code></p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h3>F2. Daily Revenue by Category Gold View</h3>
+<p>Create a <strong>Gold-layer materialized view</strong> named <strong>weekly_revenue_by_category</strong> that provides a daily revenue snapshot by category for business stakeholders.</p>
+<p><strong>Requirements:</strong>
+- Aggregate sales at the daily level across key business dimensions: date, product category, brand, sales channel, and region.</p>
+<ul>
+<li>Expose core commercial KPIs:</li>
+<li><strong>total_orders</strong>: Count of unique orders per group</li>
+<li><strong>units_sold</strong>: Total quantity sold</li>
+<li><strong>gross_revenue</strong>: Sum of total_amount</li>
+<li><strong>total_discounts</strong>: Sum of discount_amount</li>
+<li><strong>net_revenue</strong>: Gross revenue minus total discounts</li>
+<li><strong>avg_order_value</strong>: Average order value per group</li>
+<li><strong>discounted_orders</strong>: Count of orders with a discount code</li>
+<li><strong>last_refreshed</strong>: Timestamp of materialized view refresh (<code>current_timestamp()</code>)</li>
+</ul>
+<p><strong>To Do:</strong>
+Using these requirements, write the full code for the Gold analytics view.</p>
+</section>
+<section class="notebook-cell">
+<h5>CODE ANSWER - Gold Analytics View</h5>
+<details>
+  <summary>EXPAND FOR SOLUTION CODE</summary>
+
+<button onclick="copyBlock()">Copy to clipboard</button>
+
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+-- ----------------------------------------------------------------
+-- GOLD VIEW: Daily Revenue by Category
+-- Audience: Executive dashboards, category managers
+-- ----------------------------------------------------------------
+CREATE OR REPLACE MATERIALIZED VIEW lab_3_gold.weekly_revenue_by_category
+COMMENT "Gold MV: Daily gross revenue, units, and order count by category and channel."
+AS
+SELECT
+    order_date,
+    catalog_category                                        AS category,
+    brand,
+    order_type                                              AS channel,
+    region,
+    COUNT(DISTINCT order_id)                                AS total_orders,
+    SUM(quantity)                                           AS units_sold,
+    ROUND(SUM(total_amount), 2)                             AS gross_revenue,
+    ROUND(SUM(discount_amount), 2)                         AS total_discounts,
+    ROUND(SUM(total_amount) - SUM(discount_amount), 2)     AS net_revenue,
+    ROUND(AVG(total_amount), 2)                             AS avg_order_value,
+    COUNT(CASE WHEN discount_code IS NOT NULL THEN 1 END)  AS discounted_orders,
+    current_timestamp()                                     AS last_refreshed
+
+FROM lab_2_silver.orders_enriched
+WHERE order_date IS NOT NULL AND catalog_category  IS NOT NULL
+GROUP BY
+order_date,catalog_category,brand,order_type,region;
+</code></pre>
+
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } catch (err) {
+    console.error("Fallback copy failed:", err);
+    alert("Could not copy to clipboard. Please copy manually.");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</details>
+</section>
+<section class="notebook-cell">
+<h3>F3. Run the Full Pipeline and Validate Gold Layer</h3>
+<ol>
+<li>Run the Spark Declarative Pipeline and confirm it completes successfully.</li>
+<li>
+<p>In the Apache Spark™ Pipelines Editor, review your pipeline run:</p>
+</li>
+<li>
+<p>Confirm that <strong>0</strong> new records were ingested into any tables of Bronze and Silver layers.</p>
+</li>
+<li>Materialized view <strong>weekly_revenue_by_category</strong> should have <strong>192</strong> records</li>
+</ol>
+<h4>Checkpoint - Gold Layer</h4>
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/lab/lab_checkpoint_2.png" alt="Gold Layer Checkpoint" width="1200"></p>
+</section>
+<section class="notebook-cell">
+<h2>G. Incremental Processing</h2>
+<p>Now we'll simulate incremental data processing by landing additional files and observing how our pipeline handles new data.</p>
+</section>
+<section class="notebook-cell">
+<h3>G1. Land Additional Files</h3>
+<p>Run the function below to automatically land new files into the source locations for both web and app orders.</p>
+</section>
+<section class="notebook-cell">
+<h3>G2. Listing Available Files</h3>
+<p>Let's verify that the new files have been added to our source volumes.</p>
+</section>
+<section class="notebook-cell">
+<h3>G3. Run and Explore the Pipeline</h3>
+<ol>
+<li>
+<p>Run the Spark Declarative Pipeline and confirm it completes successfully.</p>
+</li>
+<li>
+<p>In the Apache Spark™ Pipelines Editor, review your pipeline run:</p>
+</li>
+<li>
+<p>Confirm that <strong>200</strong> new records were ingested into <strong>combined_orders_raw</strong>.</p>
+</li>
+<li>
+<p><strong>orders_clean</strong> should have <strong>191</strong> records, with 3 expectations met and 2 unmet.</p>
+</li>
+<li>
+<p>Hover over <strong>orders_clean</strong> in the pipeline graph to see <strong>9</strong> records dropped and <strong>7</strong> records with warnings. Click on "Expectations" for details:</p>
+<ul>
+<li>A total of <strong>9</strong> records were dropped: <strong>8</strong> due to the <code>positive_quantity</code> constraint and <strong>1</strong> due to the <code>valid_sku</code> constraint.</li>
+<li><strong>7</strong> records triggered warnings for the <code>positive_unit_price</code> constraint.</li>
+</ul>
+</li>
+<li>
+<p><strong>product_catalog_ref</strong> should have <strong>50</strong> records.</p>
+</li>
+<li>
+<p><strong>orders_enriched</strong> should have joined columns from <strong>product_catalog_ref</strong> and also show <strong>191</strong> records.</p>
+</li>
+<li>
+<p><strong>weekly_revenue_by_category</strong> should now show a total of <strong>380</strong> records.</p>
+</li>
+</ol>
+<h4>Checkpoint - Incremental Processing</h4>
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/lab/lab_checkpoint_3.png" alt="Incremental Processing Checkpoint" width="1200"></p>
+</section>
+<section class="notebook-cell">
+<h3>G4. Validating the Pipeline</h3>
+<p>Let's validate that our incremental processing is working correctly by examining the data at each layer.</p>
+</section>
+<section class="notebook-cell">
+<h4>1. Verify Bronze Cumulative Totals</h4>
+<p>After both runs, the Bronze layer should contain all records from Run 1 and Run 2 combined.</p>
+</section>
+<section class="notebook-cell">
+<h4>2. Verify Data Quality Impact</h4>
+<p>In the first run, <strong>8</strong> records failed. In the second run, <strong>9</strong> records failed. The difference between Bronze and Silver layers is the total dropped records: <code>8 + 9 = 17</code>.</p>
+</section>
+<section class="notebook-cell">
+<h4>3. Data Quality Pass Rate Analysis</h4>
+<p>Calculate the overall data quality pass rate from Bronze raw to Silver clean.</p>
+</section>
+<section class="notebook-cell">
+<p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
+</section>
+  </div>
+</div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightbox(event)">✕</button>
+  <img id="lb-img" src="" alt="">
+</div>
+<button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
+<script>
+if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
+function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
+function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});
+document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src);});});
+</script>
+</body>
+</html>

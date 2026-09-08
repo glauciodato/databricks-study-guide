@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDC Review (SCD Type 1 e 2) | Advanced SDP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117; --surface: #161b22; --surface-raised: #1c2129;
+    --border: #2a313a; --text: #e6edf3; --text-muted: #8b949e; --text-faint: #6e7681;
+    --accent: #ff6433; --accent-soft: rgba(255,100,51,0.12);
+    --green: #3fb950; --blue: #58a6ff; --purple: #bc8cff; --yellow: #d29922;
+    --radius: 12px;
+  }
+  body.light {
+    --bg: #f8f9fb; --surface: #ffffff; --surface-raised: #f0f2f5;
+    --border: #d8dce2; --text: #1a1d23; --text-muted: #5a6170; --text-faint: #8891a0;
+    --accent: #e0501e; --accent-soft: rgba(224,80,30,0.08);
+    --green: #1a8a3e; --blue: #2563eb; --purple: #7c3aed;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+  .top-bar {
+    position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border);
+    padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
+  .top-bar a:hover { color:var(--accent); }
+  .top-bar .sep { color:var(--text-faint); font-size:11px; }
+  .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
+  .layout { display:flex; min-height:calc(100vh - 50px); }
+  .sidebar {
+    width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border);
+    padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px);
+  }
+  .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
+  .sidebar a {
+    display:block; padding:6px 16px; font-size:12px; color:var(--text-muted); text-decoration:none;
+    border-left:2px solid transparent; line-height:1.5; transition:all 0.15s;
+  }
+  .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
+  .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
+  .content { flex:1; max-width:900px; padding:32px 40px 80px; }
+  .notebook-cell { margin-bottom:24px; }
+  .notebook-cell h1 { font-size:26px; font-weight:700; margin-bottom:12px; }
+  .notebook-cell h2 { font-size:21px; font-weight:700; margin:28px 0 12px; padding-top:20px; border-top:1px solid var(--border); }
+  .notebook-cell h3 { font-size:17px; font-weight:600; margin:20px 0 10px; }
+  .notebook-cell h4 { font-size:15px; font-weight:600; margin:16px 0 8px; }
+  .notebook-cell h5 { font-size:12px; font-weight:600; margin:14px 0 6px; color:var(--text-muted); }
+  .notebook-cell p { margin-bottom:10px; font-size:14.5px; }
+  .notebook-cell ul, .notebook-cell ol { margin:0 0 10px 20px; font-size:14.5px; }
+  .notebook-cell li { margin-bottom:4px; }
+  .notebook-cell code { font-family:'IBM Plex Mono',monospace; background:var(--surface-raised); padding:1px 5px; border-radius:3px; font-size:12.5px; }
+  .notebook-cell pre { background:var(--surface-raised); border:1px solid var(--border); border-radius:8px; padding:14px; overflow-x:auto; margin:10px 0; }
+  .notebook-cell pre code { background:none; padding:0; }
+  .notebook-cell img { max-width:100%; height:auto; border-radius:6px; cursor:zoom-in; }
+  .notebook-cell details { margin:10px 0; padding:10px 14px; background:var(--surface-raised); border-radius:6px; border:1px solid var(--border); font-size:13.5px; }
+  .notebook-cell details summary { cursor:pointer; font-weight:600; color:var(--text-muted); font-size:12px; }
+  .notebook-cell svg { max-width:100%; height:auto; }
+  .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
+  .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
+  .notebook-cell th { background:var(--surface-raised); font-weight:600; }
+  .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
+  .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
+  .lightbox.open { display:flex; }
+  .lightbox img { max-width:95vw; max-height:92vh; border-radius:6px; box-shadow:0 8px 40px rgba(0,0,0,0.5); object-fit:contain; background:#fff; padding:6px; cursor:default; }
+  .lightbox .lb-close { position:fixed; top:12px; right:16px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  @media(max-width:768px) { .sidebar { display:none; } .content { padding:20px 16px 60px; } }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="index.html">← Início</a>
+  <span class="sep">›</span>
+  <a href="capitulo-5.html">Capítulo 5</a>
+  <span class="sep">›</span>
+  <span class="title">5. CDC Review (SCD Type 1 e 2)</span>
+</div>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav-title">Capítulo 5 · Advanced SDP</div>
+    <a href="ch5-00-overview.html">📋 0. Visão Geral do Curso</a>
+    <a href="ch5-01-lecture-multi-flows.html">📖 1. Multi Flows, Expectations e Liquid Clustering</a>
+    <a href="ch5-02-demo-multi-flow.html">⚙️ 2. Demo: Multi Flow SDP + Liquid Clustering</a>
+    <a href="ch5-03-lecture-multiplex.html">📖 3. Multiplex Streaming, Delta Sinks e Iceberg</a>
+    <a href="ch5-04-demo-multiplex.html">⚙️ 4. Demo: Multiplex Streaming + Delta Sinks</a>
+    <a href="ch5-05-lecture-cdc.html" class="active">📖 5. CDC Review (SCD Type 1 e 2)</a>
+    <a href="ch5-06-demo-cdc.html">⚙️ 6. Demo: AUTO CDC SCD Type 2</a>
+    <a href="ch5-07-lecture-quality.html">📖 7. Advanced Data Quality e Quarantine Pattern</a>
+    <a href="ch5-08-demo-quality.html">⚙️ 8. Demo: Advanced Quality + Quarantine</a>
+    <a href="ch5-09-lab-pipeline.html">🧪 9. Lab: Multi-Source Ecommerce Pipeline</a>
+    <a href="ch5-99-summary.html">📋 99. Resumo e Próximos Passos</a>
+  </nav>
+  <div class="content">
+<section class="notebook-cell">
+<div style="text-align: center; line-height: 0; padding-top: 9px;">
+  <img
+    src="https://databricks.com/wp-content/uploads/2018/03/db-academy-rgb-1200px.png"
+    alt="Databricks Learning"
+  >
+</div>
+</section>
+<section class="notebook-cell">
+<h1>Lecture - Change Data Capture (CDC) Review</h1>
+<p>This lecture provides a comprehensive review of Change Data Capture (CDC) concepts and implementation patterns in the Lakehouse. You'll explore how CDC enables real-time data synchronization and learn about different approaches to handling changing data.</p>
+<h2>Learning Objectives</h2>
+<p>By the end of this lecture, you will be able to:</p>
+<ol>
+<li><strong>Define</strong> Change Data Capture (CDC) and explain its role in data synchronization</li>
+<li><strong>Distinguish</strong> between SCD Type 1 and SCD Type 2 patterns and their use cases</li>
+<li><strong>Analyze</strong> how SCD Type 1 overwrites existing data while SCD Type 2 preserves history</li>
+<li><strong>Identify</strong> when to use each SCD type based on business requirements</li>
+<li><strong>Recognize</strong> how <code>AUTO CDC INTO</code> simplifies CDC implementation in Apache Spark™ Declarative Pipelines(SDP)</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h2>A. What is Change Data Capture?</h2>
+</section>
+<section class="notebook-cell">
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/cdc_lecture/01-cdcoverview-review.png" alt="CDC Overview" width="1100"></p>
+</section>
+<section class="notebook-cell">
+<h5>EXPAND FOR ADDITIONAL NOTES</h5>
+<details>
+
+Let's review **Change Data Capture (CDC)**, a foundational concept for keeping data synchronized across systems.
+
+#### CDC Definition and Purpose
+
+Change Data Capture is a technique used to track and capture changes in data sources like databases, Lakehouses, or data warehouses, and then apply those changes to a target table to ensure it reflects the latest state of the source.
+
+#### Slowly Changing Dimensions (SCDs)
+
+CDC is closely tied to the concept of **Slowly Changing Dimensions (SCDs)**, which describe how historical data changes are handled in your target system.
+
+We'll focus on two main types:
+- **SCD Type 1** - Overwrites existing data with new values (no history tracking)  
+- **SCD Type 2** - Preserves history by storing previous versions of records
+
+#### Real-World Example
+
+Imagine a **customer** table where new customers are added, existing customer information is updated, or some customers are deleted. CDC ensures those changes flow into the target table using either SCD Type 1 or Type 2 logic, keeping the target table continuously up to date.
+
+**Think about it:** What types of data changes occur frequently in your organization that would benefit from automated CDC processing?
+
+#### Documentation Resources
+- [What is change data capture (CDC)?](https://docs.databricks.com/aws/en/ldp/what-is-change-data-capture)
+
+</details>
+</section>
+<section class="notebook-cell">
+<h2>B. Slowly Changing Dimensions (SCD) Type 1</h2>
+</section>
+<section class="notebook-cell">
+<h3>B1. SCD Type 1 - Overview</h3>
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/cdc_lecture/02-scd-type-1-02-review-slide.png" alt="SCD Type 1 Example" width="1100"></p>
+</section>
+<section class="notebook-cell">
+<h5>EXPAND FOR ADDITIONAL NOTES</h5>
+<details>
+
+
+SCD Type 1 updates the **target table** by **overwriting existing rows** with the latest values. No version history is maintained - only the current state matters.
+
+#### Key Characteristics:
+- **Updates:** When a record is updated by its key(s), the existing row is replaced with new values
+- **Deletes:** When a record is deleted by its key(s), it is removed from the target table  
+- **Current State Only:** Only the most recent version of each record is stored
+- **No History:** Previous changes and historical versions are not retained
+
+#### Our Scenario Setup
+
+**Target Table (customers)** - Current customer data:
+
+| CustomerID | Name   | Address | ProcessDate |
+|------------|--------|---------|-------------|
+| 1 | Peter | 1 Blue Rd. | 5/1/2025 |
+| 2 | Samarth | 22 Front St | 5/1/2025 |
+
+**Source Updates** - Incoming changes:
+
+| Change Type | Details |
+|-------------|---------|
+| **Update** | Peter has two address updates (5/15 and 5/20) for `customer_id = 1` |
+| **Delete** | Samarth requests account removal (`customer_id = 2`) |
+| **Insert** | New customer Kostas joins (`customer_id = 3`) |
+
+**Goal:** Apply updates so the target table reflects the latest state of all customers.
+
+</details>
+</section>
+<section class="notebook-cell">
+<h3>B2. SCD Type 1 - Implementation Example</h3>
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/cdc_lecture/02-scd-type-1-01-review-slide.png" alt="SCD Type 1 Overview" width="1100"></p>
+<blockquote>
+<p><strong>NOTE:</strong> When ingesting a <code>DELETE</code> row using <code>AUTO CDC INTO</code>, non key columns may contain <code>NULL</code> values. The required key columns must always be populated, as they are used to identify the row to delete.</p>
+</blockquote>
+</section>
+<section class="notebook-cell">
+<h5>EXPAND FOR ADDITIONAL NOTES</h5>
+<details>
+
+When we apply **SCD Type 1**, the target table is updated with the latest customer information using the **CustomerID** (key column) and **ProcessDate** (sequence column) to determine the most recent changes.
+
+#### Processing Logic:
+
+1. **Peter (CustomerID 1):** 
+   - Multiple address updates exist (5/15 and 5/20)
+   - Only the latest update (5/20) with address *123 Main St.* is applied
+   - Previous address history is lost
+
+2. **Samarth (CustomerID 2):** 
+   - Marked for deletion
+   - Entire row is removed from the target table
+   - No trace of the customer remains
+
+3. **Kostas (CustomerID 3):** 
+   - New customer record
+   - Inserted as a new row in the target table
+
+#### Final Result:
+The customers table contains only the most current snapshot of active customers. This approach is ideal when:
+- Historical data is not required for business operations
+- Storage efficiency is prioritized
+- Regulatory compliance doesn't require audit trails
+
+**Use SCD Type 1 when:** You only need the most up-to-date and accurate information without historical context.
+
+#### Documentation
+- [Use SCD Type 1 to keep only the latest data](https://docs.databricks.com/aws/en/ldp/what-is-change-data-capture#step-2-use-scd-type-1-to-keep-only-the-latest-data)
+
+</details>
+</section>
+<section class="notebook-cell">
+<h2>C. Slowly Changing Dimensions (SCD) Type 2</h2>
+</section>
+<section class="notebook-cell">
+<h3>C1. SCD Type 2 - Scenario</h3>
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/cdc_lecture/03-auto-cdc-examplescenario.png" alt="SCD Type 2 - Scenario" width="1100"></p>
+</section>
+<section class="notebook-cell">
+<h3>C2. SCD Type 2 - Implementation</h3>
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/cdc_lecture/02-scd-type-2-01-review-slide.png" alt="SCD Type 2" width="1100"></p>
+</section>
+<section class="notebook-cell">
+<h5>EXPAND FOR ADDITIONAL NOTES</h5>
+<details>
+
+**Slowly Changing Dimensions Type 2 (SCD Type 2)** introduces **historical tracking and versioning** of records, preserving a complete audit trail of all changes over time.
+
+#### Core Principles:
+
+When a record changes:
+- **Historical Preservation:** The old record is preserved with metadata columns showing its validity period
+- **New Version Creation:** A new record is inserted with the updated information
+- **Soft Deletes:** Deleted records remain in the table but are flagged as inactive
+
+#### Metadata Columns Added:
+- **__START_AT** - Timestamp when the row became active  
+- **__END_AT** - Timestamp when the row became inactive  
+  - `NULL` **value** = currently active record
+  - **Non** `NULL` **value** = inactive/historical record
+
+#### Detailed Example Breakdown:
+
+**Customer ID 1 - Peter:**  
+- **Two records exist** for Peter in the final table
+- **Active record:** Shows Peter's current address with `__END_AT = NULL`
+- **Historical record:** Preserves his previous address with `__END_AT` populated
+
+**Customer ID 2 - Samarth:**  
+- **Account deletion** processed as a soft delete
+- **Original record remains** but `__END_AT` is populated with deletion timestamp
+- **No new record created** since this was a deletion operation
+
+**Customer ID 3 - Kostas:**  
+- **New customer insertion** creates active record
+- **__START_AT** marks when he joined, **__END_AT** remains NULL
+
+#### Business Value:
+SCD Type 2 enables complete historical analysis, allowing you to:
+- Track how customer attributes evolved over time
+- Perform point-in-time analysis for any historical date
+- Maintain compliance with audit requirements
+- Support advanced analytics on changing dimensions
+
+**Use SCD Type 2 when:** Historical data tracking is essential for business intelligence, compliance, or analytical requirements.
+
+#### Documentation
+- [Use SCD Type 2 to keep historical data](https://docs.databricks.com/aws/en/ldp/what-is-change-data-capture#step-3-use-scd-type-2-to-keep-historical-data)
+
+</details>
+</section>
+<section class="notebook-cell">
+<h2>D. Implementing CDC with <code>AUTO CDC INTO</code> in Spark Declarative Pipelines (SCD Type 1 Example)</h2>
+</section>
+<section class="notebook-cell">
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/cdc_lecture/03-auto-cdc-example.png" alt="AUTO CDC Example" width="1100"></p>
+<blockquote>
+<p><strong>NOTE:</strong> The <code>AUTO CDC INTO</code> key can be defined using a single column or a composite key. A composite key simply means using multiple columns together to uniquely identify a record, for example (<code>CustomerID</code>, <code>OrderID</code>).</p>
+</blockquote>
+</section>
+<section class="notebook-cell">
+<h5>EXPAND FOR ADDITIONAL NOTES</h5>
+<details>
+
+Now that we've covered CDC concepts and both SCD patterns, let's explore how **Apache Spark™ Declarative Pipelines** simplifies CDC implementation with the `AUTO CDC INTO` statement.
+
+**NOTE:** The `AUTO CDC` APIs were previously known as `APPLY CHANGES INTO`, but the syntax and functionality remain identical.
+
+#### AUTO CDC INTO Syntax Breakdown
+
+
+<pre><code class="language-sql">CREATE OR REFRESH STREAMING TABLE customers;
+
+CREATE FLOW scd_type_1_flow AS
+AUTO CDC INTO customers 
+ FROM STREAM updates
+ KEYS (CustomerID)                              
+ APPLY AS DELETE WHEN operation = &quot;DELETE&quot;     
+ SEQUENCE BY ProcessDate                 
+ COLUMNS * EXCEPT (operation)  
+ STORED AS SCD TYPE 1;
+</code></pre>
+
+
+- **`AUTO CDC INTO customers`** - Specifies the target table for CDC operations
+- **`FROM STREAM updates`** - Defines the source stream containing CDC events
+- **`KEYS (CustomerID)`** - Establishes unique key(s) for matching source and target records
+- **`APPLY AS DELETE WHEN operation = "DELETE"`** - Defines deletion logic based on operation column
+- **`SEQUENCE BY ProcessDate`** - Ensures events are processed in chronological order
+- **`COLUMNS * EXCEPT (operation)`** - Includes all columns except operational metadata
+- **`STORED AS SCD TYPE 1`** - Specifies SCD Type 1 pattern (default is SCD Type 1 default)
+
+#### Key Advantages
+
+`AUTO CDC INTO` provides significant benefits over traditional approaches:
+
+1. **Simplified Implementation:** Eliminates complex `MERGE INTO` logic
+2. **Automatic Ordering:** Handles event sequencing automatically
+3. **Built-in SCD Support:** Native support for both Type 1 and Type 2 patterns
+4. **Streaming Integration:** Works seamlessly with both streaming and batch sources
+5. **Error Handling:** Includes robust error handling and recovery mechanisms
+
+**Reflection Question:** How might `AUTO CDC INTO` simplify your current data pipeline maintenance compared to custom merge logic?
+
+</details>
+</section>
+<section class="notebook-cell">
+<h2>E. Documentation and Next Steps</h2>
+<h4>Key Resources:</h4>
+<ul>
+<li><a href="https://docs.databricks.com/aws/en/ldp/cdc">The AUTO CDC APIs: Simplify change data capture with Apache Spark™ Declarative Pipelines</a></li>
+<li><a href="https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-apply-changes-into">AUTO CDC INTO (Apache Spark™ Declarative Pipelines)</a></li>
+</ul>
+<h3>Coming Up Next: Automating SCD Type 2 with AUTO CDC in Apache Spark™ Declarative Pipelines</h3>
+<p>In the next notebook, you will apply what you just learned by building a pipeline that implements CDC with SCD Type 2 using <code>AUTO CDC</code> in Apache Spark™ Declarative Pipelines.</p>
+</section>
+<section class="notebook-cell">
+<h2>F. Summary and Key Takeaways</h2>
+<h3>What We Covered:</h3>
+<ol>
+<li><strong>Change Data Capture (CDC)</strong> enables automated synchronization of data changes between systems</li>
+<li><strong>SCD Type 1</strong> overwrites existing data, maintaining only current state (no history)</li>
+<li><strong>SCD Type 2</strong> preserves complete historical versions using metadata columns</li>
+<li><strong><code>AUTO CDC INTO</code></strong> provides declarative, simplified CDC implementation in Lakeflow pipelines</li>
+</ol>
+<h3>Decision Framework:</h3>
+<p><strong>Choose SCD Type 1 when:</strong>
+- Only current data state is needed
+- Storage efficiency is prioritized
+- Historical tracking is not required</p>
+<p><strong>Choose SCD Type 2 when:</strong>
+- Historical analysis is essential
+- Audit trails are required for compliance
+- Point-in-time reporting is needed</p>
+</section>
+<section class="notebook-cell">
+<p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
+</section>
+  </div>
+</div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightbox(event)">✕</button>
+  <img id="lb-img" src="" alt="">
+</div>
+<button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
+<script>
+if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
+function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
+function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});
+document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src);});});
+</script>
+</body>
+</html>

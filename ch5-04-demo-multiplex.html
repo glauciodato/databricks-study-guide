@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo: Multiplex Streaming + Delta Sinks | Advanced SDP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117; --surface: #161b22; --surface-raised: #1c2129;
+    --border: #2a313a; --text: #e6edf3; --text-muted: #8b949e; --text-faint: #6e7681;
+    --accent: #ff6433; --accent-soft: rgba(255,100,51,0.12);
+    --green: #3fb950; --blue: #58a6ff; --purple: #bc8cff; --yellow: #d29922;
+    --radius: 12px;
+  }
+  body.light {
+    --bg: #f8f9fb; --surface: #ffffff; --surface-raised: #f0f2f5;
+    --border: #d8dce2; --text: #1a1d23; --text-muted: #5a6170; --text-faint: #8891a0;
+    --accent: #e0501e; --accent-soft: rgba(224,80,30,0.08);
+    --green: #1a8a3e; --blue: #2563eb; --purple: #7c3aed;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+  .top-bar {
+    position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border);
+    padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
+  .top-bar a:hover { color:var(--accent); }
+  .top-bar .sep { color:var(--text-faint); font-size:11px; }
+  .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
+  .layout { display:flex; min-height:calc(100vh - 50px); }
+  .sidebar {
+    width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border);
+    padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px);
+  }
+  .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
+  .sidebar a {
+    display:block; padding:6px 16px; font-size:12px; color:var(--text-muted); text-decoration:none;
+    border-left:2px solid transparent; line-height:1.5; transition:all 0.15s;
+  }
+  .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
+  .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
+  .content { flex:1; max-width:900px; padding:32px 40px 80px; }
+  .notebook-cell { margin-bottom:24px; }
+  .notebook-cell h1 { font-size:26px; font-weight:700; margin-bottom:12px; }
+  .notebook-cell h2 { font-size:21px; font-weight:700; margin:28px 0 12px; padding-top:20px; border-top:1px solid var(--border); }
+  .notebook-cell h3 { font-size:17px; font-weight:600; margin:20px 0 10px; }
+  .notebook-cell h4 { font-size:15px; font-weight:600; margin:16px 0 8px; }
+  .notebook-cell h5 { font-size:12px; font-weight:600; margin:14px 0 6px; color:var(--text-muted); }
+  .notebook-cell p { margin-bottom:10px; font-size:14.5px; }
+  .notebook-cell ul, .notebook-cell ol { margin:0 0 10px 20px; font-size:14.5px; }
+  .notebook-cell li { margin-bottom:4px; }
+  .notebook-cell code { font-family:'IBM Plex Mono',monospace; background:var(--surface-raised); padding:1px 5px; border-radius:3px; font-size:12.5px; }
+  .notebook-cell pre { background:var(--surface-raised); border:1px solid var(--border); border-radius:8px; padding:14px; overflow-x:auto; margin:10px 0; }
+  .notebook-cell pre code { background:none; padding:0; }
+  .notebook-cell img { max-width:100%; height:auto; border-radius:6px; cursor:zoom-in; }
+  .notebook-cell details { margin:10px 0; padding:10px 14px; background:var(--surface-raised); border-radius:6px; border:1px solid var(--border); font-size:13.5px; }
+  .notebook-cell details summary { cursor:pointer; font-weight:600; color:var(--text-muted); font-size:12px; }
+  .notebook-cell svg { max-width:100%; height:auto; }
+  .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
+  .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
+  .notebook-cell th { background:var(--surface-raised); font-weight:600; }
+  .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
+  .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
+  .lightbox.open { display:flex; }
+  .lightbox img { max-width:95vw; max-height:92vh; border-radius:6px; box-shadow:0 8px 40px rgba(0,0,0,0.5); object-fit:contain; background:#fff; padding:6px; cursor:default; }
+  .lightbox .lb-close { position:fixed; top:12px; right:16px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  @media(max-width:768px) { .sidebar { display:none; } .content { padding:20px 16px 60px; } }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="index.html">← Início</a>
+  <span class="sep">›</span>
+  <a href="capitulo-5.html">Capítulo 5</a>
+  <span class="sep">›</span>
+  <span class="title">4. Demo: Multiplex Streaming + Delta Sinks</span>
+</div>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav-title">Capítulo 5 · Advanced SDP</div>
+    <a href="ch5-00-overview.html">📋 0. Visão Geral do Curso</a>
+    <a href="ch5-01-lecture-multi-flows.html">📖 1. Multi Flows, Expectations e Liquid Clustering</a>
+    <a href="ch5-02-demo-multi-flow.html">⚙️ 2. Demo: Multi Flow SDP + Liquid Clustering</a>
+    <a href="ch5-03-lecture-multiplex.html">📖 3. Multiplex Streaming, Delta Sinks e Iceberg</a>
+    <a href="ch5-04-demo-multiplex.html" class="active">⚙️ 4. Demo: Multiplex Streaming + Delta Sinks</a>
+    <a href="ch5-05-lecture-cdc.html">📖 5. CDC Review (SCD Type 1 e 2)</a>
+    <a href="ch5-06-demo-cdc.html">⚙️ 6. Demo: AUTO CDC SCD Type 2</a>
+    <a href="ch5-07-lecture-quality.html">📖 7. Advanced Data Quality e Quarantine Pattern</a>
+    <a href="ch5-08-demo-quality.html">⚙️ 8. Demo: Advanced Quality + Quarantine</a>
+    <a href="ch5-09-lab-pipeline.html">🧪 9. Lab: Multi-Source Ecommerce Pipeline</a>
+    <a href="ch5-99-summary.html">📋 99. Resumo e Próximos Passos</a>
+  </nav>
+  <div class="content">
+<section class="notebook-cell">
+<div style="text-align: center; line-height: 0; padding-top: 9px;">
+  <img
+    src="https://databricks.com/wp-content/uploads/2018/03/db-academy-rgb-1200px.png"
+    alt="Databricks Learning"
+  >
+</div>
+</section>
+<section class="notebook-cell">
+<h1>Demo - Multiplex Streaming SDP with Delta Sinks and Iceberg Reads</h1>
+<h2>Overview</h2>
+<p>This demonstration showcases how to build a multiplex data pipeline using Spark Declarative Pipelines (Lakeflow). You will learn how to ingest multiplexed data from a single source into a bronze streaming table, then demultiplex that data into multiple silver streaming tables based on event types, and finally create aggregated gold-layer views for analytics.</p>
+<p>The demo simulates a real-world scenario where multiple business domains (store operations, marketing, and logistics) generate events that are ingested into a single data stream. Using the medallion architecture pattern, you will process this multiplexed data through bronze, silver, and gold layers while enabling Iceberg compatibility for cross-platform analytics.</p>
+<h2>Learning Objectives</h2>
+<p>By the end of this demonstration, you will be able to:</p>
+<ul>
+<li><strong>Build multiplex data pipelines</strong> using Spark Declarative Pipelines to handle multiple event types from a single source</li>
+<li><strong>Demultiplex streaming data</strong> by filtering and transforming events into separate domain-specific tables</li>
+<li><strong>Build Delta sinks</strong> using the Python API to create analytics-ready tables from streaming sources</li>
+<li><strong>Enable Iceberg compatibility</strong> on Delta tables to support cross-platform data access and analytics</li>
+</ul>
+</section>
+<section class="notebook-cell">
+<h2>REQUIRED - SELECT A COMPUTE ENVIRONMENT</h2>
+<div style="
+  border-left: 4px solid #f44336;
+  background: #ffebee;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+  <strong style="display:block; color:#c62828; margin-bottom:6px; font-size: 1.1em;">Select Serverless Compute</strong>
+  <div style="color:#333;">
+
+Before starting this notebook, select the required compute environment listed below.
+
+- **Serverless Compute, Version 4**  
+  - [How to select an environment version](https://docs.databricks.com/aws/en/compute/serverless/dependencies#-select-an-environment-version)
+
+**NOTE:**  This notebook was **developed and tested using Serverless V4**. Other compute options may work but are not guaranteed to behave the same or support all features demonstrated.
+  </div>
+</div>
+</section>
+<section class="notebook-cell">
+<h3>Multiplex Pipeline Demonstration Overview</h3>
+<p>In this demonstration, you'll build a Apache Spark™ Declarative Pipeline that implements the full medallion architecture, from raw data ingestion to curated analytics.</p>
+<ol>
+<li><strong>Ingest multiplexed files</strong> from cloud storage and write them into a single bronze table.  <ul>
+<li>These files contain multiplexed data, meaning they include events for <strong>marketing</strong>, <strong>logistics</strong>, and <strong>store operations</strong>, all dumped into a single cloud location.</li>
+</ul>
+</li>
+<li><strong>Demultiplex the bronze table</strong> into intermediate tables based on event group. Three intermediate tables will be created in the bronze layer.</li>
+<li><strong>Transform intermediate tables</strong> to create silver tables for each event group, adding new columns as required by business logic and casting columns to the appropriate data types.</li>
+<li><strong>Create gold materialized views</strong> from the marketing data that automatically refresh and provide analytics-ready results.</li>
+<li><strong>Write the logistics table to a Delta sink</strong> to enable external access via Iceberg reads.</li>
+</ol>
+<p><img alt="Multi Flow Pipeline Overview" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/multiplex/multiplex_demo_pipeline_overview.png" /></p>
+</section>
+<section class="notebook-cell">
+<h2>A. Setup</h2>
+</section>
+<section class="notebook-cell">
+<div style="
+  border-left: 4px solid #1976d2;
+  background: #e3f2fd;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+  <strong style="display:block; color:#0d47a1; margin-bottom:6px; font-size:1.1em;">
+    Option 1 - Databricks Academy Provided Workspace (Vocareum Workspace)
+  </strong>
+  <details>
+  <div style="color:#333;">
+
+If you are running this notebook in a <strong>Databricks Academy provided Vocareum workspace</strong>, your Unity Catalog catalog is already created for you.
+
+Your catalog name matches your Vocareum username and looks like: <strong>labuser12345</strong> (series of unique numbers)
+  </div>
+  </details>
+</div>
+
+<div style="
+  border-left: 4px solid #1976d2;
+  background: #e3f2fd;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+  <strong style="display:block; color:#0d47a1; margin-bottom:6px; font-size:1.1em;">
+    Option 2 - Other Workspaces or Databricks Free Edition
+  </strong>
+  <details>
+  <div style="color:#333;">
+
+If you are running this notebook in your own Databricks workspace or Databricks Free Edition, the setup will
+<strong>create a Unity Catalog catalog and schema for you</strong>. **Create catalog permission is required.**
+
+The catalog name is derived from your Databricks username and follows this pattern: <strong>labuser_username</strong>
+  </div>
+  </details>
+</div>
+
+<div style="
+  border-left: 4px solid #f44336;
+  background: #ffebee;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+  <strong style="display:block; color:#c62828; margin-bottom:6px; font-size: 1.1em;">Do Not Run in Production Environments</strong>
+  <div style="color:#333;">
+  <ul>
+      <li>Only run this notebook in <strong>development or sandbox workspaces</strong>.</li>
+      <li>Do not run this in production environments. The setup script creates a catalog and schemas in your workspace.</li>
+  </ul>
+  </div>
+</div>
+</section>
+<section class="notebook-cell">
+<h3>A1. Configure Your Catalog and Schema</h3>
+<ol>
+<li>
+<p>Run the cell below to initialize your environment. This setup step does the following:</p>
+<ul>
+<li><strong>Assumes you have permission to create a catalog</strong> when running outside of a Databricks provided Vocareum workspace</li>
+<li>Create three schemas in your specified catalog:<ul>
+<li><strong>multiplex_1_bronze</strong></li>
+<li><strong>multiplex_2_silver</strong></li>
+<li><strong>multiplex_3_gold</strong></li>
+</ul>
+</li>
+<li>Create <code>business_events</code> volume in your <strong>YOUR_LABUSER_CATALOG.multiplex_1_bronze</strong> schema, and adds a single file to your volume.</li>
+<li>Verifies your selected compute environment</li>
+</ul>
+<p>This ensures that all schemas, tables and objects are created in your catalog.</p>
+</li>
+</ol>
+<blockquote>
+<p><strong>Important:</strong> You must have permission to create catalogs in your own non Vocareum workspace. If you do not have the required permissions, this step will fail. Review the note below before continuing.</p>
+</blockquote>
+</section>
+<section class="notebook-cell">
+<div style="
+  border-left: 4px solid #ff9800;
+  background: #fff3e0;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+
+  <strong style="display:block; color:#e65100; margin-bottom:6px; font-size: 1.1em;">
+    Troubleshooting Setup - Missing Create Catalog Permissions
+  </strong>
+<details>
+  <div style="color:#333;">
+
+If you do not have permission to create a new catalog but already have one available, you can explicitly specify an existing catalog by using the `catalog_forced` argument in the `build_user_catalog_name` function.
+
+This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
+
+  </div>
+</details>
+</div>
+</section>
+<section class="notebook-cell">
+<ol>
+<li>
+<p>Run the cell below to view the value of the <code>my_vol_path</code> variable.</p>
+<p>Confirm that the value references your <strong>your-catalog.multiplex_1_bronze</strong> path. This will be used to dynamically reference your source volumes throughout this demonstration.</p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h2>B. Explore the Raw Source Data for the Multiplex Data Ingestion</h2>
+<p>Before building the multiplex pipeline, start by exploring the raw source data stored in the volume.</p>
+<p>The source volume receives multiplexed data from a Kafka stream, containing three distinct event groups:
+- <strong>store_ops</strong>
+- <strong>marketing</strong>
+- <strong>logistics</strong></p>
+<p>All event types are ingested into a single file within a volume, simulating a real-world scenario where multiple business domains generate events concurrently.</p>
+<p>For this demo, we process each file individually from the source location to demonstrate streaming ingestion and multiplexing.</p>
+</section>
+<section class="notebook-cell">
+<h3>B1. Explore Business Events Daily Volume</h3>
+</section>
+<section class="notebook-cell">
+<ol>
+<li>
+<p>View the files in the <strong>multiplex_1_bronze.business_events</strong> volume. </p>
+<p>You will see one parquet file exists in this volume which contains event data.</p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<ol>
+<li>Query the raw Parquet in volume to view the raw data and note the following:<ul>
+<li>The data is packed in <strong>BINARY</strong> format</li>
+<li>The <strong>key</strong> columns holds a unique identifier for the data </li>
+<li>The <strong>volume</strong> column holds the actual data.</li>
+<li>The <strong>topic</strong> column indicates the different event types present in this source location</li>
+</ul>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<ol>
+<li>
+<p>View the data by <strong>casting <code>BINARY</code> columns to <code>STRING</code></strong> to view the values.</p>
+<p>Notice the following:
+- The <strong>value_str</strong> column contains a JSON string of key-value pairs, which vary depending on the business event group
+- The <strong>topic</strong> column indicates the different event types present in this source location</p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h3>B2. Introduction to the Variant Data Type</h3>
+<ol>
+<li>The incoming event data is stored as JSON strings. Because each business event has a different structure, we use the <strong>VARIANT</strong> data type to handle this flexibility.</li>
+</ol>
+<h5>Why VARIANT:</h5>
+<ul>
+<li>Supports semi structured JSON data</li>
+<li>Handles multiple event shapes in a single column</li>
+<li>Allows fields to be extracted when needed</li>
+<li>Works well for multiplex streaming data</li>
+</ul>
+<h5>What This Query Is Doing</h5>
+<p>This query converts raw JSON into a usable format.</p>
+<ul>
+<li>Reads raw event files with <code>read_files</code></li>
+<li>Casts the raw value to a string</li>
+<li>Parses the JSON string into a VARIANT column</li>
+<li>Extracts <code>event_id</code> as a string</li>
+<li>Extracts and casts <code>timestamp</code> to a TIMESTAMP</li>
+<li>Keeps both raw and extracted fields for downstream use</li>
+</ul>
+<p>VARIANT lets us ingest once, then shape the data later as part of the pipeline.</p>
+<p><strong>NOTE:</strong> This is a <strong>quick introduction</strong> to the VARIANT data type used in this notebook. We will use the <code>VARIANT</code> data type in your Spark Declarative Pipeline (SDP).</p>
+<ul>
+<li><a href="https://docs.databricks.com/aws/en/sql/language-manual/data-types/variant-type">VARIANT type</a></li>
+<li><a href="https://www.youtube.com/watch?v=jtjOfggD4YY">Variant Data Type - Making Semi-Structured Data Fast and Simple - Deep Dive</a></li>
+<li><a href="https://www.databricks.com/blog/introducing-open-variant-data-type-delta-lake-and-apache-spark">Introducing the Open Variant Data Type in Delta Lake and Apache Spark</a></li>
+</ul>
+</section>
+<section class="notebook-cell">
+<h3>B3. Analyze Raw Data Statistics</h3>
+<ol>
+<li>
+<p>Explore the raw data for <strong>business_events</strong>. The cell below performs the following:</p>
+<ul>
+<li>Counts the number of records in the file within the volume  </li>
+<li>Counts the number of records in the file for each event group in our volume</li>
+</ul>
+<p>In the output, notice the following:
+- <strong>372</strong> rows are present in this file<br />
+- You will see counts for each of the three different sources</p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h2>C. Create the Spark Declarative Pipeline</h2>
+<p>Now that we have explored the data and reviewed casting from <code>BINARY</code> to <code>STRING</code> along with the <code>VARIANT</code> data type, we are ready to create the Spark Declarative Pipeline.</p>
+</section>
+<section class="notebook-cell">
+<h3>C1. Enable the Lakeflow Pipelines Editor</h3>
+<p>Complete the following steps to confirm or enable the <strong>Lakeflow Pipelines Editor</strong>:</p>
+<ol>
+<li>
+<p>In the top-right corner of the workspace, select your <strong>account icon</strong> <img alt="Account Icon" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/account_icon.png" /> (<em>Your icon letter will differ</em>).  </p>
+</li>
+<li>
+<p>Right-click <strong>Settings</strong> and choose <strong>Open link in new tab</strong>.  </p>
+</li>
+<li>
+<p>In the left sidebar, select <strong>Developer</strong> under <strong>User</strong>.  </p>
+</li>
+<li>
+<p>In the <strong>Experimental features</strong> section, locate <strong>Lakeflow Pipelines Editor</strong> and toggle it <strong>on</strong>.</p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h3>C2. Create a Apache Spark™ Declarative Pipeline Using the Lakeflow Pipelines Editor</h3>
+<p>Complete the following steps to create your Spark Declarative Pipeline:</p>
+<ol>
+<li>
+<p>In the main navigation pane, right-click <strong>Jobs &amp; Pipelines</strong> and select <strong>Open link in New Tab</strong>.  </p>
+</li>
+<li>
+<p>In the new tab, select <strong>Create → ETL Pipeline</strong>.  </p>
+</li>
+</ol>
+<p><strong>NOTE:</strong> If prompted to <strong>Try the new Lakeflow Pipelines Editor</strong>, choose <strong>Enable Lakeflow Pipelines Editor</strong>. This appears only if you did not complete the previous step.  </p>
+<ol>
+<li>At the top, complete the following:</li>
+<li>Name your pipeline <code>demo_multiplex_yourname</code></li>
+<li>
+<p>Select your default <strong>catalog</strong> and <strong>schema</strong>:<br />
+        - <strong>Catalog:</strong> <code>YOUR_LABUSER_CATALOG</code>
+        - <strong>Schema:</strong> <strong>multiplex_1_bronze</strong><br />
+<strong>NOTE:</strong> Clear the selected schema using the cross icon to view all schemas.</p>
+</li>
+<li>
+<p>Rename the <strong>transformations</strong> folder to <code>multiplex_pipeline</code>.</p>
+</li>
+<li>
+<p>Rename the <strong>my_transformation.py</strong> file to <code>ingestion.sql</code>.</p>
+</li>
+<li>
+<p>Leave the <strong>Lakeflow Pipelines Editor</strong> page open.</p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h2>D. Create the First Bronze Table for All Business Events Data</h2>
+<p>Start by creating the <strong>bronze streaming table</strong> to ingest data from the source.
+- This table will capture raw business event data streaming in from multiple sources.
+- We will use the <code>VARIANT</code> data type to parse JSON formatting strings.
+- Two metadata columns are added to track when new data is ingested.</p>
+<ol>
+<li>Copy the SQL code below and paste it into your <code>ingestion.sql</code> file.</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+------------------------------------------------------
+-- CREATE THE BRONZE TABLE FOR BUSINESS EVENTS DATA
+------------------------------------------------------
+CREATE OR REFRESH STREAMING TABLE multiplex_1_bronze.bronze_demo
+TBLPROPERTIES (
+  'pipelines.reset.allowed' = false,
+  'delta.feature.variantType-preview' = 'supported'
+) 
+AS
+SELECT
+  CAST(key AS STRING) AS event_id,
+  PARSE_JSON(CAST(value AS STRING)) AS event_data_variant,
+  CAST(topic AS STRING) AS event_group,
+  CAST(partition AS STRING) AS partition,
+  CAST(offset AS STRING) AS offset,
+  -- Adding metadata columns
+  _metadata.file_name AS source_file,
+  _metadata.file_modification_time AS file_mod_time
+FROM STREAM read_files(
+  '${business_events_source}'
+);
+</code></pre>
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } catch (err) {
+    console.error("Fallback copy failed:", err);
+    alert("Could not copy to clipboard. Please copy manually.");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<p><strong>Review the Code</strong></p>
+<p>The <code>TBLPROPERTIES</code> statement configures the following settings:
+- <strong>Reset Protection</strong>: The <code>'pipelines.reset.allowed' = false</code> property prevents full refreshes on the streaming table, which helps avoid accidentally removing checkpoints and truncating the streaming table data
+- <strong>Variant Type Support</strong>: <code>'delta.feature.variantType-preview' = 'supported'</code> enables the variant data type, which lets you efficiently store and query semi-structured data like JSON. This property must be set to unlock native support for variant columns</p>
+<h4>IMPORTANT: Understanding Full Table Refresh Protection</h4>
+<p>This protection is particularly important when your raw data source automatically removes files after a certain timeframe. Without this setting, data that is no longer present in the source directory would not be re-ingested into the target table during a <strong>Run pipeline with full table refresh</strong> operation.</p>
+<p><strong>NOTE:</strong> For guidance on when to use full refreshes, see the <a href="https://docs.databricks.com/aws/en/ldp/updates#should-i-use-a-full-refresh">Should I use a full refresh?</a> documentation.</p>
+</section>
+<section class="notebook-cell">
+<h2>E. Fan Out the Bronze Table by Business Event</h2>
+<p>At this stage, we started with a single multiplexed bronze streaming table. The goal is to demultiplex this data by fanning it out into separate intermediate tables, one for each business event type.</p>
+<p>This step creates three domain specific intermediate tables:</p>
+<ul>
+<li><strong>marketing_intermediate</strong></li>
+<li><strong>logistics_intermediate</strong></li>
+<li><strong>store_ops_intermediate</strong></li>
+</ul>
+<p>Each table contains only the events relevant to its business domain, making downstream processing and analytics simpler and more focused.</p>
+</section>
+<section class="notebook-cell">
+<h3>E1. Create the Marketing Bronze Table</h3>
+<p>Begin by creating <strong>the</strong> marketing intermediate table by:
+- Filtering for records where <code>event_group = 'business_events_marketing'</code>
+- Converting columns to their appropriate data types
+- Including metadata columns to track ingested records</p>
+<ol>
+<li>Copy the SQL code below and paste it into your <code>ingestion.sql</code> file.</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+------------------------------------------------------
+-- CREATE MARKETING INTERMEDIATE TABLE
+------------------------------------------------------
+CREATE OR REFRESH STREAMING TABLE multiplex_1_bronze.marketing_intermediate
+TBLPROPERTIES (
+  'delta.feature.variantType-preview' = 'supported'
+) 
+AS SELECT 
+  event_id,
+  event_data_variant,
+  event_group,
+  event_data_variant:event_id::STRING AS extracted_event_id,
+  event_data_variant:timestamp::TIMESTAMP AS timestamp,
+  event_data_variant:event_type::STRING AS event_type,
+  event_data_variant:subsidiary_id::STRING AS subsidiary_id,
+  event_data_variant:campaign_id::STRING AS campaign_id,
+  event_data_variant:channel::STRING AS channel,
+  event_data_variant:impressions::LONG AS impressions,
+  event_data_variant:clicks::LONG AS clicks,
+  event_data_variant:conversions::LONG AS conversions,
+  event_data_variant:spend_usd::DOUBLE AS spend_usd,
+  source_file,
+  file_mod_time
+FROM STREAM multiplex_1_bronze.bronze_demo
+WHERE event_group = 'business_events_marketing';
+</code></pre>
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } catch (err) {
+    console.error("Fallback copy failed:", err);
+    alert("Could not copy to clipboard. Please copy manually.");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<h3>E2. Create the Logistics Bronze Table</h3>
+<p>Now, creating the logistics intermediate table by:
+- Filtering for records where <code>event_group = 'business_events_logistics'</code>
+- Converting columns to their appropriate data types
+- Including metadata columns to track ingested records</p>
+<ol>
+<li>Copy the SQL code below and paste it into your <code>ingestion.sql</code> file.</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+------------------------------------------------------
+-- CREATE LOGISTICS INTERMEDIATE TABLE
+------------------------------------------------------
+CREATE OR REFRESH STREAMING TABLE multiplex_1_bronze.logistics_intermediate
+TBLPROPERTIES (
+  'delta.feature.variantType-preview' = 'supported'
+) 
+AS SELECT 
+  event_id,
+  event_data_variant,
+  event_group,
+  event_data_variant:event_id::STRING AS extracted_event_id,
+  event_data_variant:timestamp::TIMESTAMP AS timestamp,
+  event_data_variant:event_type::STRING AS event_type,
+  event_data_variant:subsidiary_id::STRING AS subsidiary_id,
+  event_data_variant:warehouse_id::STRING AS warehouse_id,
+  event_data_variant:carrier::STRING AS carrier,
+  event_data_variant:batch_id::STRING AS batch_id,
+  event_data_variant:num_packages::LONG AS num_packages,
+  event_data_variant:destination_region::STRING AS destination_region,
+  source_file,
+  file_mod_time
+FROM STREAM multiplex_1_bronze.bronze_demo
+WHERE event_group = 'business_events_logistics';
+</code></pre>
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } catch (err) {
+    console.error("Fallback copy failed:", err);
+    alert("Could not copy to clipboard. Please copy manually.");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<h3>E3. Create the Store Operations Bronze Table</h3>
+<p>Lastly, create the store operation intermediate table by:
+- Filtering for records where <code>event_group = 'business_events_store_ops'</code>
+- Converting columns to their appropriate data types
+- Including metadata columns to track ingested records</p>
+<ol>
+<li>Copy the SQL code below and paste it into your <code>ingestion.sql</code> file.</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+------------------------------------------------------
+-- CREATE STORE OPERATIONS INTERMEDIATE TABLE
+------------------------------------------------------
+CREATE OR REFRESH STREAMING TABLE multiplex_1_bronze.store_ops_intermediate
+TBLPROPERTIES (
+  'delta.feature.variantType-preview' = 'supported'
+) 
+AS SELECT 
+  event_id,
+  event_data_variant,
+  event_group,
+  event_data_variant:event_id::STRING AS extracted_event_id,
+  event_data_variant:timestamp::TIMESTAMP AS extracted_timestamp,
+  event_data_variant:event_type::STRING AS event_type,
+  event_data_variant:subsidiary_id::STRING AS subsidiary_id,
+  event_data_variant:store_id::STRING AS store_id,
+  event_data_variant:city::STRING AS city,
+  event_data_variant:region::STRING AS region,
+  event_data_variant:opened_by_employee_id::STRING AS opened_by_employee_id,
+  source_file,
+  file_mod_time
+FROM STREAM multiplex_1_bronze.bronze_demo
+WHERE event_group = 'business_events_store_ops';
+
+</code></pre>
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } catch (err) {
+    console.error("Fallback copy failed:", err);
+    alert("Could not copy to clipboard. Please copy manually.");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<h3>E4. Configure the Pipeline Parameters</h3>
+<ol>
+<li>Run the cell below to retrieve the key-value pairs needed to set your pipeline configuration parameters for the <strong>source volume</strong>.</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<ol>
+<li>
+<p>Copy the paths above and add each one as a configuration parameter in your <strong>Spark Declarative Pipeline</strong>.</p>
+<p>This will allow your pipeline to reference each volume through parameters.</p>
+</li>
+</ol>
+<p>a. Select <strong>Settings</strong> in your pipeline tab  </p>
+<p>b. Under <strong>Configuration</strong>, select <strong>Add configuration</strong></p>
+<p>c. For each <strong>Key</strong>, enter the key name shown above  </p>
+<p>d. For each <strong>Value</strong>, enter the corresponding volume path  </p>
+<p>e. Select <strong>Save</strong></p>
+<p><strong>NOTE:</strong> For more details on configuration parameters, see the Databricks documentation: <a href="https://docs.databricks.com/aws/en/ldp/parameters">Use parameters with Spark Declarative Pipelines</a></p>
+</section>
+<section class="notebook-cell">
+<h3>E5. Run and Explore the Pipeline</h3>
+<ol>
+<li>
+<p>Run the Spark Declarative Pipeline and confirm that it completes successfully.</p>
+</li>
+<li>
+<p>In the Lakeflow Pipelines editor, explore the pipeline run:</p>
+</li>
+<li>Verify that <strong>372</strong> rows were ingested into the bronze demo table from the <code>business_events</code> source volume</li>
+<li>Confirm the row counts for each intermediate streaming table:<ul>
+<li><strong>194</strong> rows in <strong>logistics_intermediate</strong></li>
+<li><strong>105</strong> rows in <strong>marketing_intermediate</strong></li>
+<li><strong>73</strong> rows in <strong>store_ops_intermediate</strong></li>
+</ul>
+</li>
+<li>Select the <strong>bronze_demo</strong> table and open the <strong>Data</strong> tab to preview all of the ingested records business event data.</li>
+</ol>
+<p><strong>TROUBLESHOOTING:</strong> If your pipeline does not run successfully, make sure your volumes are created and your configuration parameters are set correctly.</p>
+<h4>Checkpoint</h4>
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/multiplex/checkpoint_bronze.png" alt="Bronze" width="1200"></p>
+</section>
+<section class="notebook-cell">
+<h2>F. Create Silver Layer Tables</h2>
+<p>Next, you will create the silver layer tables that process and clean the bronze data for each business domain. Start by creating a new file in your <strong>multiplex_pipeline</strong>:</p>
+<ol>
+<li>
+<p>Click the kebab menu next to your <strong>multiplex_pipeline</strong> folder.</p>
+</li>
+<li>
+<p>Select <strong>Create file</strong></p>
+</li>
+<li>
+<p>Select the language as <strong>SQL</strong></p>
+</li>
+<li>
+<p>Name the file <code>silver_transformation.sql</code></p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h3>F1. Create the Silver Table for Marketing Data</h3>
+<p>In this step, we transform the raw marketing events into a curated silver table, <strong>multiplex_2_silver.marketing_silver_demo</strong>, which is optimized for analytics.</p>
+<p>Here's what the silver transformation does:</p>
+<ul>
+<li>Reads data from the <strong>marketing_intermediate</strong> streaming table.</li>
+<li>Uses <code>COALESCE</code> to create a reliable <strong>event_id</strong>, ensuring each row has a unique identifier.</li>
+<li>Selects key business fields needed for analysis, such as campaign, channel, impressions, clicks, and spend.</li>
+<li>Keeps the data at the same level of detail (no aggregation or filtering that changes the number of rows).</li>
+<li>Calculates important marketing metrics:</li>
+<li><strong>click_through_rate</strong>: Measures how often people click after seeing an ad (clicks divided by impressions).</li>
+<li><strong>cost_per_click</strong>: Shows how much each click costs (spend divided by clicks).</li>
+<li>Safely handles cases where impressions or clicks are zero to prevent errors in metric calculations.</li>
+<li>Produces a clean, structured streaming table ready for dashboards and reporting.</li>
+</ul>
+<p>This silver table ensures consistent data and trusted metrics for all downstream analytics.</p>
+<ol>
+<li>Copy the code into your <code>silver_transformation.sql</code> file.</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+------------------------------------------------------
+-- CREATE THE SILVER TABLE FOR MARKETING DATA
+------------------------------------------------------
+
+CREATE OR REFRESH STREAMING TABLE multiplex_2_silver.marketing_silver_demo
+AS SELECT 
+  COALESCE(extracted_event_id, event_id) AS event_id,
+  timestamp,
+  event_group,
+  event_type,
+  subsidiary_id,
+  campaign_id,
+  channel,
+  impressions,
+  clicks,
+  conversions,
+  spend_usd,
+  CASE WHEN impressions > 0 
+    THEN clicks / impressions 
+    ELSE 0 
+  END AS click_through_rate,
+  CASE WHEN clicks > 0 
+    THEN spend_usd / clicks 
+    ELSE 0 
+  END AS cost_per_click
+FROM STREAM multiplex_1_bronze.marketing_intermediate;
+</code></pre>
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } catch (err) {
+    console.error("Fallback copy failed:", err);
+    alert("Could not copy to clipboard. Please copy manually.");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<h3>F2. Create Silver Table for Logistics Data</h3>
+<p>In this step, we transform the raw logistics events into a clean silver table, <strong>multiplex_2_silver.logistics_silver_demo</strong>, which is optimized for supply chain tracking and reporting.</p>
+<p>Here's what the silver transformation does:</p>
+<ul>
+<li>Reads data from the <strong>logistics_intermediate</strong> streaming table.</li>
+<li>Uses <code>COALESCE</code> to create a reliable <strong>event_id</strong>, ensuring every shipment record is uniquely identifiable.</li>
+<li>Applies data quality filters to remove incomplete records (filters out rows where <strong>warehouse_id</strong> or <strong>batch_id</strong> are missing).</li>
+<li>Selects essential logistics attributes such as warehouse, carrier, batch ID, and destination region.</li>
+<li>Adds calculated fields:</li>
+<li><strong>is_valid_shipment</strong>: A boolean flag that verifies if the shipment contains actual packages (true if <code>num_packages</code> &gt; 0), helping to identify ghost shipments or system errors.</li>
+<li><strong>event_date</strong>: Extracts the date from the timestamp to support daily reporting and partitioning.</li>
+<li>Produces a trusted, high-quality streaming table ready for operational dashboards.</li>
+</ul>
+<p>This silver table ensures that downstream analysis is performed only on valid, complete logistics records.</p>
+<ol>
+<li>Copy the code into your <code>silver_transformation.sql</code> file.</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+------------------------------------------------------
+-- CREATE THE SILVER TABLE FOR LOGISTICS DATA
+------------------------------------------------------
+
+CREATE OR REFRESH STREAMING TABLE multiplex_2_silver.logistics_silver_demo
+AS SELECT 
+  COALESCE(extracted_event_id, event_id) AS event_id,
+  timestamp,
+  event_group,
+  event_type,
+  subsidiary_id,
+  warehouse_id,
+  carrier,
+  batch_id,
+  num_packages,
+  destination_region,
+  CASE WHEN num_packages > 0 THEN TRUE ELSE FALSE END AS is_valid_shipment,
+  DATE(timestamp) AS event_date
+FROM STREAM multiplex_1_bronze.logistics_intermediate
+WHERE warehouse_id IS NOT NULL
+  AND batch_id IS NOT NULL;
+</code></pre>
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } catch (err) {
+    console.error("Fallback copy failed:", err);
+    alert("Could not copy to clipboard. Please copy manually.");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<h3>F3. Create Silver Table for Store Operations Data</h3>
+<p>In this step, we transform raw store operations events into a structured silver table, <strong>multiplex_2_silver.store_ops_silver_demo</strong>, designed for operational oversight and workforce analysis.</p>
+<p>Key aspects of the silver transformation:</p>
+<ul>
+<li>Reads data from the <strong>store_ops_intermediate</strong> streaming table.</li>
+<li>Uses <code>COALESCE</code> to ensure every operation has a consistent and unique <strong>event_id</strong>.</li>
+<li>Enforces strict data quality by filtering out records missing critical fields (timestamp, store ID, or event type).</li>
+<li>Standardizes the time column by renaming <strong>extracted_timestamp</strong> to a common <strong>timestamp</strong> field.</li>
+<li>Enriches the data with derived columns for temporal analysis and store identification:</li>
+<li><strong>event_date</strong> and <strong>event_hour</strong>: Extracted to support daily reporting and analysis of peak operational hours.</li>
+<li><strong>store_number</strong>: Parses the <strong>store_id</strong> (using a split function) to isolate the numeric identifier, making reporting easier.</li>
+<li>Produces a high-quality streaming table ready for regional and store-level dashboards.</li>
+</ul>
+<p>This silver table ensures that operational analytics are based on valid, complete records with detailed time dimensions.</p>
+<ol>
+<li>Copy the code into your <code>silver_transformation.sql</code> file.</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+------------------------------------------------------
+-- CREATE THE SILVER TABLE FOR STORE OPERATIONS DATA
+------------------------------------------------------
+CREATE OR REFRESH STREAMING TABLE multiplex_2_silver.store_ops_silver_demo
+AS SELECT 
+  COALESCE(extracted_event_id, event_id) AS event_id,
+  extracted_timestamp AS timestamp,
+  event_group,
+  event_type,
+  subsidiary_id,
+  store_id,
+  city,
+  region,
+  opened_by_employee_id,
+  DATE(extracted_timestamp) AS event_date,
+  HOUR(extracted_timestamp) AS event_hour,
+  SPLIT(store_id, '_')[2] AS store_number
+FROM STREAM multiplex_1_bronze.store_ops_intermediate
+WHERE extracted_timestamp IS NOT NULL
+  AND store_id IS NOT NULL
+  AND event_type IS NOT NULL;
+
+</code></pre>
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } catch (err) {
+    console.error("Fallback copy failed:", err);
+    alert("Could not copy to clipboard. Please copy manually.");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<h3>F4. Run and Explore the Pipeline</h3>
+<ol>
+<li>
+<p>Run the Spark Declarative Pipeline and confirm it runs successfully </p>
+</li>
+<li>
+<p>In the Lakeflow Pipelines editor, explore the pipeline run:</p>
+</li>
+<li>Confirm the row counts for each silver streaming table:<ul>
+<li><strong>194</strong> rows in <strong>logistics_silver_demo</strong></li>
+<li><strong>105</strong> rows in <strong>marketing_silver_demo</strong></li>
+<li><strong>73</strong> rows in <strong>store_ops_silver_demo</strong></li>
+</ul>
+</li>
+<li>Select any silver table and open the <strong>Data</strong> tab to preview the results</li>
+</ol>
+<p><strong>TROUBLESHOOTING:</strong> If your pipeline does not run successfully, confirm that your volumes were created and that your configuration parameters are set correctly.</p>
+<h4>Checkpoint</h4>
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/multiplex/checkpoint_silver.png" alt="silver" width="1200"></p>
+</section>
+<section class="notebook-cell">
+<h3>F5. Query the Silver Streaming Tables</h3>
+<ol>
+<li>Verify that the data has been properly demultiplexed into the silver layer tables.</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h2>G. Create Gold Layer Views</h2>
+<p>With the silver tables in place, we can now build the gold layer.</p>
+<p>The gold layer consists of materialized views that:</p>
+<ul>
+<li>Aggregate data from the silver tables</li>
+<li>Apply business friendly calculations and groupings</li>
+<li>Provide stable, analytics ready datasets for dashboards and reporting</li>
+<li>Reduce query complexity for downstream consumers</li>
+</ul>
+<p>In this section, we will create a materialized view on top of the marketing silver table to support common business questions.</p>
+<p><strong>NOTE:</strong> For this training, we will create a single materialized view. In a real production scenario, you would typically create multiple materialized views to support different analytics needs.</p>
+</section>
+<section class="notebook-cell">
+<h3>G1. Create a New SQL File in Your Pipeline</h3>
+<ol>
+<li>
+<p>On your <strong>multiplex_pipeline</strong> folder select the kebab menu and select <strong>Create File</strong></p>
+</li>
+<li>
+<p>Select the language as <strong>SQL</strong></p>
+</li>
+<li>
+<p>Name the file <code>gold_view.sql</code></p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h3>G2. Create Gold View for Marketing Campaign Summary</h3>
+<p>In this step, we elevate the data to the Gold layer by creating a materialized view, <strong>multiplex_3_gold.marketing_campaign_summary</strong>. This view aggregates the granular event data into high-level performance metrics, optimized for executive reporting and dashboards.</p>
+<p>Here's what this transformation does:</p>
+<ul>
+<li>Aggregates data from the <strong>marketing_silver_demo</strong> table, grouping it by Campaign, Subsidiary, and Channel to provide a clear performance summary.</li>
+<li><strong>Calculates Totals:</strong> Sums up key volume metrics (events, impressions, clicks, conversions) and financial metrics (total spend) for each group.</li>
+<li>Derives Strategic KPIs:</li>
+<li><strong>ctr_percentage</strong>: The Click-Through Rate formatted as a percentage.</li>
+<li><strong>conversion_rate_percentage</strong>: The percentage of clicks that resulted in a successful conversion.</li>
+<li><strong>cost_per_conversion</strong>: The average amount spent to acquire a single conversion (CPA).</li>
+<li>Ensures Data Quality:</li>
+<li>Uses <code>NULLIF</code> to prevent "division by zero" errors when calculating ratios.</li>
+<li>Uses <code>ROUND</code> to format currency and percentages to two decimal places for cleaner presentation.</li>
+</ul>
+<p>This materialized view serves as the "source of truth" for campaign performance dashboards, enabling stakeholders to compare channel effectiveness and ROI instantly.</p>
+<ol>
+<li>Copy the code below in your <code>gold_view.sql</code> file.</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+------------------------------------------------------
+-- CREATE MATERIALIZED VIEW FOR MARKETING DATA
+------------------------------------------------------
+
+CREATE OR REFRESH MATERIALIZED VIEW multiplex_3_gold.marketing_campaign_summary
+AS SELECT
+  campaign_id,
+  subsidiary_id,
+  channel,
+  COUNT(*) AS total_events,
+  SUM(impressions) AS total_impressions,
+  SUM(clicks) AS total_clicks,
+  SUM(conversions) AS total_conversions,
+  ROUND(SUM(spend_usd), 2) AS total_spend_usd,
+  ROUND((SUM(clicks) * 1.0 / NULLIF(SUM(impressions), 0)) * 100, 2) AS ctr_percentage,
+  ROUND((SUM(conversions) * 1.0 / NULLIF(SUM(clicks), 0)) * 100, 2) AS conversion_rate_percentage,
+  ROUND(SUM(spend_usd) / NULLIF(SUM(conversions), 0), 2) AS cost_per_conversion
+FROM multiplex_2_silver.marketing_silver_demo
+GROUP BY campaign_id, subsidiary_id, channel;
+</code></pre>
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } catch (err) {
+    console.error("Fallback copy failed:", err);
+    alert("Could not copy to clipboard. Please copy manually.");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<h3>G3. Run and Explore the Pipeline</h3>
+<ol>
+<li>
+<p>Run the Spark Declarative Pipeline and confirm it runs successfully </p>
+</li>
+<li>
+<p>Explore the run in the Lakeflow Pipelines Editor:</p>
+</li>
+<li>Confirm <strong>96</strong> rows were ingested into the <strong>marketing_campaign_summary</strong> materialized view</li>
+<li>Preview the data in the editor (Select <strong>marketing_campaign_summary</strong> → <strong>Data</strong> tab)</li>
+</ol>
+<p><strong>TROUBLESHOOTING:</strong> If your pipeline does not run successfully, confirm that your volumes were created and that your configuration parameters are set correctly.</p>
+</section>
+<section class="notebook-cell">
+<h2>H. Enable Iceberg Reads</h2>
+<p>Now, we want to enable Iceberg reads on our final streaming table to support cross-platform analytics and data sharing.</p>
+</section>
+<section class="notebook-cell">
+<h3>H1. Create a Delta Sink</h3>
+<p>We need to create a Delta sink table because Iceberg reads cannot be enabled directly on streaming tables or views. To do this, we will create a Delta sink from one of our streaming tables.</p>
+<ol>
+<li>
+<p>What are sinks in Spark Declarative Pipelines, and how do we use them?</p>
+</li>
+<li>
+<p><a href="https://docs.databricks.com/aws/en/ldp/sinks">Sinks in Apache Spark™ Declarative Pipelines</a></p>
+</li>
+<li>
+<p><a href="https://docs.databricks.com/aws/en/ldp/ldp-sinks">Using sinks in pipelines</a></p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<ol>
+<li>Begin by creating a new Python File in Your Pipeline to create the <strong>delta_sink_logistics</strong> sink . <ul>
+<li><strong>NOTE: Only the Python API is supported. SQL is not supported.</strong></li>
+</ul>
+</li>
+</ol>
+<p>a. Click the kebab menu on your <strong>multiplex_pipeline</strong> folder and select <strong>Create file</strong></p>
+<p>b. Select the language as <strong>Python</strong></p>
+<p>c. Name the file <code>delta_sink.py</code></p>
+<p>d. Copy the code below and paste in your <code>delta_sink.py</code> file.</p>
+</section>
+<section class="notebook-cell">
+<ol>
+<li>Here is what the code below does:</li>
+<li><strong>Defines a Destination (Sink):</strong> The <code>create_sink</code> function registers a specific endpoint for your data—a Delta table named <code>logistics_delta_sink</code> in the Gold schema—separately from the logic that populates it.</li>
+<li><strong>Establishes a Streaming Flow:</strong> The <code>@dp.append_flow</code> decorator creates a continuous data pipeline that links your processing logic directly to the defined sink, automating the movement of data.</li>
+<li><strong>Enables Append-Only Logic:</strong> The append flow optimizes performance by adding new records as they arrive, rather than re-processing or overwriting existing data.</li>
+<li>
+<p><strong>Automates Incremental Processing:</strong> By using <code>readStream</code>, the pipeline automatically tracks which data has already been processed (using checkpointing), ensuring that only new records from the Silver table are moved to Gold.</p>
+</li>
+<li>
+<p>Copy and paste into your <code>delta_sink.py</code> file.</p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+# ------------------------------------------------------
+#       CREATE DELTA SINK
+# ------------------------------------------------------
+
+from pyspark import pipelines as dp
+
+my_catalog = spark.conf.get("my_catalog")
+
+dp.create_sink(
+  name = "delta_sink_logistics",
+  format = "delta",
+  options = { "tableName": f"{my_catalog}.multiplex_3_gold.logistics_delta_sink" }
+)
+
+@dp.append_flow(name = "delta_sink_logistics_flow", target="delta_sink_logistics")
+def delta_sink_logistics_flow():
+  return(
+  spark.readStream.table("multiplex_2_silver.logistics_silver_demo")
+)
+
+</code></pre>
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } catch (err) {
+    console.error("Fallback copy failed:", err);
+    alert("Could not copy to clipboard. Please copy manually.");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<h3>H2. Run and Explore the Pipeline</h3>
+<ol>
+<li>
+<p>Run the Spark Declarative Pipeline and confirm it runs successfully </p>
+</li>
+<li>
+<p>Review the pipeline results in the Lakeflow Pipelines Editor:</p>
+</li>
+<li>Ensure the <strong>marketing_campaign_summary</strong> materialized view contains <strong>96</strong> records.</li>
+<li>Check that the record count in <strong>logistics_silver_demo</strong> matches the output in <strong>delta_sink_logistics</strong> (should be <strong>194</strong> records).</li>
+</ol>
+<hr />
+<h4>Pipeline Final State</h4>
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/multiplex/checkpoint_final.png" alt="final" width="1200"></p>
+</section>
+<section class="notebook-cell">
+<h3>H3. Examine Table Properties</h3>
+</section>
+<section class="notebook-cell">
+<ol>
+<li>Review the table properties and note the following:</li>
+<li>In <strong>Detailed Table Information</strong>, confirm that the <strong>type</strong> is <strong>managed</strong> and the <strong>provider</strong> is <strong>delta</strong>. This indicates it is a managed Delta table.</li>
+<li>In the <strong>table_properties</strong> column of the same section, you will see that deletion vectors are enabled: <code>delta.enableDeletionVectors=true</code>.</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h3>H4. Enable Iceberg Reads</h3>
+<ol>
+<li>
+<p>To enable Iceberg reads on a Delta table, you must <strong>disable deletion vectors</strong>. Deletion vectors allow soft deletes, but Iceberg requires hard deletes for compatibility.</p>
+<p><strong>How to enable Iceberg reads:</strong></p>
+<p>a. <strong>Disable deletion vectors:</strong> Turn off deletion vectors for your Delta table.</p>
+<p>b. <strong>Enable Iceberg compatibility:</strong> Set the table property to allow Iceberg reads.</p>
+</li>
+</ol>
+<blockquote>
+<p><strong>NOTE:</strong><br />
+With <a href="https://docs.databricks.com/aws/en/iceberg/iceberg-v3">Iceberg v3</a> (private preview as of January 21, 2026), you do <strong>not</strong> need to disable deletion vectors. </p>
+</blockquote>
+<p>For more details, see the <a href="https://docs.databricks.com/aws/en/delta/deletion-vectors">Databricks documentation on deletion vectors</a>.</p>
+</section>
+<section class="notebook-cell">
+<ol>
+<li>Let's review the table properties and observe the changes:</li>
+<li>You will see a new section called <strong>Delta Uniform Iceberg</strong>, which includes details such as </li>
+<li><strong>metadata location</strong>, </li>
+<li><strong>converted delta version</strong>,</li>
+<li><strong>converted delta timestamp</strong></li>
+</ol>
+</section>
+<section class="notebook-cell">
+<ol>
+<li>Let's view the table properties:</li>
+<li><code>delta.universalFormat.enabledFormats = iceberg</code> confirms that Iceberg format is enabled.</li>
+<li><code>delta.enableDeletionVectors = false</code> shows that deletion vectors is not enabled.</li>
+<li>The table currently supports Iceberg version 2: <code>delta.feature.icebergCompatV2 = supported</code>.</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h2>I. Land Another File in Cloud Storage</h2>
+<p>Earlier in the workshop, we ingested a single file. In this step, we will land an additional file into the cloud storage volume to demonstrate how Spark Declarative Pipelines respond when new data is detected.</p>
+<ol>
+<li>Run the command below to add the new file to your source volume, then confirm that the volume now contains two files.</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<ol>
+<li>Let's review the number of rows present in the newly landed file that will be ingested by our pipeline:</li>
+<li><strong>Marketing</strong>: 62 new records</li>
+<li><strong>Store Ops</strong>: 80 new records</li>
+<li><strong>Logistics</strong>: 158 new records</li>
+<li><strong>Total</strong>: 300 new records in this file</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<ol>
+<li>
+<p>Run the Spark Declarative Pipeline to incrementally process the new file and confirm that it completes successfully.</p>
+</li>
+<li>
+<p>In the Lakeflow Pipelines editor, review the pipeline run:</p>
+</li>
+<li>Verify that <strong>300</strong> rows were ingested into the bronze demo table from the <code>business_events</code> source volume with the new landed file.</li>
+<li>Confirm the row counts for each intermediate bronze and silver streaming table:<ul>
+<li><strong>158</strong> rows in both <strong>logistics_intermediate</strong> and <strong>logistics_silver_demo</strong></li>
+<li><strong>80</strong> rows in both <strong>store_ops_intermediate</strong> and <strong>store_ops_silver_ops</strong></li>
+<li><strong>62</strong> rows in both <strong>marketing_intermediate</strong> and <strong>marketing_silver_demo</strong></li>
+</ul>
+</li>
+<li>Verify that the materialized view <strong>marketing_campaign_summary</strong> contains <strong>141</strong> output records.</li>
+<li>Ensure that <strong>delta_sink_logistics</strong> has the same number of records as <strong>logistics_silver_demo</strong> - <strong>158</strong> records.</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h2>J. Summary and Key Takeaways</h2>
+<ul>
+<li><strong>Multiplex Data Pipeline Architecture</strong>: Successfully built a complete multiplex streaming pipeline using Spark Declarative Pipelines that ingested data from a single source and demultiplexed it into three separate business domain tables (marketing, logistics, and store operations)</li>
+<li><strong>VARIANT Data Type Implementation</strong>: Leveraged the VARIANT data type to efficiently handle semi-structured JSON data with different schemas across multiple event types in a single bronze table</li>
+<li><strong>Medallion Architecture with Streaming</strong>: Implemented the full medallion pattern (bronze → silver → gold) using streaming tables, intermediate transformations, and materialized views for real-time data processing</li>
+<li><strong>Delta Sinks and Iceberg Compatibility</strong>: Created Delta sinks using the Python API and enabled Iceberg compatibility for cross-platform analytics by disabling deletion vectors and configuring universal format properties</li>
+</ul>
+<h4>Business Value Delivered</h4>
+<p>The pipeline processed <strong>672 total records</strong> from two source files containing multiplexed business events, creating domain-specific analytics tables that enable:
+- Real-time operational insights across marketing campaigns, logistics shipments, and store operations
+- Cross-platform data access through Iceberg compatibility for broader ecosystem integration<br />
+- Scalable event processing architecture that can handle additional business domains and event types
+- Automated incremental processing with streaming checkpoints ensuring exactly-once delivery</p>
+<p>This multiplex architecture provides a foundation for enterprise-scale event processing while maintaining data lineage, real-time capabilities, and cross-platform compatibility through Delta Universal Format.</p>
+</section>
+<section class="notebook-cell">
+<p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
+</section>
+  </div>
+</div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightbox(event)">✕</button>
+  <img id="lb-img" src="" alt="">
+</div>
+<button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
+<script>
+if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
+function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
+function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});
+document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src);});});
+</script>
+</body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visão Geral do Curso | Advanced SDP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117; --surface: #161b22; --surface-raised: #1c2129;
+    --border: #2a313a; --text: #e6edf3; --text-muted: #8b949e; --text-faint: #6e7681;
+    --accent: #ff6433; --accent-soft: rgba(255,100,51,0.12);
+    --green: #3fb950; --blue: #58a6ff; --purple: #bc8cff; --yellow: #d29922;
+    --radius: 12px;
+  }
+  body.light {
+    --bg: #f8f9fb; --surface: #ffffff; --surface-raised: #f0f2f5;
+    --border: #d8dce2; --text: #1a1d23; --text-muted: #5a6170; --text-faint: #8891a0;
+    --accent: #e0501e; --accent-soft: rgba(224,80,30,0.08);
+    --green: #1a8a3e; --blue: #2563eb; --purple: #7c3aed;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+  .top-bar {
+    position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border);
+    padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
+  .top-bar a:hover { color:var(--accent); }
+  .top-bar .sep { color:var(--text-faint); font-size:11px; }
+  .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
+  .layout { display:flex; min-height:calc(100vh - 50px); }
+  .sidebar {
+    width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border);
+    padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px);
+  }
+  .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
+  .sidebar a {
+    display:block; padding:6px 16px; font-size:12px; color:var(--text-muted); text-decoration:none;
+    border-left:2px solid transparent; line-height:1.5; transition:all 0.15s;
+  }
+  .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
+  .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
+  .content { flex:1; max-width:900px; padding:32px 40px 80px; }
+  .notebook-cell { margin-bottom:24px; }
+  .notebook-cell h1 { font-size:26px; font-weight:700; margin-bottom:12px; }
+  .notebook-cell h2 { font-size:21px; font-weight:700; margin:28px 0 12px; padding-top:20px; border-top:1px solid var(--border); }
+  .notebook-cell h3 { font-size:17px; font-weight:600; margin:20px 0 10px; }
+  .notebook-cell h4 { font-size:15px; font-weight:600; margin:16px 0 8px; }
+  .notebook-cell h5 { font-size:12px; font-weight:600; margin:14px 0 6px; color:var(--text-muted); }
+  .notebook-cell p { margin-bottom:10px; font-size:14.5px; }
+  .notebook-cell ul, .notebook-cell ol { margin:0 0 10px 20px; font-size:14.5px; }
+  .notebook-cell li { margin-bottom:4px; }
+  .notebook-cell code { font-family:'IBM Plex Mono',monospace; background:var(--surface-raised); padding:1px 5px; border-radius:3px; font-size:12.5px; }
+  .notebook-cell pre { background:var(--surface-raised); border:1px solid var(--border); border-radius:8px; padding:14px; overflow-x:auto; margin:10px 0; }
+  .notebook-cell pre code { background:none; padding:0; }
+  .notebook-cell img { max-width:100%; height:auto; border-radius:6px; cursor:zoom-in; }
+  .notebook-cell details { margin:10px 0; padding:10px 14px; background:var(--surface-raised); border-radius:6px; border:1px solid var(--border); font-size:13.5px; }
+  .notebook-cell details summary { cursor:pointer; font-weight:600; color:var(--text-muted); font-size:12px; }
+  .notebook-cell svg { max-width:100%; height:auto; }
+  .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
+  .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
+  .notebook-cell th { background:var(--surface-raised); font-weight:600; }
+  .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
+  .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
+  .lightbox.open { display:flex; }
+  .lightbox img { max-width:95vw; max-height:92vh; border-radius:6px; box-shadow:0 8px 40px rgba(0,0,0,0.5); object-fit:contain; background:#fff; padding:6px; cursor:default; }
+  .lightbox .lb-close { position:fixed; top:12px; right:16px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  @media(max-width:768px) { .sidebar { display:none; } .content { padding:20px 16px 60px; } }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="index.html">← Início</a>
+  <span class="sep">›</span>
+  <a href="capitulo-5.html">Capítulo 5</a>
+  <span class="sep">›</span>
+  <span class="title">0. Visão Geral do Curso</span>
+</div>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav-title">Capítulo 5 · Advanced SDP</div>
+    <a href="ch5-00-overview.html" class="active">📋 0. Visão Geral do Curso</a>
+    <a href="ch5-01-lecture-multi-flows.html">📖 1. Multi Flows, Expectations e Liquid Clustering</a>
+    <a href="ch5-02-demo-multi-flow.html">⚙️ 2. Demo: Multi Flow SDP + Liquid Clustering</a>
+    <a href="ch5-03-lecture-multiplex.html">📖 3. Multiplex Streaming, Delta Sinks e Iceberg</a>
+    <a href="ch5-04-demo-multiplex.html">⚙️ 4. Demo: Multiplex Streaming + Delta Sinks</a>
+    <a href="ch5-05-lecture-cdc.html">📖 5. CDC Review (SCD Type 1 e 2)</a>
+    <a href="ch5-06-demo-cdc.html">⚙️ 6. Demo: AUTO CDC SCD Type 2</a>
+    <a href="ch5-07-lecture-quality.html">📖 7. Advanced Data Quality e Quarantine Pattern</a>
+    <a href="ch5-08-demo-quality.html">⚙️ 8. Demo: Advanced Quality + Quarantine</a>
+    <a href="ch5-09-lab-pipeline.html">🧪 9. Lab: Multi-Source Ecommerce Pipeline</a>
+    <a href="ch5-99-summary.html">📋 99. Resumo e Próximos Passos</a>
+  </nav>
+  <div class="content">
+<section class="notebook-cell">
+<div style="text-align: center; line-height: 0; padding-top: 9px;">
+  <img
+    src="https://databricks.com/wp-content/uploads/2018/03/db-academy-rgb-1200px.png"
+    alt="Databricks Learning"
+  >
+</div>
+</section>
+<section class="notebook-cell">
+<h1>Advanced Techniques with Apache Spark™ Declarative Pipelines</h1>
+<h2>Overview</h2>
+<p>This course provides a hands-on exploration of <strong>Apache Spark™ Declarative Pipelines (SDP)</strong> —Databricks modern framework for building production-grade streaming pipelines. You will learn advanced pipeline design patterns, data quality enforcement, and cross-platform integration essential for real-world lakehouse engineering.</p>
+<p>The course starts with <strong>Multi-Flow pipelines</strong>, ingesting from multiple sources into a single target table using explicit flows. You will then explore <strong>Liquid Clustering</strong> for adaptive data layout optimization and <strong>Data Quality Expectations</strong> for enforcing business rules at every pipeline stage.</p>
+<p>Next, you will learn the <strong>Multiplex Streaming pattern</strong> for processing mixed-schema event streams, connecting with <strong>Delta Sinks</strong> and <strong>Iceberg Reads via Delta UniForm</strong> for cross-platform access to live streaming data.</p>
+<p>The course also covers <strong>Change Data Capture (CDC)</strong> —including <strong>SCD Type 1</strong> (current state) and <strong>SCD Type 2</strong> (full history tracking)—automated with <code>AUTO CDC INTO</code> in SDP.</p>
+<p>Finally, you will implement advanced data quality techniques, including range-based constraints, NULL-tolerant expressions, schema evolution handling, and the <strong>Quarantine Pattern</strong> for zero-data-loss pipelines with full audit trails.</p>
+<p>Through lectures and hands-on demos, you will:</p>
+<ul>
+<li>Build <strong>multi-flow pipelines</strong> ingesting data from multiple retail subsidiaries into a single Bronze streaming table</li>
+<li>Apply <strong>Liquid Clustering</strong> and <strong>Data Quality Expectations</strong> to Silver and Gold tables</li>
+<li>Implement the <strong>Multiplex pattern</strong> with Delta Sinks and Iceberg UniForm for cross-platform access</li>
+<li>Automate <strong>SCD Type 2 history tracking</strong> using <code>AUTO CDC INTO</code></li>
+<li>Design <strong>quarantine-based quality pipelines</strong> that preserve invalid records for audit and remediation</li>
+</ul>
+<p>By the end of this course, you will be equipped to design and build enterprise-grade streaming pipelines on Databricks that are reliable, observable, and production-ready.</p>
+<h2>Terminal Objectives</h2>
+<ul>
+<li>
+<p>Build <strong>multi-flow Bronze streaming tables</strong> consolidating CSV and JSON data from multiple sources using explicit <strong><code>CREATE FLOW</code></strong> definitions</p>
+</li>
+<li>
+<p>Create <strong>incremental Gold materialized views</strong> and apply <strong>Unity Catalog tags</strong> to Bronze, Silver, and Gold objects for governance and discoverability</p>
+</li>
+<li>
+<p>Implement the <strong>Multiplex pattern</strong> to ingest a mixed-schema event stream into a single Bronze table using the <strong><code>VARIANT</code></strong> data type and fan out into domain-specific Silver tables</p>
+</li>
+<li>
+<p>Build a <strong>Delta Sink</strong> using <strong><code>dp.create_sink</code></strong> and <strong><code>@dp.append_flow</code></strong>, then enable <strong>Iceberg reads via Delta UniForm</strong> for cross-platform analytics access</p>
+</li>
+<li>
+<p>Automate a <strong>CDC pipeline</strong> using <strong><code>AUTO CDC INTO</code></strong> with <strong>SCD Type 2</strong> to track customer INSERT, UPDATE, and DELETE events with full history, surfaced via Gold materialized views</p>
+</li>
+<li>
+<p>Implement <strong>advanced data quality expectations</strong> covering NOT NULL, numeric range, and NULL-tolerant constraints, and handle <strong>schema evolution</strong> in Bronze using <strong><code>schemaHints</code></strong> and <strong><code>_rescued_data</code></strong></p>
+</li>
+<li>
+<p>Apply the <strong>Quarantine Pattern</strong> using <strong>inverse logic</strong> to route invalid records without data loss, and monitor per-constraint violation metrics in the <strong>Pipelines UI</strong></p>
+</li>
+</ul>
+<h5>NOTE: Course updates and version details can be found in the <code>Version Info</code> file.</h5>
+</section>
+<section class="notebook-cell">
+<h2>A. Prerequisites</h2>
+<p>Before starting this course, learners should be comfortable with the following:</p>
+<ol>
+<li>
+<p><strong>Spark Declarative Pipelines</strong> — Completion of the <strong>"Build Data Pipelines with Apache Spark Declarative Pipelines"</strong> course or familiarity with <code>CREATE OR REFRESH STREAMING TABLE</code>, <code>CONSTRAINTS</code>, and the Pipelines UI.</p>
+</li>
+<li>
+<p><strong>Delta Lake Fundamentals</strong> — Understanding Delta tables, and how Delta manages data files and transaction logs.</p>
+</li>
+<li>
+<p><strong>Streaming Concepts</strong> — Knowledge of micro-batch streaming, checkpointing, and event-time processing in SDP.</p>
+</li>
+<li>
+<p><strong>SQL Proficiency</strong> — Ability to read and write SQL, including <code>SELECT</code>, <code>JOIN</code>, <code>MERGE</code>, <code>CASE WHEN</code>, and common aggregate functions.</p>
+</li>
+<li>
+<p><strong>Python in Databricks Notebooks</strong> — Comfort with reading and running Python code in Databricks notebooks.</p>
+</li>
+<li>
+<p><strong>Unity Catalog Basics</strong> — Understanding catalogs, schemas, tables, and volumes in Unity Catalog.</p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h2>B. Workspace Setup Information</h2>
+</section>
+<section class="notebook-cell">
+<h3>B1. Databricks Provided Vocareum Workspace (Recommended)</h3>
+<div style="
+  border-left: 4px solid #1976d2;
+  background: #e3f2fd;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+  <div style="color:#333;">
+
+- If you are running this notebook in a <strong>Databricks Academy provided Vocareum workspace</strong>, your Unity Catalog catalog is already created for you.
+
+- Your catalog name matches your Vocareum username and looks like: <strong>labuser12345</strong> (series of unique numbers)
+
+- If a <strong>Marketplace</strong> dataset is required, the share is already installed and available in the workspace.
+
+  </div>
+</div>
+</section>
+<section class="notebook-cell">
+<h3>B2. Databricks Free Edition (<em>as is</em>)</h3>
+<h5>Databricks Free Edition may work for this course, but it is provided <strong>as is</strong> and support is not guaranteed.</h5>
+<p>Some features may not be available depending on the capabilities of Databricks Free Edition.</p>
+<p>Please read below to setup your environment for Databricks Free Edition</p>
+<div style="
+  border-left: 4px solid #1976d2;
+  background: #e3f2fd;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+<div style="color:#333;">
+
+#### Catalog Information
+
+- If you are running this notebook in your own Databricks workspace or Databricks Free Edition, the setup will <strong>create a Unity Catalog catalog and schema for you</strong>. 
+
+- The <strong>Create Catalog</strong> permission is required.
+
+- The catalog name is derived from your Databricks username and follows this pattern: <strong>labuser_username</strong>
+
+<br></br>
+#### Access Marketplace Data
+
+If you are running this in your own Workspace, complete the following steps to get your own copy of the Marketplace data. If you already have this share simply add that name to the variable below.
+
+1. Open **Databricks Marketplace** in a new tab.  
+
+2. Search for `Simulated Retail Customer Data`.  
+
+3. Select the tile titled **Simulated Retail Customer Data (Databricks provided)**.  
+
+4. Click **Get instant access**.  
+
+5. **Enter a unique catalog name** for your share to avoid receiving a duplicate catalog error in shared Workspaces. For example: `dbacademy_retail_yourname`.  
+
+6. Review and accept the terms, then click **Get instant access** to complete the setup.
+
+7. Update the variable `your_marketplace_share_catalog_name` in cell below to point to your shared catalog from Marketplace.
+  </div>
+</details>
+</div>
+
+<p></div>
+</div></p>
+<div style="
+  border-left: 4px solid #f44336;
+  background: #ffebee;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+<strong style="display:block; color:#c62828; margin-bottom:6px; font-size: 1.1em;">Do Not Run in Production Environments</strong>
+
+<div style="color:#333;">
+<ul>
+<li>Only run this course in <strong>development or sandbox workspaces</strong>.</li>
+<li>Do not run in production environments. The setup scripts creates catalogs, schemas and pipelines in your workspace.</li>
+</ul>
+
+</div>
+</div>
+</section>
+<section class="notebook-cell">
+<h3>B3. Bring Your Own Workspace (BYOW)</h3>
+<p>If you are running this course in your <strong>own Databricks workspace</strong>, complete the following before starting Module 1:</p>
+<ol>
+<li>
+<p><strong>Databricks Runtime</strong> — Use <strong>DBR 15.4 LTS</strong> or above (required for Spark Declarative Pipelines and Delta UniForm features).</p>
+</li>
+<li>
+<p><strong>Unity Catalog</strong> — Ensure Unity Catalog is enabled and you have <code>CREATE CATALOG</code> or <code>USE CATALOG</code> privileges.</p>
+</li>
+<li>
+<p><strong>Marketplace Dataset</strong> — This course uses the <code>dbacademyretail</code> shared catalog from Databricks Marketplace. Attach it to your workspace before running any demo notebooks.</p>
+</li>
+<li>
+<p><strong>Cluster Policy</strong> — Use a Single-Node or Standard cluster with Photon enabled for best performance with Liquid Clustering demos.</p>
+</li>
+<li>
+<p><strong>Pipeline Settings</strong> — All pipeline notebooks are pre-configured with catalog and schema variables. Update the <code>mycatalog</code> variable in each demo notebook to match your target catalog.</p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
+</section>
+  </div>
+</div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightbox(event)">✕</button>
+  <img id="lb-img" src="" alt="">
+</div>
+<button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
+<script>
+if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
+function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
+function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});
+document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src);});});
+</script>
+</body>
+</html>

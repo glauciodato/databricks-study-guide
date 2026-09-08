@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo: Advanced Quality + Quarantine | Advanced SDP</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117; --surface: #161b22; --surface-raised: #1c2129;
+    --border: #2a313a; --text: #e6edf3; --text-muted: #8b949e; --text-faint: #6e7681;
+    --accent: #ff6433; --accent-soft: rgba(255,100,51,0.12);
+    --green: #3fb950; --blue: #58a6ff; --purple: #bc8cff; --yellow: #d29922;
+    --radius: 12px;
+  }
+  body.light {
+    --bg: #f8f9fb; --surface: #ffffff; --surface-raised: #f0f2f5;
+    --border: #d8dce2; --text: #1a1d23; --text-muted: #5a6170; --text-faint: #8891a0;
+    --accent: #e0501e; --accent-soft: rgba(224,80,30,0.08);
+    --green: #1a8a3e; --blue: #2563eb; --purple: #7c3aed;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+  .top-bar {
+    position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border);
+    padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
+  .top-bar a:hover { color:var(--accent); }
+  .top-bar .sep { color:var(--text-faint); font-size:11px; }
+  .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
+  .layout { display:flex; min-height:calc(100vh - 50px); }
+  .sidebar {
+    width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border);
+    padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px);
+  }
+  .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
+  .sidebar a {
+    display:block; padding:6px 16px; font-size:12px; color:var(--text-muted); text-decoration:none;
+    border-left:2px solid transparent; line-height:1.5; transition:all 0.15s;
+  }
+  .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
+  .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
+  .content { flex:1; max-width:900px; padding:32px 40px 80px; }
+  .notebook-cell { margin-bottom:24px; }
+  .notebook-cell h1 { font-size:26px; font-weight:700; margin-bottom:12px; }
+  .notebook-cell h2 { font-size:21px; font-weight:700; margin:28px 0 12px; padding-top:20px; border-top:1px solid var(--border); }
+  .notebook-cell h3 { font-size:17px; font-weight:600; margin:20px 0 10px; }
+  .notebook-cell h4 { font-size:15px; font-weight:600; margin:16px 0 8px; }
+  .notebook-cell h5 { font-size:12px; font-weight:600; margin:14px 0 6px; color:var(--text-muted); }
+  .notebook-cell p { margin-bottom:10px; font-size:14.5px; }
+  .notebook-cell ul, .notebook-cell ol { margin:0 0 10px 20px; font-size:14.5px; }
+  .notebook-cell li { margin-bottom:4px; }
+  .notebook-cell code { font-family:'IBM Plex Mono',monospace; background:var(--surface-raised); padding:1px 5px; border-radius:3px; font-size:12.5px; }
+  .notebook-cell pre { background:var(--surface-raised); border:1px solid var(--border); border-radius:8px; padding:14px; overflow-x:auto; margin:10px 0; }
+  .notebook-cell pre code { background:none; padding:0; }
+  .notebook-cell img { max-width:100%; height:auto; border-radius:6px; cursor:zoom-in; }
+  .notebook-cell details { margin:10px 0; padding:10px 14px; background:var(--surface-raised); border-radius:6px; border:1px solid var(--border); font-size:13.5px; }
+  .notebook-cell details summary { cursor:pointer; font-weight:600; color:var(--text-muted); font-size:12px; }
+  .notebook-cell svg { max-width:100%; height:auto; }
+  .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
+  .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
+  .notebook-cell th { background:var(--surface-raised); font-weight:600; }
+  .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
+  .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
+  .lightbox.open { display:flex; }
+  .lightbox img { max-width:95vw; max-height:92vh; border-radius:6px; box-shadow:0 8px 40px rgba(0,0,0,0.5); object-fit:contain; background:#fff; padding:6px; cursor:default; }
+  .lightbox .lb-close { position:fixed; top:12px; right:16px; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  @media(max-width:768px) { .sidebar { display:none; } .content { padding:20px 16px 60px; } }
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="index.html">← Início</a>
+  <span class="sep">›</span>
+  <a href="capitulo-5.html">Capítulo 5</a>
+  <span class="sep">›</span>
+  <span class="title">8. Demo: Advanced Quality + Quarantine</span>
+</div>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="nav-title">Capítulo 5 · Advanced SDP</div>
+    <a href="ch5-00-overview.html">📋 0. Visão Geral do Curso</a>
+    <a href="ch5-01-lecture-multi-flows.html">📖 1. Multi Flows, Expectations e Liquid Clustering</a>
+    <a href="ch5-02-demo-multi-flow.html">⚙️ 2. Demo: Multi Flow SDP + Liquid Clustering</a>
+    <a href="ch5-03-lecture-multiplex.html">📖 3. Multiplex Streaming, Delta Sinks e Iceberg</a>
+    <a href="ch5-04-demo-multiplex.html">⚙️ 4. Demo: Multiplex Streaming + Delta Sinks</a>
+    <a href="ch5-05-lecture-cdc.html">📖 5. CDC Review (SCD Type 1 e 2)</a>
+    <a href="ch5-06-demo-cdc.html">⚙️ 6. Demo: AUTO CDC SCD Type 2</a>
+    <a href="ch5-07-lecture-quality.html">📖 7. Advanced Data Quality e Quarantine Pattern</a>
+    <a href="ch5-08-demo-quality.html" class="active">⚙️ 8. Demo: Advanced Quality + Quarantine</a>
+    <a href="ch5-09-lab-pipeline.html">🧪 9. Lab: Multi-Source Ecommerce Pipeline</a>
+    <a href="ch5-99-summary.html">📋 99. Resumo e Próximos Passos</a>
+  </nav>
+  <div class="content">
+<section class="notebook-cell">
+<div style="text-align: center; line-height: 0; padding-top: 9px;">
+  <img
+    src="https://databricks.com/wp-content/uploads/2018/03/db-academy-rgb-1200px.png"
+    alt="Databricks Learning"
+  >
+</div>
+</section>
+<section class="notebook-cell">
+<h1>Demo - Advanced Data Quality Checks and Expectations in Spark Declarative Pipelines</h1>
+<h2>Overview</h2>
+<p>This demonstration showcases enterprise-grade data quality management using Spark Declarative Pipelines (Lakeflow) with advanced quality expectations and quarantine patterns. You will build a comprehensive medallion architecture that implements three critical data engineering patterns: range-based validation, automatic schema evolution, and zero-loss quarantine processing.</p>
+<p>The demo simulates a real-world scenario where order data arrives with varying quality levels and evolving schemas. Using official Databricks patterns, you will process this data through bronze, silver, and gold layers while implementing robust quality controls that catch data anomalies, handle schema changes seamlessly, and ensure zero data loss through intelligent quarantine mechanisms.</p>
+<p>This demonstration uses a two-run approach: Run 1 establishes a clean baseline with 157 perfect records to validate the quality framework, while Run 2 introduces 60 records containing intentional quality issues and schema evolution to demonstrate the system's resilience and monitoring capabilities.</p>
+<h2>Learning Objectives</h2>
+<p>By the end of this demonstration, you will be able to:</p>
+<ul>
+<li><strong>Implement comprehensive data validation</strong> using 6 quality expectations covering NOT NULL checks, numeric ranges, and date validations with proper constraint syntax</li>
+<li><strong>Handle automatic schema evolution</strong> without pipeline code changes using flexible bronze layer design and schema hints</li>
+<li><strong>Build quarantine patterns</strong> using official Databricks inverse logic to capture invalid records while maintaining zero data loss and detailed failure tracking</li>
+<li><strong>Monitor data quality metrics</strong> and analyze expectation performance to identify specific data quality issues and develop remediation strategies</li>
+</ul>
+</section>
+<section class="notebook-cell">
+<h2>Required - Select a Compute Environment</h2>
+<div style="
+  border-left: 4px solid #f44336;
+  background: #ffebee;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+  <strong style="display:block; color:#c62828; margin-bottom:6px; font-size: 1.1em;">Select Serverless Compute</strong>
+  <div style="color:#333;">
+
+Before starting this notebook, select the required compute environment listed below.
+
+- **Serverless Compute, Version 4**  
+  - [How to select an environment version](https://docs.databricks.com/aws/en/compute/serverless/dependencies#-select-an-environment-version)
+
+**NOTE:** This notebook was **developed and tested using Serverless V4**. Other compute options may work but are not guaranteed to behave the same or support all features demonstrated.
+  </div>
+</div>
+</section>
+<section class="notebook-cell">
+<h2>Demo Architecture Overview</h2>
+<p>This demo demonstrates how to build a robust data pipeline using Databricks medallion architecture, focusing on data quality enforcement and schema flexibility.</p>
+<h3>Key Patterns Demonstrated</h3>
+<p><strong>1. Advanced Data Quality Checks</strong>
+- Enforce comprehensive data quality rules: NOT NULL for business keys, numeric range validations, and temporal checks
+- Invalid rows are systematically quarantined with detailed failure analysis for remediation workflows</p>
+<p><strong>2. Seamless Schema Evolution</strong>
+- Handles new columns automatically—no pipeline code changes required
+- Bronze layer stores all columns as STRING for maximum flexibility
+- Silver layer performs safe type conversion with validation</p>
+<p><strong>3. Zero-Loss Quarantine Pattern</strong>
+- Invalid records are captured in a dedicated quarantine table ensuring no data loss
+- Tracks which specific rules failed for each record with detailed failure reasons
+- Enables parallel processing of valid and invalid data streams</p>
+<h3>Demo Pipeline Architecture</h3>
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/dq/dq_pipeline_overview.png" alt="Complete Pipeline Run 1" width="1200"></p>
+<h3>Demo Execution Flow</h3>
+<ul>
+<li><strong>Run 1:</strong> Clean baseline data (157 records) — all pass quality checks, establishes 100% quality baseline</li>
+<li><strong>Run 2:</strong> Data with quality issues (60 records, 2 new columns) — demonstrates issue detection and schema evolution</li>
+</ul>
+</section>
+<section class="notebook-cell">
+<h2>A. Setup</h2>
+</section>
+<section class="notebook-cell">
+<div style="
+  border-left: 4px solid #1976d2;
+  background: #e3f2fd;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+  <strong style="display:block; color:#0d47a1; margin-bottom:6px; font-size:1.1em;">
+    Option 1 - Databricks Academy Provided Workspace (Vocareum Workspace)
+  </strong>
+  <details>
+  <div style="color:#333;">
+
+If you are running this notebook in a <strong>Databricks Academy provided Vocareum workspace</strong>, your Unity Catalog catalog is already created for you.
+
+Your catalog name matches your Vocareum username and looks like: <strong>labuser12345</strong> (series of unique numbers)
+  </div>
+  </details>
+</div>
+
+<div style="
+  border-left: 4px solid #1976d2;
+  background: #e3f2fd;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+  <strong style="display:block; color:#0d47a1; margin-bottom:6px; font-size:1.1em;">
+    Option 2 - Other Workspaces or Databricks Free Edition
+  </strong>
+  <details>
+  <div style="color:#333;">
+
+If you are running this notebook in your own Databricks workspace or Databricks Free Edition, the setup will
+<strong>create a Unity Catalog catalog and schema for you</strong>. **Create catalog permission is required.**
+
+The catalog name is derived from your Databricks username and follows this pattern: <strong>labuser_username</strong>
+  </div>
+  </details>
+</div>
+
+<div style="
+  border-left: 4px solid #f44336;
+  background: #ffebee;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+  <strong style="display:block; color:#c62828; margin-bottom:6px; font-size: 1.1em;">Do Not Run in Production Environments</strong>
+  <div style="color:#333;">
+  <ul>
+      <li>Only run this notebook in <strong>development or sandbox workspaces</strong>.</li>
+      <li>Do not run this in production environments. The setup script creates a catalog and schemas in your workspace.</li>
+  </ul>
+  </div>
+</div>
+</section>
+<section class="notebook-cell">
+<h3>A1. Configure Your Catalog and Schema</h3>
+<p>Run the cell below to initialize your environment. This setup step performs the following actions:</p>
+<ul>
+<li><strong>Creates or validates catalog access</strong> when running outside of a Databricks provided Vocareum workspace</li>
+<li><strong>Creates four schemas</strong> in your specified catalog:<ul>
+<li><strong>dq_1_bronze</strong> - Raw data ingestion layer</li>
+<li><strong>dq_2_silver</strong> - Validated and transformed data layer  </li>
+<li><strong>dq_3_gold</strong> - Analytics-ready aggregated data layer</li>
+</ul>
+</li>
+<li><strong>Creates volume storage</strong> for source data processing:<ul>
+<li><code>sales</code> volume: Active processing location for pipeline consumption</li>
+<li><code>ops</code> volume: Staging location containing multiple data files</li>
+</ul>
+</li>
+<li><strong>Verifies compute environment</strong> compatibility with Lakeflow pipelines</li>
+</ul>
+<p>This ensures that all schemas, tables, and objects are created in your designated catalog with proper isolation.</p>
+<p><strong>Important:</strong> You must have permission to create catalogs in your own non-Vocareum workspace. If you do not have the required permissions, this step will fail. Review the troubleshooting note below before continuing.</p>
+</section>
+<section class="notebook-cell">
+<div style="
+  border-left: 4px solid #ff9800;
+  background: #fff3e0;
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 16px 0;
+">
+
+  <strong style="display:block; color:#e65100; margin-bottom:6px; font-size: 1.1em;">
+    Troubleshooting Setup - Missing Create Catalog Permissions
+  </strong>
+<details>
+  <div style="color:#333;">
+
+If you do not have permission to create a new catalog but already have one available, you can explicitly specify an existing catalog by using the `catalog_forced` argument in the `build_user_catalog_name` function.
+
+This function is defined in the notebook: `./Includes/Classroom-Setup-dq`
+
+  </div>
+</details>
+</div>
+</section>
+<section class="notebook-cell">
+<h3>A2. Verify Volume Path Configuration</h3>
+<p>Run the cell below to view the value of the <code>my_vol_path</code> variable and confirm that it references your <strong>your-catalog.dq_1_bronze</strong> path. This path will be used to dynamically reference your source volumes throughout this demonstration.</p>
+</section>
+<section class="notebook-cell">
+<h2>B. Explore Source Data Characteristics</h2>
+<p>Before building the pipeline, examine the source data to understand its structure, quality characteristics, and schema evolution patterns. This analysis will inform our quality expectation design.</p>
+</section>
+<section class="notebook-cell">
+<h3>B1. Examine Available Data Files</h3>
+<p>View all files available in your <strong>ops</strong> volume. Note that it contains multiple files that will be incrementally moved to the <code>sales</code> volume for processing, simulating real-world data arrival patterns.</p>
+</section>
+<section class="notebook-cell">
+<p>View the current files available for processing in the <strong>sales</strong> volume location. The <code>sales</code> volume currently contains only one file; additional files will be added incrementally from the <code>ops</code> location to demonstrate schema evolution and quality issue detection.</p>
+</section>
+<section class="notebook-cell">
+<h3>B2. Analyze First File - Clean Baseline Data</h3>
+<p>Explore the first file which contains clean, high-quality data that will establish our quality baseline and validate the pipeline framework.</p>
+</section>
+<section class="notebook-cell">
+<p><strong>Firt File Characteristics (sales_1.csv):</strong>
+- <strong>157 clean records</strong> from a single sales subsidiary with perfect data quality
+- <strong>16 columns</strong>: Standard order fields including order_id, customer_id, qty, unit_price, discount_pct, total_amount, order_date
+- <strong>Quality Profile</strong>: No missing business keys, valid discount percentages (0-100%), recent order dates
+- <strong>Purpose</strong>: Establishes 100% quality baseline to validate expectation framework</p>
+</section>
+<section class="notebook-cell">
+<h3>B3. Analyze Second File - Quality Issues and Schema Evolution</h3>
+<p>Explore the second file which contains intentional quality issues and demonstrates schema evolution with new business columns.</p>
+</section>
+<section class="notebook-cell">
+<p><strong>Second File Characteristics (sales_2.csv):</strong></p>
+<p><strong>Schema Evolution (New Business Columns):</strong>
+- <strong>19 columns</strong> (16 original + 2 new business fields)
+- <strong>New Column</strong>: <code>order_status</code> (confirmed, pending, shipped, delivered, cancelled)
+- <strong>New Column</strong>: <code>shipping_cost</code> (numeric values for shipping fees)</p>
+<p><strong>Intentional Quality Issues for Testing:</strong>
+- <strong>Invalid discount percentages</strong>: discount_pct = 120 (violates discount &lt;= 100% rule)
+- <strong>Negative discounts</strong>: discount_pct = -10.73 (violates discount &gt;= 0 rule)
+- <strong>Historical dates</strong>: order_date = 1930-12-31 (violates recent date range requirement)
+- <strong>Missing business keys</strong>: NULL order_id or customer_id values
+- <strong>Invalid shipping costs</strong>: shipping_cost &gt; 100 or shipping_cost &lt; 0</p>
+<p><strong>Expected Quality Results:</strong>
+- Approximately 85% of records will pass all quality checks
+- 15% will be quarantined with detailed failure reasons for remediation</p>
+</section>
+<section class="notebook-cell">
+<p><strong>Data Analysis Checkpoint:</strong>
+- <strong>sales_1.csv</strong>: 157 rows (clean baseline for framework validation)
+- <strong>sales_2.csv</strong>: 60 rows (quality issues + schema evolution demonstration)
+- <strong>Total Expected</strong>: 217 records across both files with varying quality profiles</p>
+</section>
+<section class="notebook-cell">
+<h2>C. Create the Spark Declarative Pipeline</h2>
+<p>Now that we understand the data characteristics and quality challenges, create the Spark Declarative Pipeline with comprehensive data quality expectations and quarantine handling.</p>
+</section>
+<section class="notebook-cell">
+<h3>C1. Enable the Lakeflow Pipelines Editor</h3>
+<p>Complete the following steps to confirm or enable the <strong>Lakeflow Pipelines Editor</strong>:</p>
+<ol>
+<li>
+<p>In the top-right corner of the workspace, select your <strong>account icon</strong> <img alt="Account Icon" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/account_icon.png" /> (<em>Your icon letter will differ</em>).  </p>
+</li>
+<li>
+<p>Right-click <strong>Settings</strong> and choose <strong>Open link in new tab</strong>.  </p>
+</li>
+<li>
+<p>In the left sidebar, select <strong>Developer</strong> under <strong>User</strong>.  </p>
+</li>
+<li>
+<p>In the <strong>Experimental features</strong> section, locate <strong>Lakeflow Pipelines Editor</strong> and toggle it <strong>on</strong>.</p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h3>C2. Create a Apache Spark™ Declarative Pipeline</h3>
+<p>Complete the following steps to create your Spark Declarative Pipeline using the Lakeflow Pipelines Editor:</p>
+<ol>
+<li>
+<p>In the main navigation pane, right-click <strong>Jobs &amp; Pipelines</strong> and select <strong>Open link in New Tab</strong>.  </p>
+</li>
+<li>
+<p>In the new tab, select <strong>Create → ETL Pipeline</strong>.  </p>
+</li>
+</ol>
+<p><strong>NOTE:</strong> If prompted to <strong>Try the new Lakeflow Pipelines Editor</strong>, choose <strong>Enable Lakeflow Pipelines Editor</strong>. This appears only if you did not complete the previous step.  </p>
+<ol>
+<li>Configure the pipeline settings:</li>
+<li><strong>Pipeline Name</strong>: <code>demo_dq_yourname</code></li>
+<li><strong>Default Catalog</strong>: <code>YOUR_LABUSER_CATALOG</code></li>
+<li>
+<p><strong>Default Schema</strong>: <code>dq_1_bronze</code><br />
+<strong>NOTE:</strong> Clear the selected schema using the cross icon to view all schemas.</p>
+</li>
+<li>
+<p><strong>Rename pipeline components</strong>:</p>
+</li>
+<li>Rename the <strong>transformations</strong> folder to <code>dq_pipeline</code></li>
+<li>
+<p>Rename <strong>my_transformation.py</strong> file to <code>bronze_ingestion.sql</code></p>
+</li>
+<li>
+<p>Leave the <strong>Lakeflow Pipelines Editor</strong> page open for the next steps.</p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h3>C3. Configure Pipeline Parameters</h3>
+<ol>
+<li>Run the cell below to retrieve the key-value pairs needed to set your pipeline configuration parameters for the <strong>source volume</strong>.</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<ol>
+<li>
+<p>Copy the paths above and add each one as a configuration parameter in your <strong>Spark Declarative Pipeline</strong>.</p>
+<p>This will allow your pipeline to reference each volume through parameters.</p>
+</li>
+</ol>
+<p>a. Select <strong>Settings</strong> in your pipeline tab  </p>
+<p>b. Under <strong>Configuration</strong>, select <strong>Add configuration</strong></p>
+<p>c. For each <strong>Key</strong>, enter the key name shown above  </p>
+<p>d. For each <strong>Value</strong>, enter the corresponding volume path  </p>
+<p>e. Select <strong>Save</strong></p>
+<p><strong>NOTE:</strong> For more details on configuration parameters, see the Databricks documentation: <a href="https://docs.databricks.com/aws/en/ldp/parameters">Use parameters with Spark Declarative Pipelines</a></p>
+</section>
+<section class="notebook-cell">
+<h2>D. Create Bronze Layer - Raw Ingestion with Schema Evolution</h2>
+<p>The bronze layer implements schema evolution by using the <code>read_files</code> function with flexible column handling and schema hints for future column compatibility.</p>
+</section>
+<section class="notebook-cell">
+<h3>D1. Create Bronze Table with Schema Evolution Support</h3>
+<p>Copy the code below into your <code>bronze_ingestion.sql</code> file. This implementation uses a STRING-based approach for maximum schema flexibility and includes schema hints for future columns.</p>
+</section>
+<section class="notebook-cell">
+<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+
+------------------------------------------
+-- BRONZE LAYER: RAW DATA INGESTION
+------------------------------------------
+CREATE OR REFRESH STREAMING TABLE dq_1_bronze.sales_bronze_raw_demo
+AS
+SELECT 
+  -- Core business fields (all as STRING for schema flexibility)
+  CAST(subsidiary_id AS STRING) AS subsidiary_id,
+  CAST(order_id AS STRING) AS order_id,
+  CAST(order_timestamp AS STRING) AS order_timestamp,
+  CAST(customer_id AS STRING) AS customer_id,
+  CAST(region AS STRING) AS region,
+  CAST(country AS STRING) AS country,
+  CAST(city AS STRING) AS city,
+  CAST(channel AS STRING) AS channel,
+  CAST(sku AS STRING) AS sku,
+  CAST(category AS STRING) AS category,
+  CAST(qty AS STRING) AS qty,
+  CAST(unit_price AS STRING) AS unit_price,
+  CAST(discount_pct AS STRING) AS discount_pct,
+  CAST(coupon_code AS STRING) AS coupon_code,
+  CAST(total_amount AS STRING) AS total_amount,
+  CAST(order_date AS STRING) AS order_date,
+
+  -- New columns for schema evolution (will be null initially)
+  CAST(order_status AS STRING) AS order_status,
+  CAST(shipping_cost AS STRING) AS shipping_cost,
+
+  -- Rescued data column for parsing issues
+  CAST(_rescued_data AS STRING) AS _rescued_data,
+
+  -- Metadata columns for lineage tracking
+  _metadata.file_name AS source_file,
+  _metadata.file_modification_time AS file_mod_time
+FROM STREAM read_files(
+  '${source}',
+  format => 'csv',
+  schemaHints => 'order_status STRING, shipping_cost STRING'
+);
+</code></pre>
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } catch (err) {
+    console.error("Fallback copy failed:", err);
+    alert("Could not copy to clipboard. Please copy manually.");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<p><strong>Review the Bronze Layer Design Patterns:</strong></p>
+<p><strong>Schema Evolution Strategy:</strong>
+- <strong>STRING storage</strong>: All business columns stored as STRING for maximum flexibility and compatibility
+- <strong>Pre-defined schema</strong>: Includes both original and two future columns for seamless evolution
+- <strong>Schema hints</strong>: Declares expected new columns (<code>order_status</code>, <code>shipping_cost</code>) even when not yet present in data
+- <strong>Null handling</strong>: New columns will be NULL for existing files, populated for future files</p>
+<p><strong>Data Lineage and Protection:</strong>
+- <strong>Auto Loader</strong>: <code>read_files</code> function enables incremental processing with checkpoint management
+- <strong>Metadata capture</strong>: Source file names and modification timestamps for complete data lineage
+- <strong>Rescued data</strong>: <code>_rescued_data</code> column captures any parsing issues for investigation and recovery
+- <strong>Parameter reference</strong>: <code>${source}</code> enables dynamic path configuration</p>
+<p><strong>Technical Benefits:</strong>
+- No pipeline code changes required when new columns arrive
+- Backward compatibility with existing data files
+- Forward compatibility with evolving business requirements</p>
+<p>For more information about schema hints functionality, see the <a href="https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema#override-schema-inference-with-schema-hints">Databricks documentation on schema hints</a>.</p>
+</section>
+<section class="notebook-cell">
+<h3>D2. Create Clean Bronze Table</h3>
+<p>Create a streaming intermediate Bronze table that performs safe type casting from the raw ingested data, without applying any quality checks. This step ensures clean type conversion before data validation.</p>
+<ul>
+<li>Creates a clean streaming Bronze table from the source data stream.</li>
+<li>Uses <code>TRY_CAST</code> to safely convert data types (dates, numbers) without failing on bad data.</li>
+<li>Passes through all columns without applying any data quality filters yet.</li>
+</ul>
+</section>
+<section class="notebook-cell">
+<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+--========================================================================
+-- BRONZE LAYER: INTERMEDIATE TRANSFORMATION TABLE
+-- Purpose: Clean type casting from Bronze Raw (no quality checks yet)
+--========================================================================
+
+CREATE OR REFRESH STREAMING TABLE dq_1_bronze.sales_bronze_clean_demo
+COMMENT "Intermediate table - type casting only, no quality checks"
+AS
+SELECT
+  -- Direct pass-through and safe type casting
+  subsidiary_id,
+  order_id,
+  TRY_CAST(order_timestamp AS TIMESTAMP) AS order_timestamp,
+  TRY_CAST(order_date AS DATE) AS order_date,
+  customer_id,
+  region,
+  country,
+  city,
+  channel,
+  sku,
+  category,
+  TRY_CAST(qty AS INT) AS qty,
+  TRY_CAST(unit_price AS DOUBLE) AS unit_price,
+  TRY_CAST(discount_pct AS DOUBLE) AS discount_pct,
+  TRY_CAST(total_amount AS DOUBLE) AS total_amount,
+  coupon_code,
+  order_status,
+  TRY_CAST(shipping_cost AS DOUBLE) AS shipping_cost,
+  source_file
+
+FROM STREAM dq_1_bronze.sales_bronze_raw_demo;
+</code></pre>
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<h3>D3. Run and Validate the Bronze Layer</h3>
+<ol>
+<li>
+<p><strong>Run the pipeline</strong> and confirm that it completes successfully with no errors.</p>
+</li>
+<li>
+<p><strong>Validate ingestion results</strong> in the Lakeflow Pipelines editor:</p>
+</li>
+<li>Verify that <strong>157 records</strong> were ingested into the sales_bronze_raw_demo and table from the first file</li>
+<li>Select the <strong>sales_bronze_raw_demo</strong> table and open the <strong>Data</strong> tab to preview the ingested sales data</li>
+<li>Confirm that new columns (<code>order_status</code>, <code>shipping_cost</code>) exist but contain NULL values</li>
+</ol>
+<p><strong>Troubleshooting:</strong> If your pipeline fails, verify that:
+- Volume paths are correctly configured in pipeline parameters
+- The <code>source</code> configuration parameter matches your volume path
+- Serverless compute is selected and running</p>
+<p><strong>Expected Checkpoint Results:</strong></p>
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/dq/checkpoint_bronze.png" alt="Bronze Layer Results" width="1200"></p>
+</section>
+<section class="notebook-cell">
+<h3>D4. Query and Analyze Bronze Layer</h3>
+<p>Run these queries to validate the bronze layer tables:</p>
+<ul>
+<li>Confirm that all records are ingested into the raw bronze table</li>
+<li>Check that <code>schema_hints</code> worked successfully</li>
+</ul>
+</section>
+<section class="notebook-cell">
+<h2>E. Create Silver Layer with Data Quality Expectations and Quarantine Logic</h2>
+<ul>
+<li>In this layer, we will first type-cast columns to their appropriate data formats.</li>
+<li>Next, we will apply data quality expectations.</li>
+<li>Finally, based on these expectations, we will separate the data into two tables: one for clean records and one for invalid records, using inverse logic.</li>
+</ul>
+</section>
+<section class="notebook-cell">
+<h3>E1. Understanding Data Quality Expectations Framework</h3>
+<p>Before creating tables with expectations, understand the expectation framework and why each validation is critical for enterprise data quality.</p>
+<p><strong>Expectation Syntax:</strong></p>
+<pre><code class="language-sql">CONSTRAINT &lt;constraint_name&gt; 
+  EXPECT (&lt;condition&gt;) 
+  ON VIOLATION &lt;action&gt;
+</code></pre>
+<p><strong>Available Violation Actions:</strong>
+- <strong>WARN</strong> (default): Invalid records included but violation logged for monitoring
+- <strong>DROP ROW</strong>: Invalid records excluded from target table 
+- <strong>FAIL UPDATE</strong>: Pipeline stops and requires manual intervention</p>
+<p><strong>Our Strategy:</strong> We use <strong>WARN</strong> (default) for all expectations to ensure the pipeline continues running and all records are retained for quarantine analysis.</p>
+<p><strong>Our 6 Comprehensive Quality Expectations:</strong></p>
+<p><strong>Category 1: Business Key Validation (Critical for Data Integrity)</strong>
+1. <strong><code>check_subsidiary_id</code></strong>: Every order must have a subsidiary identifier for proper attribution
+2. <strong><code>check_customer_id</code></strong>: Must identify which customer placed the order for analytics and compliance
+3. <strong><code>check_sku</code></strong>: Must identify what product was ordered for inventory and revenue tracking</p>
+<p><strong>Category 2: Range-Based Validations (Business Rule Enforcement)</strong></p>
+<ol>
+<li><strong><code>valid_discount_range</code></strong>: Discount must be 0%-100% (catches negative discounts and impossible values)</li>
+<li><strong><code>valid_date_range</code></strong>: Order dates within last 4 years  (catches archived data and future dates)</li>
+</ol>
+<p><strong>NOTE:</strong> Since our data is static, we are checking the constraint <strong><code>valid_date_range</code></strong> with respect to <strong>01-01-2026</strong>.</p>
+<p><strong>Category 3: Schema Evolution Validation (New Column Quality)</strong></p>
+<ol>
+<li><strong><code>valid_shipping_cost</code></strong>: Shipping cost must be between $0 and $100 (validates new business column)</li>
+</ol>
+<p><strong>Note on Schema Evolution:</strong> The <code>valid_shipping_cost</code> expectation applies to a column not present in initial data but expected in future files. Once the column appears, the expectation automatically enforces validation. For details, see <a href="https://docs.databricks.com/aws/en/ldp/expectation-patterns?language=SQL#schema-evolution-pattern">Schema Evolution Pattern</a>.</p>
+</section>
+<section class="notebook-cell">
+<h3>E2. Understanding Quarantine Records Pattern</h3>
+<p><strong>Quarantine records</strong> in Spark Declarative Pipelines are records that violate data quality expectations and are routed to a separate quarantine table for analysis and remediation. This enterprise pattern ensures:</p>
+<p><strong>Benefits:</strong>
+- <strong>Zero data loss</strong>: Invalid data is isolated for review, not dropped or causing pipeline failures
+- <strong>Detailed tracking</strong>: Metadata captures which specific expectations failed for each record
+- <strong>Flexible workflows</strong>: Enables remediation processes, reprocessing, and quality improvement
+- <strong>Audit compliance</strong>: Complete record of data quality issues for regulatory requirements</p>
+<p><strong>Implementation Pattern:</strong>
+- <strong>Primary table</strong>: Contains expectations with WARN action (logs violations, retains records)
+- <strong>Quarantine logic</strong>: Uses inverse logic (NOT condition) to identify failed records
+- <strong>Parallel processing</strong>: Valid and invalid records flow to separate tables simultaneously</p>
+<blockquote>
+<p><strong>Learn More:</strong><br />
+💡 For comprehensive information on quarantine frameworks and best practices, see the <a href="https://docs.databricks.com/aws/en/ldp/expectation-patterns?language=Python%20Module#quarantine-invalid-records">Databricks documentation on expectation patterns and quarantining invalid records</a>.</p>
+</blockquote>
+</section>
+<section class="notebook-cell">
+<h3>E3. Create a New SQL File in your Pipeline</h3>
+<ol>
+<li>Click the kebab menu next to your <code>dq_pipeline</code> folder and select <strong>Create file</strong>.</li>
+<li>Select the language as <strong>SQL</strong>.</li>
+<li>Name the file <code>silver_transformation.sql</code>.</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h3>E4. Create Quarantine Table with Quality Expectations</h3>
+<p>Add the following code to your <code>silver_transformations.sql</code> file. This creates the main quarantine table with all 6 data quality expectations defined.</p>
+</section>
+<section class="notebook-cell">
+<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+--========================================================================
+-- SILVER LAYER - STEP 1: QUARANTINE TABLE WITH EXPECTATIONS
+-- Purpose: Define table structure and 6 data quality expectations
+--========================================================================
+
+CREATE OR REFRESH STREAMING TABLE dq_2_silver.sales_silver_dq_demo
+(
+  -- Business columns with proper data types
+  subsidiary_id STRING,
+  order_id STRING,
+  order_timestamp TIMESTAMP,
+  order_date DATE,
+  customer_id STRING,
+  region STRING,
+  country STRING,
+  city STRING,
+  channel STRING,
+  sku STRING,
+  category STRING,
+  qty INT,
+  unit_price DOUBLE,
+  discount_pct DOUBLE,
+  total_amount DOUBLE,
+  coupon_code STRING,
+  order_status STRING,
+  shipping_cost DOUBLE,
+  source_file STRING,
+
+  -- Quality tracking columns for quarantine analysis
+  is_quarantined BOOLEAN,
+  quarantine_reason STRING,
+
+  --========================================================================
+  -- 6 DATA QUALITY EXPECTATIONS (WARN ACTION FOR QUARANTINE PATTERN)
+  --========================================================================
+
+  CONSTRAINT check_subsidiary_id 
+    EXPECT (subsidiary_id IS NOT NULL),
+
+  CONSTRAINT check_customer_id 
+    EXPECT (customer_id IS NOT NULL),
+
+  CONSTRAINT check_sku 
+    EXPECT (sku IS NOT NULL),
+
+  CONSTRAINT valid_discount_range
+    EXPECT (discount_pct IS NULL OR (discount_pct >= 0 AND discount_pct <= 100)),
+
+  -- Since the data is static, we check that order_date falls between 01-01-2026 and 4 years prior, instead of using the current date.
+  CONSTRAINT valid_date_range 
+    EXPECT (order_date IS NULL OR 
+        (order_date >= DATE_SUB(DATE '2026-01-01', 1460) AND 
+          order_date <= DATE '2026-01-01')),
+
+  CONSTRAINT valid_shipping_cost EXPECT (
+    CASE WHEN shipping_cost IS NOT NULL THEN shipping_cost > 0 AND shipping_cost < 100 ELSE TRUE END
+  )
+)
+COMMENT "Quarantine table with 6 expectations - supports inverse logic pattern"
+TBLPROPERTIES (
+  'quality.layer' = 'silver_quarantine',
+  'quality.pattern' = 'inverse_logic'
+)
+PARTITIONED BY (is_quarantined);
+</code></pre>
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<p><strong>Review the Expectation Framework:</strong></p>
+<p><strong>Expectations Summary:</strong></p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Expectation Name</th>
+<th>Validates</th>
+<th>Range/Rule</th>
+<th>Violation Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>check_subsidiary_id</td>
+<td>Business Key</td>
+<td>NOT NULL</td>
+<td>Missing subsidiary IDs</td>
+</tr>
+<tr>
+<td>2</td>
+<td>check_customer_id</td>
+<td>Business Key</td>
+<td>NOT NULL</td>
+<td>Missing customer IDs</td>
+</tr>
+<tr>
+<td>3</td>
+<td>check_sku</td>
+<td>Business Key</td>
+<td>NOT NULL</td>
+<td>Missing SKUs</td>
+</tr>
+<tr>
+<td>4</td>
+<td>valid_discount_range</td>
+<td>Discount</td>
+<td>0%-100%</td>
+<td>discount = -10.73% or 120%</td>
+</tr>
+<tr>
+<td>5</td>
+<td>valid_date_range</td>
+<td>Date</td>
+<td>Last 4 years</td>
+<td>date = 1930-12-31</td>
+</tr>
+<tr>
+<td>6</td>
+<td>valid_shipping_cost</td>
+<td>Shipping</td>
+<td>$0-$100</td>
+<td>shipping_cost = -5 or 150</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Quality Tracking Design:</strong>
+- <strong>is_quarantined</strong>: Boolean flag indicating whether record failed any expectation
+- <strong>quarantine_reason</strong>: Detailed string listing all failed validations for remediation
+- <strong>Partitioning</strong>: Separates quarantined and valid data for performance optimization</p>
+<p><strong>Table Properties:</strong>
+- Metadata tags identify this as a quarantine pattern implementation
+- Enables monitoring and governance tools to recognize the quality framework</p>
+</section>
+<section class="notebook-cell">
+<h3>E5. Create Inverse Logic Flow for Quarantine Population</h3>
+<p>Add the inverse logic flow to populate the quarantine table with quality tracking information. This flow implements the official Databricks quarantine pattern by using inverse logic to identify and flag records that fail any quality expectations.</p>
+</section>
+<section class="notebook-cell">
+<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+--========================================================================
+-- SILVER LAYER - STEP 2: FLOW TO APPLY INVERSE LOGIC
+-- Purpose: Calculate is_quarantined flag and populate quarantine table
+--========================================================================
+
+CREATE FLOW apply_inverse_logic_flow
+AS
+INSERT INTO dq_2_silver.sales_silver_dq_demo BY NAME
+SELECT
+  -- Pass through all business columns
+  subsidiary_id,
+  order_id,
+  order_timestamp,
+  order_date,
+  customer_id,
+  region,
+  country,
+  city,
+  channel,
+  sku,
+  category,
+  qty,
+  unit_price,
+  discount_pct,
+  total_amount,
+  coupon_code,
+  order_status,
+  shipping_cost,
+  source_file,
+
+  --========================================================================
+  -- INVERSE LOGIC: Mark as quarantined if ANY expectation fails
+  --========================================================================
+  NOT (
+    (subsidiary_id IS NOT NULL) AND
+    (customer_id IS NOT NULL) AND
+    (sku IS NOT NULL) AND
+    (discount_pct IS NULL OR (discount_pct >= 0 AND discount_pct <= 100)) AND
+    (order_date IS NULL OR 
+     (order_date >= DATE_SUB(DATE '2026-01-01', 1460) AND 
+      order_date <= DATE '2026-01-01')) AND
+    (shipping_cost IS NULL OR (shipping_cost > 0 AND shipping_cost < 100))
+  ) AS is_quarantined,
+
+  --========================================================================
+  -- BUILD DETAILED QUARANTINE REASON STRING
+  --========================================================================
+  CONCAT_WS('; ',
+    CASE WHEN subsidiary_id IS NULL 
+         THEN 'Missing subsidiary_id' END,
+    CASE WHEN customer_id IS NULL 
+         THEN 'Missing customer_id' END,
+    CASE WHEN sku IS NULL 
+         THEN 'Missing sku' END,
+    CASE WHEN discount_pct IS NOT NULL AND (discount_pct < 0 OR discount_pct > 100) 
+         THEN 'Invalid discount_pct (must be 0-100)' END,
+    CASE WHEN order_date IS NOT NULL AND 
+              (order_date < DATE_SUB(DATE '2026-01-01', 1460) OR order_date > DATE '2026-01-01') 
+         THEN 'Invalid order_date (outside 4-year range)' END,
+    CASE WHEN shipping_cost IS NOT NULL AND (shipping_cost <= 0 OR shipping_cost >= 100)
+         THEN 'Invalid shipping_cost (must be 0-100)' END
+  ) AS quarantine_reason
+
+FROM STREAM dq_1_bronze.sales_bronze_clean_demo;
+</code></pre>
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<p><strong>Review the Inverse Logic Implementation:</strong></p>
+<p><strong>Quarantine Flag Logic:</strong>
+- <strong>NOT()</strong> wrapper around all expectations combined with AND logic
+- If ANY expectation fails, the record is marked <code>is_quarantined = TRUE</code>
+- If ALL expectations pass, the record is marked <code>is_quarantined = FALSE</code></p>
+<p><strong>Detailed Failure Tracking:</strong>
+- <strong>CONCAT_WS()</strong> builds semicolon-separated failure reasons
+- Each CASE statement checks for specific violation types
+- Provides actionable information for data remediation teams
+- Empty string for records that pass all validations</p>
+<p><strong>Streaming Flow Benefits:</strong>
+- Processes records continuously as they arrive
+- Maintains low latency for real-time quality monitoring
+- Enables immediate quarantine identification for operational workflows</p>
+</section>
+<section class="notebook-cell">
+<h3>E6. Create Separate Tables for Valid and Quarantined Records</h3>
+<p>Create separate tables for valid and quarantined records to enable zero data loss and parallel processing workflows. Add this code to your <code>silver_transformations.sql</code> file.</p>
+</section>
+<section class="notebook-cell">
+<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+--========================================================================
+-- SILVER LAYER - STEP 3: SEPARATE VALID AND INVALID DATA PATHS
+--========================================================================
+
+--========================================================================
+-- VALID RECORDS PATH - Clean data for analytics
+--========================================================================
+
+CREATE OR REFRESH STREAMING TABLE dq_2_silver.sales_silver_valid_demo
+COMMENT "Clean records passing all 6 quality checks - ready for analytics"
+AS
+SELECT * EXCEPT (is_quarantined, quarantine_reason)
+FROM STREAM dq_2_silver.sales_silver_dq_demo
+WHERE is_quarantined = FALSE;
+
+--========================================================================
+-- QUARANTINED RECORDS PATH - Invalid data for remediation
+--========================================================================
+
+CREATE OR REFRESH STREAMING TABLE dq_2_silver.sales_silver_quarantined_demo
+COMMENT "Invalid records with quality violations - requires remediation"
+AS
+SELECT *
+FROM STREAM dq_2_silver.sales_silver_dq_demo
+WHERE is_quarantined = TRUE;
+
+</code></pre>
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<p><strong>Review the Official Quarantine Pattern Implementation:</strong></p>
+<p><strong>Zero Data Loss Architecture:</strong>
+- <strong>Source table</strong>: Contains expectations with WARN action (logs violations, retains all records)
+- <strong>Valid path</strong>: Records where <code>is_quarantined = FALSE</code> (passed all quality checks)
+- <strong>Quarantine path</strong>: Records where <code>is_quarantined = TRUE</code> (failed one or more checks)
+- <strong>Mathematical guarantee</strong>: Total Records = Valid Records + Quarantined Records</p>
+<p><strong>Parallel Processing Benefits:</strong>
+- <strong>Analytics workflow</strong>: Consumes only validated, clean data from <code>sales_silver_valid_demo</code>
+- <strong>Remediation workflow</strong>: Processes quarantined data with detailed failure information
+- <strong>Monitoring workflow</strong>: Tracks quality metrics across both streams
+- <strong>Performance optimization</strong>: Separate tables enable independent scaling and optimization</p>
+</section>
+<section class="notebook-cell">
+<h2>F. Create Gold Layer - Production-Ready Analytics Data</h2>
+<p>The gold layer contains pre-aggregated analytics from validated silver data, providing fast query performance for business intelligence and reporting applications.</p>
+</section>
+<section class="notebook-cell">
+<h3>F1. Create Gold Layer Analytics Table</h3>
+<ol>
+<li>In your <strong>dq_pipeline</strong> folder, select the kebab menu and select <strong>Create File</strong></li>
+<li>Select the language as <strong>SQL</strong></li>
+<li>Name the file <code>gold_analytics.sql</code></li>
+<li>Copy and paste the code below</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
+<code>
+--========================================================================
+-- GOLD LAYER: MATERIALIZED VIEW FOR BUSINESS ANALYTICS
+--========================================================================
+
+CREATE OR REFRESH MATERIALIZED VIEW dq_3_gold.sales_analytics_demo
+COMMENT "Business metrics aggregated from validated sales data"
+AS
+SELECT
+  region,
+  country,
+  category,
+  COUNT(DISTINCT order_id) AS total_orders,
+  COUNT(DISTINCT customer_id) AS unique_customers,
+  SUM(qty) AS total_quantity_sold,
+  ROUND(SUM(total_amount), 2) AS total_revenue,
+  ROUND(AVG(total_amount), 2) AS avg_order_value,
+  ROUND(AVG(discount_pct), 2) AS avg_discount_pct,
+  MIN(order_date) AS earliest_order_date,
+  MAX(order_date) AS latest_order_date,
+  CURRENT_TIMESTAMP() AS last_refreshed_at
+FROM dq_2_silver.sales_silver_valid_demo
+GROUP BY region, country, category;
+</code></pre>
+
+<script>
+function copyBlock() {
+  const el = document.getElementById("copy-block");
+  if (!el) return;
+
+  const text = el.innerText;
+
+  // Preferred modern API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => alert("Copied to clipboard"))
+      .catch(err => {
+        console.error("Clipboard write failed:", err);
+        fallbackCopy(text);
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+    alert("Copied to clipboard");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+</script>
+</section>
+<section class="notebook-cell">
+<p><strong>Review Gold Layer Design for Analytics:</strong></p>
+<p><strong>Why Materialized Views for Gold Layer?</strong>
+- <strong>Pre-computed aggregations</strong>: Eliminates expensive GROUP BY operations at query time
+- <strong>Automatic refresh</strong>: Updates when underlying silver data changes
+- <strong>Delta Lake storage</strong>: Provides ACID guarantees and time travel capabilities
+- <strong>BI tool optimization</strong>: Perfect for dashboards requiring fast response times</p>
+<p><strong>Business Metrics Provided:</strong>
+- <strong>Revenue analytics</strong>: Total revenue, average order value by region and category
+- <strong>Customer insights</strong>: Unique customer counts and purchasing patterns
+- <strong>Product performance</strong>: Quantity sold and discount effectiveness by category
+- <strong>Temporal analysis</strong>: Order date ranges for trend analysis
+- <strong>Data freshness</strong>: Last refresh timestamp for monitoring</p>
+<p><strong>Analytics Workflow Support:</strong>
+- <strong>BI dashboards</strong>: Query pre-aggregated gold views for fast performance
+- <strong>Data science</strong>: Access detailed, validated silver tables for modeling
+- <strong>Operations teams</strong>: Monitor quarantine tables for data quality remediation
+- <strong>Executive reporting</strong>: Use gold metrics for strategic decision making</p>
+</section>
+<section class="notebook-cell">
+<h2>G. Run and Analyze Pipeline Results - First Run (Clean Baseline)</h2>
+<p>Execute the complete pipeline and analyze the results to validate that the quality framework correctly processes clean baseline data.</p>
+</section>
+<section class="notebook-cell">
+<h3>G1. Execute the Complete Pipeline</h3>
+<ol>
+<li><strong>Run the pipeline</strong> and confirm that it completes successfully with no errors</li>
+<li><strong>Observe the pipeline graph</strong> to see data flowing through all layers: Bronze → Silver → Gold</li>
+<li><strong>Monitor execution time</strong> and resource utilization in the pipeline UI</li>
+</ol>
+<p><strong>Troubleshooting:</strong> If your pipeline fails, verify that:
+- All SQL files are properly created in the <code>dq_pipeline</code> folder
+- Configuration parameters are correctly set
+- Serverless compute is selected and running
+- Volume paths are accessible and contain data files</p>
+<p><strong>Expected Pipeline Graph:</strong></p>
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/dq/checkpoint_run_1.png" alt="Complete Pipeline Run 1" width="1200"></p>
+</section>
+<section class="notebook-cell">
+<h3>G2. Validate First Run Results - Clean Baseline</h3>
+<p>Review the pipeline execution to confirm that all data quality checks passed and the pipeline established a perfect baseline. This run demonstrates that the pipeline framework correctly ingests, transforms, and validates clean data.</p>
+<p><strong>Expected Results for Run 1 (Clean Baseline):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Table</th>
+<th>Expected Records</th>
+<th>Quality Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bronze (sales_bronze_raw_demo)</td>
+<td>157</td>
+<td>All ingested</td>
+<td>Raw data from sales_1.csv</td>
+</tr>
+<tr>
+<td>Silver (sales_bronze_clean_demo)</td>
+<td>157</td>
+<td>Type-cast success</td>
+<td>All conversions successful</td>
+</tr>
+<tr>
+<td>Silver (sales_silver_dq_demo)</td>
+<td>157</td>
+<td>All tracked</td>
+<td>All records with is_quarantined = FALSE</td>
+</tr>
+<tr>
+<td>Silver (sales_silver_valid_demo)</td>
+<td>157</td>
+<td>100% quality</td>
+<td>Perfect baseline established</td>
+</tr>
+<tr>
+<td>Silver (sales_silver_quarantined_demo)</td>
+<td>0</td>
+<td>No violations</td>
+<td>Quality framework validated</td>
+</tr>
+<tr>
+<td>Gold (sales_analytics_demo)</td>
+<td>~55</td>
+<td>Aggregated</td>
+<td>Business metrics by region/category</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Validation Steps in Pipeline UI:</strong>
+1. Select the <strong>sales_silver_dq_demo</strong> table and open the <strong>Expectations</strong> tab to verify "6 constraints tracked"
+2. Open the <strong>Data</strong> tab to confirm all records have <code>is_quarantined = FALSE</code>
+3. Check the <strong>sales_silver_quarantined_demo</strong> table to ensure it contains 0 records
+4. Verify the <strong>sales_analytics_demo</strong> gold table contains aggregated business metrics</p>
+</section>
+<section class="notebook-cell">
+<h3>G3. Query and Analyze Results</h3>
+<p>Execute the following queries to verify silver and gold layers result:
+- Records in <strong>sales_silver_quarantined_demo</strong> should be zero
+- Quality Score should be <strong>100%</strong>
+- Querying on <strong>sales_analytics_demo</strong> MV for insight</p>
+</section>
+<section class="notebook-cell">
+<p><strong>Run 1 Validation Checkpoint - Expected Results:</strong>
+- <strong>Bronze Layer</strong>: 157 records from sales_1.csv successfully ingested
+- <strong>Silver Transformation</strong>: 157 records type-cast successfully with no conversion errors
+- <strong>Quality Validation</strong>: 157 records pass all 6 expectations (100% quality score)
+- <strong>Quarantine Status</strong>: 0 records quarantined (perfect baseline established)
+- <strong>Gold Analytics</strong>: Business metrics aggregated should have 55 validated records</p>
+</section>
+<section class="notebook-cell">
+<h2>H. Prepare and Execute Second Run - Quality Issues and Schema Evolution</h2>
+<p>Introduce the second data file containing quality issues and new schema columns to demonstrate the pipeline's resilience and monitoring capabilities.</p>
+</section>
+<section class="notebook-cell">
+<h3>H1. Copy Additional Files for Processing</h3>
+<p>Copy the second file from the operations location to the sales processing location to trigger incremental processing with quality issues and schema evolution.</p>
+</section>
+<section class="notebook-cell">
+<h3>H2. Verify File Availability for Processing</h3>
+<p>Confirm that <code>sales_2.csv</code> has been successfully moved to the processing source location and is ready for pipeline consumption.</p>
+</section>
+<section class="notebook-cell">
+<h3>H3. Execute Pipeline Run 2 - Quality Issues and Schema Evolution</h3>
+<ol>
+<li><strong>Run the pipeline again</strong> and confirm that it completes successfully despite quality issues</li>
+<li><strong>Observe incremental processing</strong> as the pipeline detects and processes the new file</li>
+<li><strong>Monitor quality metrics</strong> in the pipeline UI to see expectation violations being tracked</li>
+</ol>
+<p><strong>Expected Behavior:</strong>
+- Pipeline continues running despite quality violations (WARN action)
+- New columns are automatically incorporated (schema evolution)
+- Invalid records are systematically quarantined with detailed failure reasons
+- Valid records continue to flow to analytics tables</p>
+<p><strong>Expected Pipeline Results:</strong></p>
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/dq/checkpoint_run_2.png" alt="Pipeline Run 2 with Quality Issues" width="1200"></p>
+</section>
+<section class="notebook-cell">
+<h3>H4. Analyze Run 2 Results - Quality Issues Detected</h3>
+<p>Review the pipeline execution to see how quality issues and schema evolution were successfully handled by the quarantine framework.</p>
+<p><strong>Expected Results for Run 2 (Incremental with Issues):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Table</th>
+<th>New Records</th>
+<th>Total Records</th>
+<th>Quality Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bronze (sales_bronze_raw_demo)</td>
+<td>+60</td>
+<td>217</td>
+<td>Schema evolved! (2 new columns populated)</td>
+</tr>
+<tr>
+<td>Bronze (sales_bronze_clean_demo)</td>
+<td>+60</td>
+<td>217</td>
+<td>Type casting successful for all records</td>
+</tr>
+<tr>
+<td>Silver (sales_silver_dq_demo)</td>
+<td>+60</td>
+<td>217</td>
+<td>All records tracked with quality flags</td>
+</tr>
+<tr>
+<td>Silver (sales_silver_valid_demo)</td>
+<td>+51</td>
+<td>208</td>
+<td>9 records failed expectations</td>
+</tr>
+<tr>
+<td>Silver (sales_silver_quarantined_demo)</td>
+<td>+9</td>
+<td>9</td>
+<td>Invalid records captured with failure details</td>
+</tr>
+<tr>
+<td>Gold (sales_analytics_demo)</td>
+<td>Updated</td>
+<td>~60</td>
+<td>Metrics updated with new valid data</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key Validation Points:</strong>
+1. <strong>Zero Data Loss</strong>: Bronze (217) = Valid (208) + Quarantined (9)
+2. <strong>Schema Evolution</strong>: New columns populated automatically
+3. <strong>Quality Detection</strong>: Specific violations identified and quarantined
+4. <strong>Pipeline Resilience</strong>: Continues processing despite quality issues</p>
+</section>
+<section class="notebook-cell">
+<h3>H5. Comprehensive Quality Analysis</h3>
+<p>Execute detailed analysis queries to understand the quality patterns and validate the quarantine framework effectiveness.</p>
+</section>
+<section class="notebook-cell">
+<p><strong>Quality Analysis Insights:</strong>
+- <strong>Zero Data Loss Achieved</strong>: Mathematical verification that no records were lost
+- <strong>High Quality Score</strong>: Typically 94-96% overall quality across both files
+- <strong>Detailed Failure Tracking</strong>: Each quarantined record includes specific violation reasons
+- <strong>Actionable Intelligence</strong>: Operations teams can prioritize remediation based on failure types
+- <strong>Range Validation Effectiveness</strong>: Successfully caught discount &gt; 100%, negative values, and historical dates
+- <strong>Business Key Protection</strong>: Identified and quarantined records with missing critical identifiers</p>
+</section>
+<section class="notebook-cell">
+<h3>H6. Validate Schema Evolution Success</h3>
+<p>Verify that schema evolution worked seamlessly without any pipeline code changes. Note that records from the first file will have null values for the new columns(<strong>shipping_cost</strong> and <strong>order_status</strong>), while records from the second file will have populated values.</p>
+</section>
+<section class="notebook-cell">
+<p><strong>Schema Evolution Success Validation:</strong>
+- <strong>Seamless Evolution</strong>: Schema grew from 16 to 18 core business columns without any pipeline code changes
+- <strong>Backward Compatibility</strong>: File 1 records maintain NULL values for new columns
+- <strong>Forward Compatibility</strong>: File 2 records populate new columns with business values
+- <strong>No Pipeline Disruption</strong>: Schema hints enabled graceful column addition
+- <strong>Business Value Addition</strong>: New columns provide order status tracking and shipping cost analysis
+- <strong>Quality Framework Extension</strong>: New columns automatically included in quality validations</p>
+</section>
+<section class="notebook-cell">
+<h3>H7. Quality Performance by Source File</h3>
+<p>Analyze quality performance differences between the clean baseline file and the file with intentional quality issues.</p>
+</section>
+<section class="notebook-cell">
+<p><strong>File-Level Quality Performance Insights:</strong>
+- <strong>File 1 (Baseline)</strong>: 100% quality score validates framework correctness
+- <strong>File 2 (Issues)</strong>: 85% quality score demonstrates issue detection capability
+- <strong>Overall Performance</strong>: 95.85% combined quality score shows enterprise-grade data quality
+- <strong>Framework Validation</strong>: Clean data passes completely, problematic data is systematically identified
+- <strong>Production Readiness</strong>: Quality framework successfully handles both perfect and imperfect data scenarios</p>
+</section>
+<section class="notebook-cell">
+<h2>I. Summary and Key Takeaways</h2>
+<p><strong>Data Quality Management:</strong>
+- Successfully implemented 6 comprehensive data quality expectations covering business keys, numeric ranges, and temporal validations
+- Achieved 100% quality score on clean baseline data (Run 1: 157/157 records)
+- Detected and quarantined 9 quality violations in problematic data (Run 2: 51/60 records passed)
+- Overall pipeline quality score: 95.85% (208/217 total records processed)</p>
+<p><strong>Schema Evolution:</strong>
+- Seamlessly handled schema evolution from 16 to 18 core business columns from source without pipeline code changes
+- Bronze layer STRING strategy enabled backward compatibility and forward flexibility
+- New business columns (<strong>order_status, shipping_cost</strong>) automatically integrated</p>
+<p><strong>Zero Data Loss Quarantine:</strong>
+- Implemented official Databricks inverse logic pattern for quarantine processing
+- Achieved mathematical zero data loss: Bronze Records = Valid Sales Records + Quarantine Sales Records
+- Provided detailed failure analysis and remediation insights for each quarantined record</p>
+<h3>Production Readiness</h3>
+<p>This demonstration showcased enterprise-grade patterns that provide:
+- <strong>Robust data quality controls</strong> that catch anomalies before they reach analytics
+- <strong>Flexible schema handling</strong> that adapts to evolving business requirements
+- <strong>Complete data lineage</strong> with zero loss and full audit capabilities
+- <strong>Actionable quality insights</strong> for continuous data improvement</p>
+</section>
+<section class="notebook-cell">
+<p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
+</section>
+  </div>
+</div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightbox(event)">✕</button>
+  <img id="lb-img" src="" alt="">
+</div>
+<button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
+<script>
+if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
+function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
+function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});
+document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src);});});
+</script>
+</body>
+</html>
