@@ -32,12 +32,26 @@
 <section class="notebook-cell">
 <h3>A1. O que é um Flow (Revisão...)</h3>
 <h4>Flow = Query + Target</h4>
-<div class="mermaid">
-flowchart LR
-    A["<b>Query</b><br/>SQL · Filters · Joins"] --> C["<b>FLOW</b><br/>Execution Unit"]
-    B["<b>Target</b><br/>Streaming Table · MV"] --> C
-    C --> D["<b>Resultado</b><br/>Dados escritos no target"]
-    style C fill:#2196F3,color:#fff,stroke:#1565C0,stroke-width:2px
+<div style="display:flex;align-items:center;justify-content:center;gap:12px;margin:20px 0;flex-wrap:wrap;">
+  <div style="background:var(--surface-raised);border:2px solid var(--border);border-radius:10px;padding:14px 20px;text-align:center;min-width:140px;">
+    <div style="font-size:13px;font-weight:700;color:var(--accent);">Query</div>
+    <div style="font-size:11px;color:var(--text-muted);">SQL · Filters · Joins</div>
+  </div>
+  <div style="font-size:20px;color:var(--text-faint);">→</div>
+  <div style="background:#1565C0;border:2px solid #0D47A1;border-radius:10px;padding:14px 20px;text-align:center;min-width:140px;">
+    <div style="font-size:14px;font-weight:700;color:#fff;">FLOW</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.8);">Unidade de Execução</div>
+  </div>
+  <div style="font-size:20px;color:var(--text-faint);">←</div>
+  <div style="background:var(--surface-raised);border:2px solid var(--border);border-radius:10px;padding:14px 20px;text-align:center;min-width:140px;">
+    <div style="font-size:13px;font-weight:700;color:var(--purple);">Target</div>
+    <div style="font-size:11px;color:var(--text-muted);">Streaming Table · MV</div>
+  </div>
+  <div style="font-size:20px;color:var(--text-faint);">→</div>
+  <div style="background:var(--surface-raised);border:2px solid var(--green);border-radius:10px;padding:14px 20px;text-align:center;min-width:140px;">
+    <div style="font-size:13px;font-weight:700;color:var(--green);">Resultado</div>
+    <div style="font-size:11px;color:var(--text-muted);">Dados escritos no target</div>
+  </div>
 </div>
 
 <p>Um <strong>flow</strong> é a unidade básica de trabalho em um Spark Declarative Pipeline. Cada flow lê, processa e escreve dados independentemente, permitindo design de pipeline modular e escalável.</p>
