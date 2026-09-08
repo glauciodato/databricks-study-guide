@@ -15,7 +15,7 @@
 <section class="notebook-cell">
 <div style="text-align: center; line-height: 0; padding-top: 9px;">
   <img
-    src="§0§
+    src="https://databricks.com/wp-content/uploads/2018/03/db-academy-rgb-1200px.png"
     alt="Databricks Learning"
   >
 </div>
@@ -87,8 +87,8 @@
 </div>
 </section>
 <section class="notebook-cell">
-<h3>A1. Configurar Seu Catalog e Schema</h3>
-<p>Execute a célula abaixo para inicializar seu ambiente. Este passo de configuração faz o seguinte:
+<h3>A1. Configure Your Catalog and Schema</h3>
+<p>Run the cell below to initialize your environment. This setup step does the following:
     - <strong>Assumes you have permission to create a catalog</strong> when running outside of a Databricks provided Vocareum workspace
     - Creates three schemas in your specified catalog:
         - <strong>lab_1_bronze</strong>
@@ -96,7 +96,7 @@
         - <strong>lab_3_gold</strong>
     - Creates <code>ops</code> and <code>source</code> volumes in your <strong>YOUR_LABUSER_CATALOG.lab_1_bronze</strong> schema, and adds sample files to your volumes.
     - Verifies your selected compute environment</p>
-<pre><code>Isso garante that all schemas, tables and objects are created in your catalog.
+<pre><code>This ensures that all schemas, tables and objects are created in your catalog.
 </code></pre>
 <blockquote>
 <p><strong>Important:</strong> You must have permission to create catalogs in your own non-Vocareum workspace. If you do not have the required permissions, this step will fail. Review the note below before continuing.</p>
@@ -119,7 +119,7 @@
 
 If you do not have permission to create a new catalog but already have one available, you can explicitly specify an existing catalog by using the `catalog_forced` argument in the `build_user_catalog_name` function.
 
-This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
+This function is defined in the notebook: `./Includes/Classroom-Configuração-multiplex`
 
   </div>
 </details>
@@ -127,17 +127,17 @@ This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
 </section>
 <section class="notebook-cell">
 <h3>A2. Verify Volume Path Configuration</h3>
-<p>Execute a célula abaixo para ver o valor de the <code>my_vol_path</code> variable.</p>
-<p>Confirme que o valor referencia seu <strong>your-catalog.lab_1_bronze</strong> path. This will be used to dynamically reference your source volumes throughout this lab.</p>
+<p>Run the cell below to view the value of the <code>my_vol_path</code> variable.</p>
+<p>Confirm that the value references your <strong>your-catalog.lab_1_bronze</strong> path. This will be used to dynamically reference your source volumes throughout this lab.</p>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>print(my_vol_path)</code></pre></div></section>
 <section class="notebook-cell">
-<h2>B. Explorar as Características dos Dados Fonte</h2>
-<p>Antes de construir our pipeline, let's understand the structure and characteristics of our source data. This e-commerce company receives orders from two different channels, each with its own data format and schema variations.</p>
+<h2>B. Explore Source Data Characteristics</h2>
+<p>Before building our pipeline, let's understand the structure and characteristics of our source data. This e-commerce company receives orders from two different channels, each with its own data format and schema variations.</p>
 </section>
 <section class="notebook-cell">
 <h3>B1. Understanding Data File Structure</h3>
-<p>Our pipeline will process data de múltiplas fontes, each stored in different volumes with specific formats and purposes:</p>
+<p>Our pipeline will process data from multiple sources, each stored in different volumes with specific formats and purposes:</p>
 </section>
 <section class="notebook-cell">
 <table>
@@ -195,7 +195,7 @@ display(spark.sql(f"LIST '{my_vol_path}/web_orders'"))</code></pre></div></secti
 display(spark.sql(f"LIST '{my_vol_path}/app_orders'"))</code></pre></div></section>
 <section class="notebook-cell">
 <h3>B3. Analyzing Data Structure and Content</h3>
-<p>Agora vamos examine the actual data structure and content from each source to understand schema differences and commonalities.</p>
+<p>Now let's examine the actual data structure and content from each source to understand schema differences and commonalities.</p>
 </section>
 <section class="notebook-cell">
 <h4>1. Analyzing Operations Data</h4>
@@ -211,19 +211,19 @@ display(spark.sql(f"LIST '{my_vol_path}/app_orders'"))</code></pre></div></secti
 </section>
 <section class="notebook-cell">
 <h4>Checkpoint - Data Exploration</h4>
-<p>Confirm o seguinte data counts:
+<p>Confirm the following data counts:
 - Web orders: Rows loaded from <code>web_orders_1.csv</code>
 - App orders: Rows loaded from <code>app_orders_1.json</code>
 - Product catalog: 50 products</p>
 <p><strong>TROUBLESHOOTING:</strong> If any file shows 0 rows, verify <code>my_vol_path</code> is correct and all files were uploaded successfully.</p>
 </section>
 <section class="notebook-cell">
-<h2>C. Criar o Spark Declarative Pipeline</h2>
-<p>Now we'll create our Spark Declarative Pipeline using the Apache Spark™ Pipelines Editor to process data de múltiplas fontes.</p>
+<h2>C. Create the Spark Declarative Pipeline</h2>
+<p>Now we'll create our Spark Declarative Pipeline using the Apache Spark™ Pipelines Editor to process data from multiple sources.</p>
 </section>
 <section class="notebook-cell">
 <h3>C1. Enable the Apache Spark™ Pipelines Editor</h3>
-<p>Complete os seguintes passos to confirm or enable the <strong>Apache Spark™ Pipelines Editor</strong>:</p>
+<p>Complete the following steps to confirm or enable the <strong>Apache Spark™ Pipelines Editor</strong>:</p>
 <ol>
 <li>
 <p>In the top-right corner of the workspace, select your <strong>account icon</strong> <img alt="Account Icon" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/account_icon.png" /> (<em>Your icon letter will differ</em>).  </p>
@@ -241,7 +241,7 @@ display(spark.sql(f"LIST '{my_vol_path}/app_orders'"))</code></pre></div></secti
 </section>
 <section class="notebook-cell">
 <h3>C2. Create a Apache Spark™ Spark Declarative Pipeline</h3>
-<p>Complete os seguintes passos to create your Spark Declarative Pipeline using the Apache Spark™ Pipelines Editor:</p>
+<p>Complete the following steps to create your Spark Declarative Pipeline using the Apache Spark™ Pipelines Editor:</p>
 <ol>
 <li>
 <p>In the main navigation pane, right-click <strong>Jobs &amp; Pipelines</strong> and select <strong>Open link in New Tab</strong>.  </p>
@@ -277,7 +277,7 @@ display(spark.sql(f"LIST '{my_vol_path}/app_orders'"))</code></pre></div></secti
 </section>
 <section class="notebook-cell">
 <ol>
-<li>Execute a célula abaixo para retrieve the key-value pairs needed to set your pipeline configuration parameters for the source volumes.</li>
+<li>Run the cell below to retrieve the key-value pairs needed to set your pipeline configuration parameters for the source volumes.</li>
 </ol>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>config_parameters = [
@@ -317,7 +317,7 @@ for key, value in config_parameters:
 <p><strong>NOTE:</strong> For more details on configuration parameters, see the Databricks documentation: <a href="https://docs.databricks.com/aws/en/ldp/parameters">Use parameters with Apache Spark™ Declarative Pipelines</a></p>
 </section>
 <section class="notebook-cell">
-<h2>D. Bronze Layer — Ingestão Multi-Flow</h2>
+<h2>D. Bronze Layer — Multi-Flow Ingestion</h2>
 <p>We have orders data coming from two sources: <strong>web and app</strong>. The Bronze layer will use multi-flow ingestion to combine data from both sources into a unified table.</p>
 <p>To build the Bronze layer, follow these three steps:
 1. Create a Bronze table that can accept data from both sources.
@@ -387,11 +387,11 @@ Using these requirements, write the full <code>CREATE OR REPLACE STREAMING TABLE
 %sql
 &lt;FILL_IN&gt;</code></pre></div></section>
 <section class="notebook-cell">
-<h5>CODE ANSWER - Bronze Table Structure</h5>
+<h5>CÓDIGO RESPOSTA - Bronze Table Structure</h5>
 <details>
-  <summary>EXPAND FOR SOLUTION CODE</summary>
+  <summary>EXPANDIR PARA CÓDIGO DA SOLUÇÃO</summary>
 
-<button onclick="copyBlock()">Copy to clipboard</button>
+<button onclick="copyBlock()">Copiar para área de transferência</button>
 
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
@@ -477,7 +477,7 @@ function fallbackCopy(text) {
 </section>
 <section class="notebook-cell">
 <h3>D3. Creating Flows for Each Source</h3>
-<p>Now that our Bronze table is ready, vamos criar two flows: one for app orders and another for web orders. Each flow will ingest data into our streaming Bronze table.</p>
+<p>Now that our Bronze table is ready, we will create two flows: one for app orders and another for web orders. Each flow will ingest data into our streaming Bronze table.</p>
 </section>
 <section class="notebook-cell">
 <h4>1. App Orders Flow</h4>
@@ -488,7 +488,7 @@ function fallbackCopy(text) {
 - Insert data into the unified Bronze table using <code>INSERT INTO ... BY NAME</code> to align columns by name.</p>
 </section>
 <section class="notebook-cell">
-<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<p><button onclick="copyBlock()">Copiar para área de transferência</button></p>
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
 -- ----------------------------------------------------------------
@@ -590,11 +590,11 @@ function fallbackCopy(text) {
 ## Follow the requirements specified above
 ## &lt;FILL_IN&gt;</code></pre></div></section>
 <section class="notebook-cell">
-<h5>CODE ANSWER - Web Orders Flow</h5>
+<h5>CÓDIGO RESPOSTA - Web Orders Flow</h5>
 <details>
-  <summary>EXPAND FOR SOLUTION CODE</summary>
+  <summary>EXPANDIR PARA CÓDIGO DA SOLUÇÃO</summary>
 
-<button onclick="copyBlock()">Copy to clipboard</button>
+<button onclick="copyBlock()">Copiar para área de transferência</button>
 
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
@@ -680,7 +680,7 @@ function fallbackCopy(text) {
 <h3>D4. Run and Explore the Pipeline</h3>
 <ol>
 <li>
-<p>Executar o Spark Declarative Pipeline and confirm that it completes successfully.</p>
+<p>Run the Spark Declarative Pipeline and confirm that it completes successfully.</p>
 </li>
 <li>
 <p>In the Apache Spark™ Pipelines Editor, explore your pipeline run:</p>
@@ -721,7 +721,7 @@ function fallbackCopy(text) {
 <p><strong>TROUBLESHOOTING:</strong> If one flow shows 0 rows, check that the pipeline configuration parameter points to the correct volume path.</p>
 </section>
 <section class="notebook-cell">
-<h2>E. Silver Layer — Expectations e Stream-Static Join</h2>
+<h2>E. Silver Layer — Expectations and Stream-Static Join</h2>
 <p>The Silver layer will clean and validate our data using expectations, then enrich it with product catalog information through a stream-static join.</p>
 </section>
 <section class="notebook-cell">
@@ -806,11 +806,11 @@ function fallbackCopy(text) {
 Using these requirements, write the full code for the Silver table.</p>
 </section>
 <section class="notebook-cell">
-<h5>CODE ANSWER - Silver Table With Expectations and Liquid Clustering Enabled</h5>
+<h5>CÓDIGO RESPOSTA - Silver Table With Expectations and Liquid Clustering Enabled</h5>
 <details>
-  <summary>EXPAND FOR SOLUTION CODE</summary>
+  <summary>EXPANDIR PARA CÓDIGO DA SOLUÇÃO</summary>
 
-<button onclick="copyBlock()">Copy to clipboard</button>
+<button onclick="copyBlock()">Copiar para área de transferência</button>
 
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
@@ -936,11 +936,11 @@ function fallbackCopy(text) {
 Using these requirements, write the full statement/code for the view.</p>
 </section>
 <section class="notebook-cell">
-<h5>CODE ANSWER - Creating Product Catalog Reference as Materialized View</h5>
+<h5>CÓDIGO RESPOSTA - Creating Product Catalog Reference as Materialized View</h5>
 <details>
-  <summary>EXPAND FOR SOLUTION CODE</summary>
+  <summary>EXPANDIR PARA CÓDIGO DA SOLUÇÃO</summary>
 
-<button onclick="copyBlock()">Copy to clipboard</button>
+<button onclick="copyBlock()">Copiar para área de transferência</button>
 
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
@@ -1018,7 +1018,7 @@ function fallbackCopy(text) {
 - Calculate <strong>price_vs_catalog</strong> as the difference between the order's <strong>unit_price</strong> and the catalog's <strong>list_price</strong>.</p>
 </section>
 <section class="notebook-cell">
-<p><button onclick="copyBlock()">Copy to clipboard</button></p>
+<p><button onclick="copyBlock()">Copiar para área de transferência</button></p>
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
 -- ----------------------------------------------------------------
@@ -1103,7 +1103,7 @@ function fallbackCopy(text) {
 <h3>E6. Run and Explore the Pipeline</h3>
 <ol>
 <li>
-<p>Executar o Spark Declarative Pipeline and confirm it completes successfully.</p>
+<p>Run the Spark Declarative Pipeline and confirm it completes successfully.</p>
 </li>
 <li>
 <p>In the Apache Spark™ Pipelines Editor, review your pipeline run:</p>
@@ -1131,7 +1131,7 @@ function fallbackCopy(text) {
 </ol>
 <p><strong>TROUBLESHOOTING:</strong> If your pipeline does not run successfully, check that your volumes and configuration parameters are set correctly.</p>
 <h4>Checkpoint - Silver Layer</h4>
-<p><img src="§3§ Techniques with Apache Spark Declarative Pipelines/Includes/images/lab/lab_checkpoint_1.png" alt="Silver Layer Checkpoint" width="1200"></p>
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/lab/lab_checkpoint_1.png" alt="Silver Layer Checkpoint" width="1200"></p>
 </section>
 <section class="notebook-cell">
 <h3>E7. Confirming Transformation of Records</h3>
@@ -1167,7 +1167,7 @@ function fallbackCopy(text) {
 </table>
 </section>
 <section class="notebook-cell">
-<h2>F. Gold Layer — Materialized Views para Business Analytics</h2>
+<h2>F. Gold Layer — Business Analytics Materialized Views</h2>
 <p>The Gold layer provides business-ready analytics tables optimized for reporting and dashboards.</p>
 </section>
 <section class="notebook-cell">
@@ -1208,11 +1208,11 @@ Using these requirements, write the full code for the Gold analytics view.</p>
 %sql
 &lt;FILL_IN&gt;</code></pre></div></section>
 <section class="notebook-cell">
-<h5>CODE ANSWER - Gold Analytics View</h5>
+<h5>CÓDIGO RESPOSTA - Gold Analytics View</h5>
 <details>
-  <summary>EXPAND FOR SOLUTION CODE</summary>
+  <summary>EXPANDIR PARA CÓDIGO DA SOLUÇÃO</summary>
 
-<button onclick="copyBlock()">Copy to clipboard</button>
+<button onclick="copyBlock()">Copiar para área de transferência</button>
 
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
@@ -1288,7 +1288,7 @@ function fallbackCopy(text) {
 <section class="notebook-cell">
 <h3>F3. Run the Full Pipeline and Validate Gold Layer</h3>
 <ol>
-<li>Executar o Spark Declarative Pipeline and confirm it completes successfully.</li>
+<li>Run the Spark Declarative Pipeline and confirm it completes successfully.</li>
 <li>
 <p>In the Apache Spark™ Pipelines Editor, review your pipeline run:</p>
 </li>
@@ -1298,10 +1298,10 @@ function fallbackCopy(text) {
 <li>Materialized view <strong>weekly_revenue_by_category</strong> should have <strong>192</strong> records</li>
 </ol>
 <h4>Checkpoint - Gold Layer</h4>
-<p><img src="§0§ Techniques with Apache Spark Declarative Pipelines/Includes/images/lab/lab_checkpoint_2.png" alt="Gold Layer Checkpoint" width="1200"></p>
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/lab/lab_checkpoint_2.png" alt="Gold Layer Checkpoint" width="1200"></p>
 </section>
 <section class="notebook-cell">
-<h2>G. Processamento Incremental</h2>
+<h2>G. Incremental Processing</h2>
 <p>Now we'll simulate incremental data processing by landing additional files and observing how our pipeline handles new data.</p>
 </section>
 <section class="notebook-cell">
@@ -1321,7 +1321,7 @@ display(spark.sql(f"LIST '{my_vol_path}/app_orders'"))</code></pre></div></secti
 <h3>G3. Run and Explore the Pipeline</h3>
 <ol>
 <li>
-<p>Executar o Spark Declarative Pipeline and confirm it completes successfully.</p>
+<p>Run the Spark Declarative Pipeline and confirm it completes successfully.</p>
 </li>
 <li>
 <p>In the Apache Spark™ Pipelines Editor, review your pipeline run:</p>
@@ -1349,8 +1349,8 @@ display(spark.sql(f"LIST '{my_vol_path}/app_orders'"))</code></pre></div></secti
 <p><strong>weekly_revenue_by_category</strong> should now show a total of <strong>380</strong> records.</p>
 </li>
 </ol>
-<h4>Checkpoint - Processamento Incremental</h4>
-<p><img src="§3§ Techniques with Apache Spark Declarative Pipelines/Includes/images/lab/lab_checkpoint_3.png" alt="Incremental Processing Checkpoint" width="1200"></p>
+<h4>Checkpoint - Incremental Processing</h4>
+<p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/lab/lab_checkpoint_3.png" alt="Incremental Processing Checkpoint" width="1200"></p>
 </section>
 <section class="notebook-cell">
 <h3>G4. Validating the Pipeline</h3>
@@ -1369,7 +1369,7 @@ display(spark.sql(f"LIST '{my_vol_path}/app_orders'"))</code></pre></div></secti
 <p>Calculate the overall data quality pass rate from Bronze raw to Silver clean.</p>
 </section>
 <section class="notebook-cell">
-<p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="§0§ target="_blank">Apache Software Foundation</a>.<br/><br/><a href="§1§ target="_blank">Privacy Policy</a> | <a href="§2§ target="_blank">Terms of Use</a> | <a href="§3§ target="_blank">Support</a></p>
+<p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
 </section>
 </div></div>
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)"><button class="lb-close" onclick="closeLightbox(event)">✕</button><img id="lb-img" src="" alt=""></div><button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button><script>if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙'}function copyCode(b){var c=b.closest('.code-block').querySelector('code').textContent;navigator.clipboard.writeText(c).then(function(){b.textContent='✅ Copiado!';b.classList.add('copied');setTimeout(function(){b.textContent='📋 Copiar';b.classList.remove('copied')},2000)})}function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden'}function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow=''}document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e)});document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src)})});</script></body></html>
