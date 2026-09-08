@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Advanced Data Quality e Quarantine Pattern | Advanced SDP</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"><style>:root{--bg:#0e1117;--surface:#161b22;--surface-raised:#1c2129;--border:#2a313a;--text:#e6edf3;--text-muted:#8b949e;--text-faint:#6e7681;--accent:#ff6433;--accent-soft:rgba(255,100,51,0.12);--green:#3fb950;--blue:#58a6ff;--purple:#bc8cff;--yellow:#d29922;--radius:12px}body.light{--bg:#f8f9fb;--surface:#fff;--surface-raised:#f0f2f5;--border:#d8dce2;--text:#1a1d23;--text-muted:#5a6170;--text-faint:#8891a0;--accent:#e0501e;--accent-soft:rgba(224,80,30,0.08);--green:#1a8a3e;--blue:#2563eb;--purple:#7c3aed}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}.top-bar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.top-bar a{color:var(--text-muted);text-decoration:none;font-size:13px}.top-bar a:hover{color:var(--accent)}.top-bar .sep{color:var(--text-faint);font-size:11px}.top-bar .title{font-size:14px;font-weight:600;color:var(--text);flex:1}.layout{display:flex;min-height:calc(100vh - 50px)}.sidebar{width:300px;min-width:300px;background:var(--surface);border-right:1px solid var(--border);padding:20px 0;overflow-y:auto;position:sticky;top:50px;height:calc(100vh - 50px)}.sidebar .nav-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint);padding:0 16px;margin-bottom:8px}.sidebar a{display:block;padding:6px 16px;font-size:12px;color:var(--text-muted);text-decoration:none;border-left:2px solid transparent;line-height:1.5;transition:all 0.15s}.sidebar a:hover{color:var(--text);background:var(--surface-raised)}.sidebar a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}.content{flex:1;max-width:900px;padding:32px 40px 80px}.notebook-cell{margin-bottom:24px}.notebook-cell h1{font-size:26px;font-weight:700;margin-bottom:12px}.notebook-cell h2{font-size:21px;font-weight:700;margin:28px 0 12px;padding-top:20px;border-top:1px solid var(--border)}.notebook-cell h3{font-size:17px;font-weight:600;margin:20px 0 10px}.notebook-cell h4{font-size:15px;font-weight:600;margin:16px 0 8px}.notebook-cell h5{font-size:12px;font-weight:600;margin:14px 0 6px;color:var(--text-muted)}.notebook-cell p{margin-bottom:10px;font-size:14.5px}.notebook-cell ul,.notebook-cell ol{margin:0 0 10px 20px;font-size:14.5px}.notebook-cell li{margin-bottom:4px}.notebook-cell code{font-family:'IBM Plex Mono',monospace;background:var(--surface-raised);padding:1px 5px;border-radius:3px;font-size:12.5px}.notebook-cell pre{background:var(--surface-raised);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;margin:10px 0}.notebook-cell pre code{background:none;padding:0}.notebook-cell img{max-width:100%;height:auto;border-radius:6px;cursor:zoom-in}.notebook-cell details{margin:10px 0;padding:10px 14px;background:var(--surface-raised);border-radius:6px;border:1px solid var(--border);font-size:13.5px}.notebook-cell details summary{cursor:pointer;font-weight:600;color:var(--text-muted);font-size:12px}.notebook-cell svg{max-width:100%;height:auto}.notebook-cell table{width:100%;border-collapse:collapse;margin:10px 0}.notebook-cell th,.notebook-cell td{padding:6px 10px;border:1px solid var(--border);font-size:13px}.notebook-cell th{background:var(--surface-raised);font-weight:600}.code-block{position:relative;margin:12px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden}.code-header{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:var(--surface);border-bottom:1px solid var(--border)}.code-lang{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint)}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;font-family:inherit;transition:all 0.15s}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}.copy-btn.copied{color:var(--green);border-color:var(--green)}.code-block pre{margin:0;border:none;border-radius:0;background:var(--surface-raised)}.theme-btn{position:fixed;bottom:16px;right:16px;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:200}.lightbox{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);cursor:zoom-out;align-items:center;justify-content:center;padding:20px}.lightbox.open{display:flex}.lightbox img{max-width:95vw;max-height:92vh;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,0.5);object-fit:contain;background:#fff;padding:6px;cursor:default}.lightbox .lb-close{position:fixed;top:12px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}@media(max-width:768px){.sidebar{display:none}.content{padding:20px 16px 60px}}</style></head><body><div class="top-bar"><a href="index.html">← Início</a><span class="sep">›</span><a href="capitulo-5.html">Capítulo 5</a><span class="sep">›</span><span class="title">7. Advanced Data Quality e Quarantine Pattern</span></div><div class="layout"><nav class="sidebar"><div class="nav-title">Capítulo 5 · Advanced SDP</div>    <a href="ch5-00-overview.html">📋 0. Visão Geral do Curso</a>
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Advanced Data Quality e Quarantine Pattern | Advanced SDP</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"><style>:root{--bg:#0e1117;--surface:#161b22;--surface-raised:#1c2129;--border:#2a313a;--text:#e6edf3;--text-muted:#8b949e;--text-faint:#6e7681;--accent:#ff6433;--accent-soft:rgba(255,100,51,0.12);--green:#3fb950;--blue:#58a6ff;--purple:#bc8cff;--yellow:#d29922;--radius:12px}body.light{--bg:#f8f9fb;--surface:#fff;--surface-raised:#f0f2f5;--border:#d8dce2;--text:#1a1d23;--text-muted:#5a6170;--text-faint:#8891a0;--accent:#e0501e;--accent-soft:rgba(224,80,30,0.08);--green:#1a8a3e;--blue:#2563eb;--purple:#7c3aed}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}.top-bar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.top-bar a{color:var(--text-muted);text-decoration:none;font-size:13px}.top-bar a:hover{color:var(--accent)}.top-bar .sep{color:var(--text-faint);font-size:11px}.top-bar .title{font-size:14px;font-weight:600;color:var(--text);flex:1}.layout{display:flex;min-height:calc(100vh - 50px)}.sidebar{width:300px;min-width:300px;background:var(--surface);border-right:1px solid var(--border);padding:20px 0;overflow-y:auto;position:sticky;top:50px;height:calc(100vh - 50px)}.sidebar .nav-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint);padding:0 16px;margin-bottom:8px}.sidebar a{display:block;padding:6px 16px;font-size:12px;color:var(--text-muted);text-decoration:none;border-left:2px solid transparent;line-height:1.5;transition:all 0.15s}.sidebar a:hover{color:var(--text);background:var(--surface-raised)}.sidebar a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}.content{flex:1;max-width:900px;padding:32px 40px 80px}.notebook-cell{margin-bottom:24px}.notebook-cell h1{font-size:26px;font-weight:700;margin-bottom:12px}.notebook-cell h2{font-size:21px;font-weight:700;margin:28px 0 12px;padding-top:20px;border-top:1px solid var(--border)}.notebook-cell h3{font-size:17px;font-weight:600;margin:20px 0 10px}.notebook-cell h4{font-size:15px;font-weight:600;margin:16px 0 8px}.notebook-cell h5{font-size:12px;font-weight:600;margin:14px 0 6px;color:var(--text-muted)}.notebook-cell p{margin-bottom:10px;font-size:14.5px}.notebook-cell ul,.notebook-cell ol{margin:0 0 10px 20px;font-size:14.5px}.notebook-cell li{margin-bottom:4px}.notebook-cell code{font-family:'IBM Plex Mono',monospace;background:var(--surface-raised);padding:1px 5px;border-radius:3px;font-size:12.5px}.notebook-cell pre{background:var(--surface-raised);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;margin:10px 0}.notebook-cell pre code{background:none;padding:0}.notebook-cell img{max-width:100%;height:auto;border-radius:6px;cursor:zoom-in}.notebook-cell details{margin:10px 0;padding:10px 14px;background:var(--surface-raised);border-radius:6px;border:1px solid var(--border);font-size:13.5px}.notebook-cell details summary{cursor:pointer;font-weight:600;color:var(--text-muted);font-size:12px}.notebook-cell svg{max-width:100%;height:auto}.notebook-cell table{width:100%;border-collapse:collapse;margin:10px 0}.notebook-cell th,.notebook-cell td{padding:6px 10px;border:1px solid var(--border);font-size:13px}.notebook-cell th{background:var(--surface-raised);font-weight:600}.code-block{position:relative;margin:12px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden}.code-header{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:var(--surface);border-bottom:1px solid var(--border)}.code-lang{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint)}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;font-family:inherit;transition:all 0.15s}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}.copy-btn.copied{color:var(--green);border-color:var(--green)}.code-block pre{margin:0;border:none;border-radius:0;background:var(--surface-raised)}.theme-btn{position:fixed;bottom:16px;right:16px;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:200}.lightbox{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);cursor:zoom-out;align-items:center;justify-content:center;padding:20px}.lightbox.open{display:flex}.lightbox img{max-width:95vw;max-height:92vh;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,0.5);object-fit:contain;background:#fff;padding:6px;cursor:default}.lightbox .lb-close{position:fixed;top:12px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}@media(max-width:768px){.sidebar{display:none}.content{padding:20px 16px 60px}}</style></head><body><div class="top-bar"><a href="index.html">← Início</a><span class="sep">›</span><a href="capitulo-5.html">Capítulo 5</a><span class="sep">›</span><span class="title">7. Advanced Data Quality e Quarantine Pattern</span></div>
+<div class="layout"><nav class="sidebar"><div class="nav-title">Capítulo 5 · Advanced SDP</div>
+    <a href="ch5-00-overview.html">📋 0. Visão Geral do Curso</a>
     <a href="ch5-01-lecture-multi-flows.html">📖 1. Multi Flows, Expectations e Liquid Clustering</a>
     <a href="ch5-02-demo-multi-flow.html">⚙️ 2. Demo: Multi Flow SDP + Liquid Clustering</a>
     <a href="ch5-03-lecture-multiplex.html">📖 3. Multiplex Streaming, Delta Sinks e Iceberg</a>
@@ -8,530 +10,223 @@
     <a href="ch5-07-lecture-quality.html" class="active">📖 7. Advanced Data Quality e Quarantine Pattern</a>
     <a href="ch5-08-demo-quality.html">⚙️ 8. Demo: Advanced Quality + Quarantine</a>
     <a href="ch5-09-lab-pipeline.html">🧪 9. Lab: Multi-Source Ecommerce Pipeline</a>
-    <a href="ch5-99-summary.html">📋 99. Resumo e Próximos Passos</a></nav><div class="content"><section class="notebook-cell">
-<div style="text-align: center; line-height: 0; padding-top: 9px;">
-  <img
-    src="https://databricks.com/wp-content/uploads/2018/03/db-academy-rgb-1200px.png"
-    alt="Databricks Learning"
-  >
-</div>
+    <a href="ch5-99-summary.html">📋 99. Resumo e Próximos Passos</a>
+</nav><div class="content">
+<section class="notebook-cell">
+<h1>Aula — Verificações Avançadas de Data Quality e Expectations em Spark Declarative Pipelines</h1>
+<p>Em data pipelines de produção, data quality é primordial. Enquanto Spark Declarative Pipelines fornecem expectations built-in para validação básica, ambientes de produção exigem abordagens mais sofisticadas. Esta aula explora <strong>técnicas avançadas</strong> para construir pipelines resilientes que mantêm data quality sem perder dados.</p>
+<h2>Objetivos de Aprendizado</h2>
+<p>Ao final desta aula, você será capaz de:
+- Escrever expectations avançadas para validação cross-table e tolerantes a NULL
+- Projetar ingestão resiliente usando <strong>STRING types e schema evolution</strong>
+- Implementar o <strong>padrão Quarantine</strong> para zero perda de dados</p>
 </section>
 <section class="notebook-cell">
-<h1>Lecture — Advanced Data Quality Checks and Expectations in Spark Declarative Pipelines</h1>
-<p>Em data pipelines de produção, data quality é primordial. While Spark Declarative Pipelines provide built-in expectations with three violation modes — <strong>WARN</strong>, <strong>DROP ROW</strong>, and <strong>FAIL UPDATE</strong> — real-world scenarios demand more sophisticated approaches. Production pipelines must validate business rules, handle schema evolution gracefully, and preserve every record for audit and remediation purposes.</p>
-<h3>Objetivos de Aprendizado</h3>
-<p>Ao final desta aula, você será capaz de:</p>
+<h2>A. Por que Expectations Avançadas?</h2>
+</section>
+<section class="notebook-cell">
+<h3>A1. Os Limites das Expectations Básicas</h3>
+<p>Uma verificação <code>NOT NULL</code> confirma que um campo está <em>presente</em> — mas presença sozinha não significa que o valor é <em>correto</em>. A tabela abaixo mostra como expectations básicas perdem problemas comuns de data quality:</p>
+<table>
+<thead>
+<tr>
+<th>Verificação Básica</th>
+<th>O que Captura</th>
+<th>O que Não Captura</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IS NOT NULL</code></td>
+<td>Campos ausentes</td>
+<td>Valores inválidos (ex: "abc" em campo numérico)</td>
+</tr>
+<tr>
+<td><code>&gt; 0</code></td>
+<td>Zeros e negativos</td>
+<td>Valores fora de range razoável (ex: idade = 999)</td>
+</tr>
+<tr>
+<td><code>IN ('A','B')</code></td>
+<td>Valores fora da lista</td>
+<td>Valores válidos mas incorretos para o contexto</td>
+</tr>
+</tbody>
+</table>
+<h4>Expectations Avançadas cobrem:</h4>
 <ul>
-<li>Explain the limitations of basic violation modes for production-grade data quality</li>
-<li>Implement range-based and NULL-tolerant constraint expressions using advanced SQL patterns</li>
-<li><strong>Apply advanced patterns</strong> including row-count validation, missing record detection, and primary key uniqueness</li>
-<li>Describe <strong>schema evolution</strong> and design bronze layers that handle it safely without pipeline failures</li>
-<li>Apply the <strong>quarantine pattern</strong> <strong>using inverse logic</strong> to achieve zero data loss with detailed failure tracking</li>
-<li>Choose appropriate strategies between DROP ROW and quarantine based on business requirements</li>
+<li><strong>Validação de range</strong>: valores devem estar dentro de limites razoáveis</li>
+<li><strong>Validação cross-table</strong>: valores devem existir em tabela de referência</li>
+<li><strong>Validação temporal</strong>: datas devem estar em ranges válidos</li>
+<li><strong>Constraints compostas</strong>: múltiplas condições combinadas</li>
 </ul>
 </section>
 <section class="notebook-cell">
-<h2>A. Why Advanced Quality Expectations?</h2>
+<h3>A2. Padrões Avançados de Expectations</h3>
+<p>Além de constraints por linha, Databricks expectations suportam <strong>validação cross-table</strong>. Esses padrões permitem verificar contagens de linhas, detectar registros ausentes e validar integridade referencial.</p>
+<pre><code class="language-sql">-- Validação cross-table: verificar que silver tem todas as linhas do bronze
+CONSTRAINT row_count_match
+  EXPECT (silver_count = bronze_count)
+  ON VIOLATION FAIL UPDATE
+
+-- Validação de range com tolerância a NULL
+CONSTRAINT valid_age
+  EXPECT (age IS NULL OR (age &gt;= 0 AND age &lt;= 150))
+
+-- Constraint composta
+CONSTRAINT valid_order
+  EXPECT (quantity &gt; 0 AND unit_price &gt; 0 AND total = quantity * unit_price)
+  ON VIOLATION DROP ROW
+</code></pre>
 </section>
 <section class="notebook-cell">
-<h3>A1. The Limits of Basic Expectations</h3>
-<p>A <code>NOT NULL</code> check confirms that a field is <em>present</em> — but presence alone does not mean a value is <em>correct</em>. The table below shows the range of quality problems that appear in real production data, and whether a basic <code>NOT NULL</code> check catches them.</p>
-<table style="width:100%;border-collapse:collapse;font-size:16px;margin-bottom:20px;">
-  <thead>
-    <tr style="background:#0b2026;color:#F9F7F4;">
-      <th style="padding:12px 16px;text-align:left;">Problem Type</th>
-      <th style="padding:12px 16px;text-align:left;">Example</th>
-      <th style="padding:12px 16px;text-align:center;">NOT NULL catches it?</th>
-      <th style="padding:12px 16px;text-align:center;">Advanced Expectation?</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="background:#F9F7F4;">
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;"><strong>Numeric anomaly</strong></td>
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;">Negative quantity in an order</td>
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;text-align:center;color:#98102A;">❌</td>
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;text-align:center;color:#00A972;">✅</td>
-    </tr>
-    <tr style="background:#EEEDE9;">
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;"><strong>Temporal inconsistency</strong></td>
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;">Event date set to year 1970 (system default)</td>
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;text-align:center;color:#98102A;">❌</td>
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;text-align:center;color:#00A972;">✅</td>
-    </tr>
-    <tr style="background:#F9F7F4;">
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;"><strong>Range violation</strong></td>
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;">Discount rate = 120%</td>
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;text-align:center;color:#98102A;">❌</td>
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;text-align:center;color:#00A972;">✅</td>
-    </tr>
-    <tr style="background:#EEEDE9;">
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;"><strong>Optional field rule</strong></td>
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;">Field may be NULL, but when present must be &gt;= 0</td>
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;text-align:center;color:#98102A;">❌</td>
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;text-align:center;color:#00A972;">✅</td>
-    </tr>
-    <tr style="background:#F9F7F4;">
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;"><strong>Schema evolution</strong></td>
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;">New column added mid-stream breaks existing rules</td>
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;text-align:center;color:#98102A;">❌</td>
-      <td style="padding:11px 16px;border-bottom:1px solid #EEEDE9;text-align:center;color:#00A972;">✅</td>
-    </tr>
-    <tr style="background:#EEEDE9;">
-      <td style="padding:11px 16px;"><strong>Data loss</strong></td>
-      <td style="padding:11px 16px;">Invalid records permanently dropped — no audit trail</td>
-      <td style="padding:11px 16px;text-align:center;color:#98102A;">❌</td>
-      <td style="padding:11px 16px;text-align:center;color:#00A972;">✅</td>
-    </tr>
-  </tbody>
+<h3>A3. Escrevendo Constraints Tolerantes a NULL</h3>
+<p>Cada bloco <code>CONSTRAINT</code> deve validar uma <strong>única regra lógica</strong>. Isso dá à UI do pipeline métricas precisas por constraint. Mas quando uma coluna pode ser NULL, a constraint precisa lidar com isso explicitamente.</p>
+<pre><code class="language-sql">-- ❌ ERRADO: falha para NULLs (NULL &gt; 0 = NULL = falha)
+CONSTRAINT valid_total EXPECT (total &gt; 0)
+
+-- ✅ CORRETO: tolerante a NULL
+CONSTRAINT valid_total EXPECT (total IS NULL OR total &gt; 0)
+</code></pre>
+<p><strong>Por que isso importa</strong>: Em SQL, qualquer comparação com NULL retorna NULL (não TRUE nem FALSE). Uma constraint que espera <code>total &gt; 0</code> vai <strong>falhar</strong> para linhas onde <code>total</code> é NULL — mesmo que NULL seja um valor aceitável que será tratado downstream.</p>
+<p>A regra é: <strong>se NULL é aceitável para um campo, inclua <code>IS NULL OR</code> na constraint.</strong></p>
+</section>
+<section class="notebook-cell">
+<div style="border-left:4px solid #7b1fa2;background:#f3e5f5;padding:14px 18px;border-radius:4px;margin:16px 0;">
+<strong style="display:block;color:#4a148c;margin-bottom:6px;">Regra de Ouro para Constraints</strong>
+Sempre considere NULLs ao escrever constraints. Se NULL é aceitável, use o padrão <code>IS NULL OR (condição)</code>. Se NULL NÃO é aceitável, adicione uma constraint separada <code>IS NOT NULL</code>.
+</div>
+</section>
+<section class="notebook-cell">
+<h2>B. Design de Pipeline Resiliente</h2>
+</section>
+<section class="notebook-cell">
+<h3>B1. Ingerir Tudo como STRING</h3>
+<p>O design de bronze layer mais resiliente <strong>nunca rejeita um registro por incompatibilidade de tipo</strong>. Ao armazenar todos os campos como <code>STRING</code>, você aceita todos os registros, e conversões de tipo acontecem na camada silver onde dados inválidos podem ser tratados adequadamente.</p>
+<pre><code class="language-sql">-- Bronze: ingerir tudo como STRING
+CREATE OR REFRESH STREAMING TABLE raw_events
+AS SELECT
+  CAST(value AS STRING) AS raw_value,
+  _metadata.file_name AS source_file,
+  current_timestamp() AS ingestion_time
+FROM STREAM read_files('/data/events', format =&gt; 'JSON')
+</code></pre>
+<p><strong>Benefícios</strong>: Zero perda de dados na ingestão. Schema mismatches são capturados como strings. Validação e casting acontecem na silver layer onde problemas podem ser tratados.</p>
+</section>
+<section class="notebook-cell">
+<h3>B2. Ferramentas de Schema Evolution na Bronze Layer</h3>
+<p>Dois mecanismos built-in cobrem o ciclo de vida completo de mudanças de schema:</p>
+<table>
+<thead>
+<tr>
+<th>Ferramenta</th>
+<th>O que Faz</th>
+<th>Quando Usar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>schemaEvolutionMode = 'addNewColumns'</code></strong></td>
+<td>Adiciona automaticamente novas colunas dos dados fonte</td>
+<td>Quando fontes adicionam campos novos ao longo do tempo</td>
+</tr>
+<tr>
+<td><strong>Rescued Data Column</strong></td>
+<td>Captura campos que não encaixam no schema atual como JSON</td>
+<td>Como fallback para mudanças de schema inesperadas</td>
+</tr>
+</tbody>
 </table>
-
-<div style="background:#FFF8E8;border-left:4px solid #FFAB00;border-radius:4px;padding:14px 20px;font-size:16px;color:#0b2026;line-height:1.9;">
-  <strong style="color:#FF5F46;"> Real-World Example:</strong> A <code>discount_rate</code> field containing <code>120</code> passes every <code>NOT NULL</code> check without complaint — but it represents an impossible discount that will silently corrupt downstream revenue calculations. Only a range constraint like <code>discount_rate BETWEEN 0 AND 100</code> catches this before it flows downstream.
-</div>
-
-<script>
-(function() {
-  document.querySelectorAll('.code-block:not([data-processed])').forEach(function(block) {
-    block.setAttribute('data-processed', 'true');
-    var lang = block.getAttribute('data-language') || 'sql';
-    var code = block.textContent.trim();
-    var id = 'code-' + Math.random().toString(36).substr(2, 9);
-    block.innerHTML =
-      '<div style="position:relative;margin:12px 0;">' +
-        '<button class="copy-btn" style="position:absolute;top:8px;right:8px;padding:3px 12px;font-size:12px;background:#EEEDE9;color:#0b2026;border:1px solid #618794;border-radius:4px;cursor:pointer;z-index:10;">Copy</button>' +
-        '<pre style="background:#F9F7F4;border-radius:8px;padding:16px;padding-top:38px;overflow-x:auto;margin:0;border:1px solid #EEEDE9;">' +
-          '<code id="' + id + '" class="language-' + lang + '" style="font-family:Consolas,Monaco,monospace;font-size:15px;"></code>' +
-        '</pre>' +
-      '</div>';
-    var el = document.getElementById(id);
-    el.textContent = code;
-    if (typeof Prism !== 'undefined') Prism.highlightElement(el);
-    block.querySelector('.copy-btn').onclick = function() {
-      var btn = this, t = document.createElement('textarea');
-      t.value = code; document.body.appendChild(t); t.select();
-      document.execCommand('copy'); document.body.removeChild(t);
-      btn.textContent = '✓ Copied!';
-      setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
-    };
-  });
-})();
-</script>
-</section>
-<section class="notebook-cell">
-<h3>A2. Advanced Expectation Patterns</h3>
-<p>Beyond row-level constraints, Databricks expectations support <strong>cross-table validation</strong>. These patterns let you verify row counts, detect missing records, and enforce primary key uniqueness across datasets — catching problems that single-row checks cannot see.</p>
-<div style="margin: 20px 0; display: flex; flex-direction: column; gap: 20px;">
-
-  <!-- Card 1 -->
-  <div style="background:#E3F2FD; border-top: 4px solid #4299E0; border-radius: 8px; padding: 20px;">
-    <div style="font-weight: bold; color: #4299E0; font-size: 15px; margin-bottom: 8px;">Row Count Validation</div>
-    <div style="font-size: 15px; color: #618794; margin-bottom: 14px; line-height: 1.7;">Validates that row counts match between two tables — useful after joins, aggregations, or pipeline fan-out to ensure no records were silently dropped.</div>
-    <div class="code-block" data-language="sql">CREATE OR REFRESH MATERIALIZED VIEW count_verification (
-  CONSTRAINT no_rows_dropped EXPECT (a_count == b_count)
-    ON VIOLATION FAIL UPDATE
-)
-AS SELECT * FROM
-  (SELECT COUNT(*) AS a_count FROM table_a),
-  (SELECT COUNT(*) AS b_count FROM table_b)</div>
-  </div>
-
-  <!-- Card 2 -->
-  <div style="background:#FFF3E0; border-top: 4px solid #FFAB00; border-radius: 8px; padding: 20px;">
-    <div style="font-weight: bold; color: #FFAB00; font-size: 15px; margin-bottom: 8px;">Missing Record Detection</div>
-    <div style="font-size: 15px; color: #618794; margin-bottom: 14px; line-height: 1.7;">Uses a LEFT OUTER JOIN to identify records present in a validation copy but absent in the report table — catching completeness failures that row-level checks miss entirely.</div>
-    <div class="code-block" data-language="sql">CREATE OR REFRESH MATERIALIZED VIEW report_compare_tests (
-  CONSTRAINT no_missing_records EXPECT (r_key IS NOT NULL)
-    ON VIOLATION FAIL UPDATE
-)
-AS SELECT v.*, r.key AS r_key
-FROM validation_copy v
-LEFT OUTER JOIN report r ON v.key = r.key</div>
-  </div>
-
-  <!-- Card 3 -->
-  <div style="background:#FFEBEE; border-top: 4px solid #FF5F46; border-radius: 8px; padding: 20px;">
-    <div style="font-weight: bold; color: #FF5F46; font-size: 15px; margin-bottom: 8px;">Primary Key Uniqueness</div>
-    <div style="font-size: 15px; color: #618794; margin-bottom: 14px; line-height: 1.7;">Groups by the primary key and checks that every group has exactly one entry. Catches duplicate key violations before they corrupt downstream joins or aggregations.</div>
-    <div class="code-block" data-language="sql">CREATE OR REFRESH MATERIALIZED VIEW report_pk_tests (
-  CONSTRAINT unique_pk EXPECT (num_entries = 1)
-    ON VIOLATION FAIL UPDATE
-)
-AS SELECT pk, COUNT(*) AS num_entries
-FROM report
-GROUP BY pk</div>
-  </div>
-
-</div>
-
-<div style="background:#F9F7F4; border-left: 4px solid #618794; border-radius: 4px; padding: 14px 20px; font-size: 16px; color: #0B2026; line-height: 1.9;">
-  <strong style="color:#1B5162;">For more details, refer to the documentation:</strong>
-  <a href="https://docs.databricks.com/aws/en/ldp/expectation-patterns?language=SQL" style="color:#4299E0; font-weight: bold;">Databricks Expectation Patterns documentation</a>
-</div>
-
-<script>
-(function() {
-  document.querySelectorAll('.code-block:not([data-processed])').forEach(function(block) {
-    block.setAttribute('data-processed', 'true');
-    var lang = block.getAttribute('data-language') || 'sql';
-    var code = block.textContent.trim();
-    var id = 'code-' + Math.random().toString(36).substr(2, 9);
-    block.innerHTML =
-      '<div style="position:relative;margin:4px 0;">' +
-        '<button class="copy-btn" style="position:absolute;top:8px;right:8px;padding:3px 12px;font-size:12px;background:#EEEDE9;color:#0b2026;border:1px solid #618794;border-radius:4px;cursor:pointer;z-index:10;">Copy</button>' +
-        '<pre style="background:#F9F7F4;border-radius:8px;padding:16px;padding-top:38px;overflow-x:auto;margin:0;border:1px solid #EEEDE9;">' +
-          '<code id="' + id + '" class="language-' + lang + '" style="font-family:Consolas,Monaco,monospace;font-size:13px;"></code>' +
-        '</pre>' +
-      '</div>';
-    var el = document.getElementById(id);
-    el.textContent = code;
-    if (typeof Prism !== 'undefined') Prism.highlightElement(el);
-    block.querySelector('.copy-btn').onclick = function() {
-      var btn = this, t = document.createElement('textarea');
-      t.value = code; document.body.appendChild(t); t.select();
-      document.execCommand('copy'); document.body.removeChild(t);
-      btn.textContent = '✓ Copied!';
-      setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
-    };
-  });
-})();
-</script>
-</section>
-<section class="notebook-cell">
-<h3>A3. Writing NULL-Tolerant Constraints</h3>
-<p>Each <code>CONSTRAINT</code> block should validate a <strong>single logical rule</strong>. This gives the pipeline UI precise per-constraint metrics. But there is a critical trap: <strong>NULL evaluates to NOT TRUE</strong> in SQL, so a basic range check treats every NULL as a violation.</p>
-<div style="display:flex;flex-direction:column;gap:20px;margin:20px 0;">
-
-  <!-- Card 1: Naive -->
-  <div style="background:#FFEBEE;border-top:4px solid #98102A;border-radius:8px;padding:20px;">
-    <div style="font-weight:bold;color:#98102A;font-size:15px;margin-bottom:10px;">Naive — NULLs treated as violations</div>
-    <div class="code-block" data-language="sql">CONSTRAINT valid_discount
-EXPECT (
-  discount_rate >= 0
-  AND discount_rate <= 100
-)
--- Every NULL record is flagged as a violation</div>
-    <div style="margin-top:12px;font-size:14px;color:#618794;line-height:1.7;">After schema evolution, all historic records that predate the <code>discount_rate</code> column will have <code>NULL</code> — and every one will fail this constraint, flooding the pipeline UI with false violations.</div>
-  </div>
-
-  <!-- Card 2: NULL-Tolerant -->
-  <div style="background:#E8F5E9;border-top:4px solid #00A972;border-radius:8px;padding:20px;">
-    <div style="font-weight:bold;color:#00A972;font-size:15px;margin-bottom:10px;">NULL-Tolerant — validates only when present</div>
-    <div class="code-block" data-language="sql">CONSTRAINT valid_discount
-EXPECT (
-  CASE
-    WHEN discount_rate IS NOT NULL
-    THEN discount_rate >= 0
-         AND discount_rate <= 100
-    ELSE TRUE   -- NULL is acceptable
-  END
-)</div>
-    <div style="margin-top:12px;font-size:14px;color:#618794;line-height:1.7;">NULL records pass cleanly. Only records where <code>discount_rate</code> is present <em>and</em> out of range are flagged — giving you accurate, noise-free violation metrics.</div>
-  </div>
-
-</div>
-
-<script>
-(function() {
-  document.querySelectorAll('.code-block:not([data-processed])').forEach(function(block) {
-    block.setAttribute('data-processed', 'true');
-    var lang = block.getAttribute('data-language') || 'sql';
-    var code = block.textContent.trim();
-    var id = 'code-' + Math.random().toString(36).substr(2, 9);
-    block.innerHTML =
-      '<div style="position:relative;margin:12px 0;">' +
-        '<button class="copy-btn" style="position:absolute;top:8px;right:8px;padding:3px 12px;font-size:12px;background:#EEEDE9;color:#0b2026;border:1px solid #618794;border-radius:4px;cursor:pointer;z-index:10;">Copy</button>' +
-        '<pre style="background:#F9F7F4;border-radius:8px;padding:16px;padding-top:38px;overflow-x:auto;margin:0;border:1px solid #EEEDE9;">' +
-          '<code id="' + id + '" class="language-' + lang + '" style="font-family:Consolas,Monaco,monospace;font-size:13px;"></code>' +
-        '</pre>' +
-      '</div>';
-    var el = document.getElementById(id);
-    el.textContent = code;
-    if (typeof Prism !== 'undefined') Prism.highlightElement(el);
-    block.querySelector('.copy-btn').onclick = function() {
-      var btn = this, t = document.createElement('textarea');
-      t.value = code; document.body.appendChild(t); t.select();
-      document.execCommand('copy'); document.body.removeChild(t);
-      btn.textContent = '✓ Copied!';
-      setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
-    };
-  });
-})();
-</script>
-</section>
-<section class="notebook-cell">
-<div style="
-  border-left: 4px solid #7b1fa2;
-  background: #f3e5f5;
-  padding: 14px 18px;
-  border-radius: 4px;
-  margin: 16px 0;
-">
-  <strong style="display:block; color:#4a148c; margin-bottom:6px; font-size: 1.2em;">Rule of thumb</strong>
-  <div style="color:#333;">
-    <b></b></strong> Whenever a column may be absent — because it is optional or was added after the pipeline started — wrap its constraint in a <code>'CASE WHEN ... IS NOT NULL THEN ... ELSE TRUE END'</code> block.
-  </div>
-</div>
-</section>
-<section class="notebook-cell">
-<h2>B. Resilient Pipeline Design</h2>
-</section>
-<section class="notebook-cell">
-<h3>B1. Ingest Everything as STRING</h3>
-<p>The most resilient bronze layer design <strong>never rejects a record due to type mismatch</strong>. By storing all incoming fields as <code>STRING</code>, you accept whatever the source sends — integers, decimals, mixed types — and defer type enforcement to silver where <code>TRY_CAST</code> handles failures gracefully.</p>
-<div style="display:flex;gap:16px;margin:20px 0;">
-
-  <div style="flex:1;background:#E8F5E9;border-top:4px solid #00A972;border-radius:8px;padding:20px;">
-    <div style="font-weight:bold;color:#00A972;font-size:15px;margin-bottom:8px;"> Bronze — Accept Everything</div>
-    All fields inferred as STRING. Type mismatches never fail the pipeline — an integer in a string field is just a string.
-    <div class="code-block" data-language="sql">CREATE OR REFRESH STREAMING TABLE bronze_events
-COMMENT "Bronze: all fields as STRING, schema rescue enabled"
-AS SELECT *
+<pre><code class="language-sql">-- Schema evolution + rescued data
+CREATE OR REFRESH STREAMING TABLE bronze_events
+AS SELECT *, _rescued_data
 FROM STREAM read_files(
-  '/path/to/source',
-  format => 'json',
-  schemaEvolutionMode => 'rescue'
-)</div>
-  </div>
-
-  <div style="flex:1;background:#F9F7F4;border-top:4px solid #1B5162;border-radius:8px;padding:20px;">
-    <div style="font-weight:bold;color:#1B5162;font-size:15px;margin-bottom:8px;">Silver — Enforce Types Safely</div>
-    <div style="font-size:15px;color:#618794;margin-bottom:10px;line-height:1.7;"><code>TRY_CAST</code> returns NULL on cast failure em vez de halting the pipeline. The NULL-tolerant constraint pattern then handles the rest.</div>
-    <div class="code-block" data-language="sql">CREATE OR REFRESH STREAMING TABLE silver_events (
-  CONSTRAINT valid_amount EXPECT (
-    CASE WHEN amount IS NOT NULL
-    THEN amount >= 0 ELSE TRUE END
-  ) ON VIOLATION DROP ROW
+  '/data/events',
+  format =&gt; 'JSON',
+  schemaEvolutionMode =&gt; 'addNewColumns'
 )
-AS SELECT *,
-  TRY_CAST(amount_str AS DOUBLE) AS amount
-FROM STREAM bronze_events</div>
-  </div>
-
-</div>
-
-<script type="module">
-import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-mermaid.initialize({ startOnLoad: true, theme: "default" });
-</script>
-
-<script>
-(function() {
-  document.querySelectorAll('.code-block:not([data-processed])').forEach(function(block) {
-    block.setAttribute('data-processed', 'true');
-    var lang = block.getAttribute('data-language') || 'sql';
-    var code = block.textContent.trim();
-    var id = 'code-' + Math.random().toString(36).substr(2, 9);
-    block.innerHTML =
-      '<div style="position:relative;margin:12px 0;">' +
-        '<button class="copy-btn" style="position:absolute;top:8px;right:8px;padding:3px 12px;font-size:12px;background:#EEEDE9;color:#0b2026;border:1px solid #618794;border-radius:4px;cursor:pointer;z-index:10;">Copy</button>' +
-        '<pre style="background:#F9F7F4;border-radius:8px;padding:16px;padding-top:38px;overflow-x:auto;margin:0;border:1px solid #EEEDE9;">' +
-          '<code id="' + id + '" class="language-' + lang + '" style="font-family:Consolas,Monaco,monospace;font-size:15px;"></code>' +
-        '</pre>' +
-      '</div>';
-    var el = document.getElementById(id);
-    el.textContent = code;
-    if (typeof Prism !== 'undefined') Prism.highlightElement(el);
-    block.querySelector('.copy-btn').onclick = function() {
-      var btn = this, t = document.createElement('textarea');
-      t.value = code; document.body.appendChild(t); t.select();
-      document.execCommand('copy'); document.body.removeChild(t);
-      btn.textContent = '✓ Copied!';
-      setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
-    };
-  });
-})();
-</script>
+</code></pre>
 </section>
 <section class="notebook-cell">
-<h3>B2. Schema Evolution Tools at the Bronze Layer</h3>
-<div style="font-size:16px;color:#1B5162;line-height:1.9;margin-bottom:20px;">
-Two built-in mechanisms cover the full lifecycle of schema change — <code>schemaHints</code> for columns you know are coming, and <code>_rescued_data</code> as the last line of defence for anything unexpected.
-</div>
-
-<div style="display:flex;gap:16px;margin:20px 0;">
-
-  <div style="flex:1;background:#E8F5E9;border-top:4px solid #00A972;border-radius:8px;padding:20px;">
-    <div style="font-weight:bold;color:#00A972;font-size:15px;margin-bottom:8px;"> schemaHints — Declare Future Columns Today</div>
-    <div style="font-size:15px;color:#618794;margin-bottom:10px;line-height:1.7;">Declare columns expected in <em>upcoming</em> files before they arrive. When the new column appears, it populates automatically. Records before the evolution carry <code>NULL</code> — backward and forward compatible simultaneously.</div>
-    <div class="code-block" data-language="sql">CREATE OR REFRESH STREAMING TABLE bronze_events
-AS SELECT *
-FROM STREAM read_files(
-  '/path/to/source',
-  format => 'json',
-  schemaHints => 'loyalty_tier STRING, region_code STRING',
+<h2>C. O Padrão Quarantine</h2>
+</section>
+<section class="notebook-cell">
+<h3>C1. Como o Padrão Quarantine Funciona</h3>
+<p>O padrão quarantine roteia cada registro de entrada pela avaliação de qualidade, e então divide a saída em dois caminhos baseados nos resultados — caminho limpo para analytics e caminho quarantine para investigação.</p>
+<p><strong>Fluxo:</strong>
+1. Bronze table recebe todos os dados raw
+2. <strong>Silver Clean</strong>: recebe apenas registros que passam em TODAS as expectations
+3. <strong>Silver Quarantine</strong>: recebe registros que falharam em qualquer expectation</p>
+<p>Nenhum dado é perdido — registros inválidos são isolados para investigação e possível recuperação, em vez de serem descartados permanentemente.</p>
+</section>
+<section class="notebook-cell">
+<h3>C2. Zero Perda de Dados com Lógica Inversa</h3>
+<p><code>DROP ROW</code> deleta permanentemente registros inválidos — sem caminho de recuperação. O <strong>padrão quarantine</strong> elimina perda de dados completamente usando <strong>lógica inversa</strong>:</p>
+<pre><code class="language-sql">-- Tabela CLEAN: mantém registros que passam em TODAS as validações
+CREATE OR REFRESH STREAMING TABLE silver_clean
+(
+  CONSTRAINT valid_email EXPECT (email IS NOT NULL AND email LIKE '%@%')
+    ON VIOLATION DROP ROW,
+  CONSTRAINT valid_amount EXPECT (amount &gt; 0)
+    ON VIOLATION DROP ROW
 )
--- Old records: loyalty_tier = NULL (acceptable)
--- New records: loyalty_tier populated automatically</div>
-  </div>
+AS SELECT * FROM STREAM bronze_events;
 
-  <div style="flex:1;background:#FFF3E0;border-top:4px solid #FFAB00;border-radius:8px;padding:20px;">
-    <div style="font-weight:bold;color:#FFAB00;font-size:15px;margin-bottom:8px;"> _rescued_data — Last Line of Defence</div>
-    <div style="font-size:15px;color:#618794;margin-bottom:10px;line-height:1.7;">Any field arriving outside the declared schema — unexpected columns, type mismatches — is captured as JSON in <code>_rescued_data</code>. Nothing is silently discarded. Query it at any time for investigation or recovery.</div>
-    <div class="code-block" data-language="sql">-- Inspect rescued fields after the fact
-SELECT
-  event_id,
-  _rescued_data:unexpected_field  AS unexpected_field,
-  _rescued_data:new_column        AS new_column
-FROM bronze_events
-WHERE _rescued_data IS NOT NULL</div>
-  </div>
-
-</div>
-
-<div style="background:#FFF8E8;border-left:4px solid #FFAB00;border-radius:4px;padding:14px 20px;font-size:16px;color:#0b2026;line-height:1.9;">
-  <strong style="color:#FF5F46;">⚠️ Critical interaction:</strong> When a column is added via schema evolution, all records ingested <em>before</em> the evolution carry <code>NULL</code> for that column. Any constraint written for that column <strong>must use the NULL-tolerant <code>CASE WHEN</code> pattern</strong> — otherwise every historic record fails the constraint, causing widespread false violations in the pipeline UI.
-</div>
-
-<script>
-(function() {
-  document.querySelectorAll('.code-block:not([data-processed])').forEach(function(block) {
-    block.setAttribute('data-processed', 'true');
-    var lang = block.getAttribute('data-language') || 'sql';
-    var code = block.textContent.trim();
-    var id = 'code-' + Math.random().toString(36).substr(2, 9);
-    block.innerHTML =
-      '<div style="position:relative;margin:12px 0;">' +
-        '<button class="copy-btn" style="position:absolute;top:8px;right:8px;padding:3px 12px;font-size:12px;background:#EEEDE9;color:#0b2026;border:1px solid #618794;border-radius:4px;cursor:pointer;z-index:10;">Copy</button>' +
-        '<pre style="background:#F9F7F4;border-radius:8px;padding:16px;padding-top:38px;overflow-x:auto;margin:0;border:1px solid #EEEDE9;">' +
-          '<code id="' + id + '" class="language-' + lang + '" style="font-family:Consolas,Monaco,monospace;font-size:15px;"></code>' +
-        '</pre>' +
-      '</div>';
-    var el = document.getElementById(id);
-    el.textContent = code;
-    if (typeof Prism !== 'undefined') Prism.highlightElement(el);
-    block.querySelector('.copy-btn').onclick = function() {
-      var btn = this, t = document.createElement('textarea');
-      t.value = code; document.body.appendChild(t); t.select();
-      document.execCommand('copy'); document.body.removeChild(t);
-      btn.textContent = '✓ Copied!';
-      setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
-    };
-  });
-})();
-</script>
+-- Tabela QUARANTINE: captura registros que falharam (lógica INVERSA)
+CREATE OR REFRESH STREAMING TABLE silver_quarantine
+AS SELECT * FROM STREAM bronze_events
+WHERE NOT (
+  (email IS NOT NULL AND email LIKE '%@%')
+  AND (amount &gt; 0)
+);
+</code></pre>
+<p><strong>O truque</strong>: A tabela quarantine usa a <strong>condição inversa</strong> (NOT) das expectations. Registros que seriam dropados pela clean table são <strong>capturados</strong> pela quarantine table.</p>
 </section>
 <section class="notebook-cell">
-<h2>C. The Quarantine Pattern</h2>
-</section>
-<section class="notebook-cell">
-<h3>C1. How the Quarantine Pattern Works</h3>
-<p>The quarantine pattern routes every incoming record through quality evaluation, then splits output into two paths based on results—clean path for analytics and quarantine path for remediation.</p>
-<p><strong>Key Guarantee</strong>: No record is ever dropped</p>
-<p><strong>Mathematical Relationship</strong>: <code>Total Records In = Clean Records + Quarantine Records</code></p>
-<div class="mermaid">
-flowchart LR
-    IN([" Incoming Record"])
-    EVAL["Evaluate all expectations\nagainst the record"]
-    ALL{"Do ALL\nexpectations pass?"}
-    PASS["is_quarantined = FALSE\nquarantine_reason = empty"]
-    FAIL["is_quarantined = TRUE\nquarantine_reason = list of\nfailed rules"]
-    CLEAN[/" Clean Records\nReady for analytics"/]
-    QRTN[/" Quarantine Records\nFor investigation\nand reprocessing"/]
-    IN --> EVAL
-    EVAL --> ALL
-    ALL -->|"Yes"| PASS
-    ALL -->|"No — any rule fails"| FAIL
-    PASS --> CLEAN
-    FAIL --> QRTN
-    style IN   fill:#1565C0,color:#fff,stroke:none
-    style EVAL fill:#37474F,color:#fff,stroke:none
-    style ALL  fill:#F9A825,color:#111,stroke:none
-    style PASS fill:#2E7D32,color:#fff,stroke:none
-    style FAIL fill:#B71C1C,color:#fff,stroke:none
-    style CLEAN fill:#1B5E20,color:#fff,stroke:none
-    style QRTN fill:#7F0000,color:#fff,stroke:none
-</div>
-<script type="module">
-import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-mermaid.initialize({ startOnLoad: true, theme: "default" });
-</script>
-
-<div style="background:#FFF3E0;border-left:4px solid #FF9800;border-radius:4px;padding:14px 18px;margin:16px 0 10px 0;">
-<div style="font-weight:bold;font-size:14px;color:#E65100;margin-bottom:6px;">⚠️ The Quality Tracking Table Must Always Use WARN</div>
-<div style="font-size:14px;color:#333;">If <code>DROP ROW</code> or <code>FAIL UPDATE</code> is applied to the quality tracking table, invalid records are removed <em>before</em> the quarantine flag can be calculated — silently breaking the zero-data-loss guarantee. The <code>WARN</code> action is used here for one reason only: to surface per-constraint violation metrics in the pipeline UI. All actual routing logic is handled separately by the inverse logic flow.</div>
-</div>
-
-<div style="background:#E3F2FD;border-left:4px solid #1976D2;border-radius:4px;padding:14px 18px;margin:10px 0;">
-<div style="font-weight:bold;font-size:14px;color:#0D47A1;margin-bottom:6px;">ℹ️ Why Partition the Quality Tracking Table by is_quarantined?</div>
-<div style="font-size:14px;color:#333;">Partitioning the quality tracking table by the <code>is_quarantined</code> column physically separates clean and failed records on storage. The downstream queries that split the two paths — filtering on <code>is_quarantined = FALSE</code> and <code>is_quarantined = TRUE</code> — then benefit from partition pruning, reading only the relevant partition em vez de scanning the entire table.</div>
-</div>
-</section>
-<section class="notebook-cell">
-<h3>C2. Zero Data Loss with Inverse Logic</h3>
-<p><code>DROP ROW</code> deleta permanentemente registros inválidos — there is sem caminho de recuperação. The <strong>quarantine pattern</strong> elimina perda de dados entirely by routing <em>every</em> record into the table, then using an <code>is_quarantined</code> flag and inverse logic to split clean and failed records into separate downstream views.</p>
-<div style="display:flex;gap:16px;margin:20px 0;">
-
-  <div style="flex:1;background:#E3F2FD;border-top:4px solid #4299E0;border-radius:8px;padding:18px;">
-    <div style="font-weight:bold;color:#4299E0;font-size:15px;margin-bottom:8px;"> Step 1 — Quarantine Table with Inverse Logic</div>
-    <div style="font-size:15px;color:#618794;line-height:1.8;margin-bottom:10px;">All records are written using <code>WARN</code> — no records are dropped. The <code>is_quarantined</code> flag is derived using <code>NOT(all rules)</code>: if any rule fails, the record is flagged. <code>WARN</code> is used solely to surface per-constraint metrics in the pipeline UI.</div>
-    <div class="code-block" data-language="sql">CREATE OR REFRESH STREAMING TABLE trips_quarantine (
-  CONSTRAINT valid_distance EXPECT (trip_distance > 0),
-  CONSTRAINT valid_fare     EXPECT (fare_amount >= 0),
-  CONSTRAINT valid_pax      EXPECT (passenger_count BETWEEN 1 AND 9)
-  -- WARN: surfaces metrics in UI, no records dropped
-)
-PARTITIONED BY (is_quarantined)
-AS SELECT *,
-  NOT(
-    trip_distance > 0
-    AND fare_amount >= 0
-    AND passenger_count BETWEEN 1 AND 9
-  ) AS is_quarantined
-FROM STREAM bronze_trips</div>
-  </div>
-
-  <div style="flex:1;background:#E8F5E9;border-top:4px solid #00A972;border-radius:8px;padding:18px;">
-    <div style="font-weight:bold;color:#00A972;font-size:15px;margin-bottom:8px;"> Step 2 — Split into Clean and Failed Views</div>
-    <div style="font-size:15px;color:#618794;line-height:1.8;margin-bottom:10px;">Two Materialized Views filter on the <code>is_quarantined</code> partition. Because the quarantine table is <strong>partitioned by <code>is_quarantined</code></strong>, each view benefits from full partition pruning — only its partition is scanned, not the whole table.</div>
-    <div class="code-block" data-language="sql">-- Clean records for downstream analytics
-CREATE OR REFRESH MATERIALIZED VIEW valid_trips_data
-AS SELECT * FROM trips_quarantine
-WHERE is_quarantined = FALSE;
-
--- Failed records preserved for remediation and audit
-CREATE OR REFRESH MATERIALIZED VIEW invalid_trips_data
-AS SELECT * FROM trips_quarantine
-WHERE is_quarantined = TRUE;</div>
-  </div>
-
-</div>
-
-<div style="background:#F9F7F4;border-left:4px solid #FFAB00;border-radius:4px;padding:14px 20px;font-size:16px;color:#0b2026;line-height:1.9;">
-  <strong style="color:#FFAB00;">💡 Why WARN and not DROP ROW on the quarantine table?</strong> If <code>DROP ROW</code> or <code>FAIL UPDATE</code> were applied to the quarantine table, invalid records would be removed before the <code>is_quarantined</code> flag is evaluated — defeating the entire pattern. <code>WARN</code> ensures every record is written and routed correctly by the inverse logic column.
-</div>
-
-<script type="module">
-import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-mermaid.initialize({ startOnLoad: true, theme: "default", flowchart: { rankSpacing: 60, nodeSpacing: 50 } });
-</script>
-
-<script>
-(function() {
-  document.querySelectorAll('.code-block:not([data-processed])').forEach(function(block) {
-    block.setAttribute('data-processed', 'true');
-    var lang = block.getAttribute('data-language') || 'sql';
-    var code = block.textContent.trim();
-    var id = 'code-' + Math.random().toString(36).substr(2, 9);
-    block.innerHTML =
-      '<div style="position:relative;margin:12px 0;">' +
-        '<button class="copy-btn" style="position:absolute;top:8px;right:8px;padding:3px 12px;font-size:12px;background:#EEEDE9;color:#0b2026;border:1px solid #618794;border-radius:4px;cursor:pointer;z-index:10;">Copy</button>' +
-        '<pre style="background:#F9F7F4;border-radius:8px;padding:16px;padding-top:38px;overflow-x:auto;margin:0;border:1px solid #EEEDE9;">' +
-          '<code id="' + id + '" class="language-' + lang + '" style="font-family:Consolas,Monaco,monospace;font-size:15px;"></code>' +
-        '</pre>' +
-      '</div>';
-    var el = document.getElementById(id);
-    el.textContent = code;
-    if (typeof Prism !== 'undefined') Prism.highlightElement(el);
-    block.querySelector('.copy-btn').onclick = function() {
-      var btn = this, t = document.createElement('textarea');
-      t.value = code; document.body.appendChild(t); t.select();
-      document.execCommand('copy'); document.body.removeChild(t);
-      btn.textContent = '✓ Copied!';
-      setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
-    };
-  });
-})();
-</script>
+<h3>C3. Escolhendo Entre DROP ROW e Quarantine</h3>
+<p>Ambas as estratégias enforçam data quality, mas diferem fundamentalmente no que acontece com registros inválidos. A escolha correta depende se seu negócio pode tolerar perda de dados.</p>
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>DROP ROW</th>
+<th>Quarantine</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dados inválidos</strong></td>
+<td>Deletados permanentemente</td>
+<td>Isolados para investigação</td>
+</tr>
+<tr>
+<td><strong>Recuperação</strong></td>
+<td>Impossível</td>
+<td>Possível após correção</td>
+</tr>
+<tr>
+<td><strong>Complexidade</strong></td>
+<td>Simples (uma tabela)</td>
+<td>Maior (duas tabelas + lógica inversa)</td>
+</tr>
+<tr>
+<td><strong>Perda de dados</strong></td>
+<td>Sim</td>
+<td>Não</td>
+</tr>
+<tr>
+<td><strong>Melhor para</strong></td>
+<td>Dados ruidosos de baixo valor</td>
+<td>Dados de alto valor que não podem ser perdidos</td>
+</tr>
+<tr>
+<td><strong>Auditoria</strong></td>
+<td>Apenas métricas de contagem</td>
+<td>Registros completos preservados</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recomendação</strong>: Use <strong>Quarantine</strong> quando dados são valiosos ou regulamentados. Use <strong>DROP ROW</strong> quando dados inválidos são ruído de baixo valor que não vale a pena preservar.</p>
 </section>
 <section class="notebook-cell">
 <h3>C3. Choosing Between DROP ROW and Quarantine</h3>
@@ -589,4 +284,6 @@ mermaid.initialize({ startOnLoad: true, theme: "default", flowchart: { rankSpaci
 </section>
 <section class="notebook-cell">
 <p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
-</section></div></div><div class="lightbox" id="lightbox" onclick="closeLightbox(event)"><button class="lb-close" onclick="closeLightbox(event)">✕</button><img id="lb-img" src="" alt=""></div><button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button><script>if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙'}function copyCode(b){var c=b.closest('.code-block').querySelector('code').textContent;navigator.clipboard.writeText(c).then(function(){b.textContent='✅ Copiado!';b.classList.add('copied');setTimeout(function(){b.textContent='📋 Copiar';b.classList.remove('copied')},2000)})}function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden'}function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow=''}document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e)});document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src)})});</script></body></html>
+</section>
+</div></div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)"><button class="lb-close" onclick="closeLightbox(event)">✕</button><img id="lb-img" src="" alt=""></div><button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button><script>if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙'}function copyCode(b){var c=b.closest('.code-block').querySelector('code').textContent;navigator.clipboard.writeText(c).then(function(){b.textContent='✅ Copiado!';b.classList.add('copied');setTimeout(function(){b.textContent='📋 Copiar';b.classList.remove('copied')},2000)})}function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden'}function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow=''}document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e)});document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src)})});</script></body></html>

@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Multiplex Streaming, Delta Sinks e Iceberg | Advanced SDP</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"><style>:root{--bg:#0e1117;--surface:#161b22;--surface-raised:#1c2129;--border:#2a313a;--text:#e6edf3;--text-muted:#8b949e;--text-faint:#6e7681;--accent:#ff6433;--accent-soft:rgba(255,100,51,0.12);--green:#3fb950;--blue:#58a6ff;--purple:#bc8cff;--yellow:#d29922;--radius:12px}body.light{--bg:#f8f9fb;--surface:#fff;--surface-raised:#f0f2f5;--border:#d8dce2;--text:#1a1d23;--text-muted:#5a6170;--text-faint:#8891a0;--accent:#e0501e;--accent-soft:rgba(224,80,30,0.08);--green:#1a8a3e;--blue:#2563eb;--purple:#7c3aed}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}.top-bar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.top-bar a{color:var(--text-muted);text-decoration:none;font-size:13px}.top-bar a:hover{color:var(--accent)}.top-bar .sep{color:var(--text-faint);font-size:11px}.top-bar .title{font-size:14px;font-weight:600;color:var(--text);flex:1}.layout{display:flex;min-height:calc(100vh - 50px)}.sidebar{width:300px;min-width:300px;background:var(--surface);border-right:1px solid var(--border);padding:20px 0;overflow-y:auto;position:sticky;top:50px;height:calc(100vh - 50px)}.sidebar .nav-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint);padding:0 16px;margin-bottom:8px}.sidebar a{display:block;padding:6px 16px;font-size:12px;color:var(--text-muted);text-decoration:none;border-left:2px solid transparent;line-height:1.5;transition:all 0.15s}.sidebar a:hover{color:var(--text);background:var(--surface-raised)}.sidebar a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}.content{flex:1;max-width:900px;padding:32px 40px 80px}.notebook-cell{margin-bottom:24px}.notebook-cell h1{font-size:26px;font-weight:700;margin-bottom:12px}.notebook-cell h2{font-size:21px;font-weight:700;margin:28px 0 12px;padding-top:20px;border-top:1px solid var(--border)}.notebook-cell h3{font-size:17px;font-weight:600;margin:20px 0 10px}.notebook-cell h4{font-size:15px;font-weight:600;margin:16px 0 8px}.notebook-cell h5{font-size:12px;font-weight:600;margin:14px 0 6px;color:var(--text-muted)}.notebook-cell p{margin-bottom:10px;font-size:14.5px}.notebook-cell ul,.notebook-cell ol{margin:0 0 10px 20px;font-size:14.5px}.notebook-cell li{margin-bottom:4px}.notebook-cell code{font-family:'IBM Plex Mono',monospace;background:var(--surface-raised);padding:1px 5px;border-radius:3px;font-size:12.5px}.notebook-cell pre{background:var(--surface-raised);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;margin:10px 0}.notebook-cell pre code{background:none;padding:0}.notebook-cell img{max-width:100%;height:auto;border-radius:6px;cursor:zoom-in}.notebook-cell details{margin:10px 0;padding:10px 14px;background:var(--surface-raised);border-radius:6px;border:1px solid var(--border);font-size:13.5px}.notebook-cell details summary{cursor:pointer;font-weight:600;color:var(--text-muted);font-size:12px}.notebook-cell svg{max-width:100%;height:auto}.notebook-cell table{width:100%;border-collapse:collapse;margin:10px 0}.notebook-cell th,.notebook-cell td{padding:6px 10px;border:1px solid var(--border);font-size:13px}.notebook-cell th{background:var(--surface-raised);font-weight:600}.code-block{position:relative;margin:12px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden}.code-header{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:var(--surface);border-bottom:1px solid var(--border)}.code-lang{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint)}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;font-family:inherit;transition:all 0.15s}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}.copy-btn.copied{color:var(--green);border-color:var(--green)}.code-block pre{margin:0;border:none;border-radius:0;background:var(--surface-raised)}.theme-btn{position:fixed;bottom:16px;right:16px;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:200}.lightbox{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);cursor:zoom-out;align-items:center;justify-content:center;padding:20px}.lightbox.open{display:flex}.lightbox img{max-width:95vw;max-height:92vh;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,0.5);object-fit:contain;background:#fff;padding:6px;cursor:default}.lightbox .lb-close{position:fixed;top:12px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}@media(max-width:768px){.sidebar{display:none}.content{padding:20px 16px 60px}}</style></head><body><div class="top-bar"><a href="index.html">← Início</a><span class="sep">›</span><a href="capitulo-5.html">Capítulo 5</a><span class="sep">›</span><span class="title">3. Multiplex Streaming, Delta Sinks e Iceberg</span></div><div class="layout"><nav class="sidebar"><div class="nav-title">Capítulo 5 · Advanced SDP</div>    <a href="ch5-00-overview.html">📋 0. Visão Geral do Curso</a>
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Multiplex Streaming, Delta Sinks e Iceberg | Advanced SDP</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"><style>:root{--bg:#0e1117;--surface:#161b22;--surface-raised:#1c2129;--border:#2a313a;--text:#e6edf3;--text-muted:#8b949e;--text-faint:#6e7681;--accent:#ff6433;--accent-soft:rgba(255,100,51,0.12);--green:#3fb950;--blue:#58a6ff;--purple:#bc8cff;--yellow:#d29922;--radius:12px}body.light{--bg:#f8f9fb;--surface:#fff;--surface-raised:#f0f2f5;--border:#d8dce2;--text:#1a1d23;--text-muted:#5a6170;--text-faint:#8891a0;--accent:#e0501e;--accent-soft:rgba(224,80,30,0.08);--green:#1a8a3e;--blue:#2563eb;--purple:#7c3aed}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}.top-bar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.top-bar a{color:var(--text-muted);text-decoration:none;font-size:13px}.top-bar a:hover{color:var(--accent)}.top-bar .sep{color:var(--text-faint);font-size:11px}.top-bar .title{font-size:14px;font-weight:600;color:var(--text);flex:1}.layout{display:flex;min-height:calc(100vh - 50px)}.sidebar{width:300px;min-width:300px;background:var(--surface);border-right:1px solid var(--border);padding:20px 0;overflow-y:auto;position:sticky;top:50px;height:calc(100vh - 50px)}.sidebar .nav-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint);padding:0 16px;margin-bottom:8px}.sidebar a{display:block;padding:6px 16px;font-size:12px;color:var(--text-muted);text-decoration:none;border-left:2px solid transparent;line-height:1.5;transition:all 0.15s}.sidebar a:hover{color:var(--text);background:var(--surface-raised)}.sidebar a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}.content{flex:1;max-width:900px;padding:32px 40px 80px}.notebook-cell{margin-bottom:24px}.notebook-cell h1{font-size:26px;font-weight:700;margin-bottom:12px}.notebook-cell h2{font-size:21px;font-weight:700;margin:28px 0 12px;padding-top:20px;border-top:1px solid var(--border)}.notebook-cell h3{font-size:17px;font-weight:600;margin:20px 0 10px}.notebook-cell h4{font-size:15px;font-weight:600;margin:16px 0 8px}.notebook-cell h5{font-size:12px;font-weight:600;margin:14px 0 6px;color:var(--text-muted)}.notebook-cell p{margin-bottom:10px;font-size:14.5px}.notebook-cell ul,.notebook-cell ol{margin:0 0 10px 20px;font-size:14.5px}.notebook-cell li{margin-bottom:4px}.notebook-cell code{font-family:'IBM Plex Mono',monospace;background:var(--surface-raised);padding:1px 5px;border-radius:3px;font-size:12.5px}.notebook-cell pre{background:var(--surface-raised);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;margin:10px 0}.notebook-cell pre code{background:none;padding:0}.notebook-cell img{max-width:100%;height:auto;border-radius:6px;cursor:zoom-in}.notebook-cell details{margin:10px 0;padding:10px 14px;background:var(--surface-raised);border-radius:6px;border:1px solid var(--border);font-size:13.5px}.notebook-cell details summary{cursor:pointer;font-weight:600;color:var(--text-muted);font-size:12px}.notebook-cell svg{max-width:100%;height:auto}.notebook-cell table{width:100%;border-collapse:collapse;margin:10px 0}.notebook-cell th,.notebook-cell td{padding:6px 10px;border:1px solid var(--border);font-size:13px}.notebook-cell th{background:var(--surface-raised);font-weight:600}.code-block{position:relative;margin:12px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden}.code-header{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:var(--surface);border-bottom:1px solid var(--border)}.code-lang{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint)}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;font-family:inherit;transition:all 0.15s}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}.copy-btn.copied{color:var(--green);border-color:var(--green)}.code-block pre{margin:0;border:none;border-radius:0;background:var(--surface-raised)}.theme-btn{position:fixed;bottom:16px;right:16px;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:200}.lightbox{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);cursor:zoom-out;align-items:center;justify-content:center;padding:20px}.lightbox.open{display:flex}.lightbox img{max-width:95vw;max-height:92vh;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,0.5);object-fit:contain;background:#fff;padding:6px;cursor:default}.lightbox .lb-close{position:fixed;top:12px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}@media(max-width:768px){.sidebar{display:none}.content{padding:20px 16px 60px}}</style></head><body><div class="top-bar"><a href="index.html">← Início</a><span class="sep">›</span><a href="capitulo-5.html">Capítulo 5</a><span class="sep">›</span><span class="title">3. Multiplex Streaming, Delta Sinks e Iceberg</span></div>
+<div class="layout"><nav class="sidebar"><div class="nav-title">Capítulo 5 · Advanced SDP</div>
+    <a href="ch5-00-overview.html">📋 0. Visão Geral do Curso</a>
     <a href="ch5-01-lecture-multi-flows.html">📖 1. Multi Flows, Expectations e Liquid Clustering</a>
     <a href="ch5-02-demo-multi-flow.html">⚙️ 2. Demo: Multi Flow SDP + Liquid Clustering</a>
     <a href="ch5-03-lecture-multiplex.html" class="active">📖 3. Multiplex Streaming, Delta Sinks e Iceberg</a>
@@ -8,560 +10,202 @@
     <a href="ch5-07-lecture-quality.html">📖 7. Advanced Data Quality e Quarantine Pattern</a>
     <a href="ch5-08-demo-quality.html">⚙️ 8. Demo: Advanced Quality + Quarantine</a>
     <a href="ch5-09-lab-pipeline.html">🧪 9. Lab: Multi-Source Ecommerce Pipeline</a>
-    <a href="ch5-99-summary.html">📋 99. Resumo e Próximos Passos</a></nav><div class="content"><section class="notebook-cell">
-<div style="text-align: center; line-height: 0; padding-top: 9px;">
-  <img
-    src="https://databricks.com/wp-content/uploads/2018/03/db-academy-rgb-1200px.png"
-    alt="Databricks Learning"
-  >
-</div>
-</section>
+    <a href="ch5-99-summary.html">📋 99. Resumo e Próximos Passos</a>
+</nav><div class="content">
 <section class="notebook-cell">
-<h1>Lecture - Introduction to Multiplex Streaming, Delta Sinks, and Iceberg Reads</h1>
-<p>Esta aula apresenta three advanced concepts used in Spark Declarative Pipelines: the <strong>Multiplex pattern</strong> for efficiently ingesting mixed event streams, <strong>Delta Sinks</strong> for writing streaming data to external tables, and <strong>Iceberg reads via Delta UniForm</strong> for enabling acesso cross-platform to Delta tables.</p>
+<h1>Aula — Introdução a Multiplex Streaming, Delta Sinks e Iceberg Reads</h1>
+<p>Esta aula apresenta três conceitos avançados usados em Spark Declarative Pipelines: o <strong>padrão Multiplex</strong> para streaming multi-event eficiente, <strong>Delta Sinks</strong> para escrever em tabelas externas, e <strong>Iceberg Reads</strong> via Delta UniForm para interoperabilidade cross-platform.</p>
 <h2>Objetivos de Aprendizado</h2>
-<p>Ao final desta aula, você será capaz de:</p>
-<ul>
-<li>Explain the <strong>Multiplex pattern</strong> and how fan-out works for mixed event streams</li>
-<li>Describe what a <strong>Delta Sink</strong> is and when to use it over managed streaming tables</li>
-<li>Explain how <strong>Delta UniForm</strong> enables Iceberg reads sem duplicação de dados</li>
-<li>Understand how these three concepts <strong>chain together</strong> in a single pipeline</li>
-</ul>
+<p>Ao final desta aula, você será capaz de:
+- Explicar o <strong>padrão Multiplex</strong> e como ele resolve ingestão multi-event
+- Descrever como <strong>Delta Sinks</strong> escrevem dados para fora do pipeline
+- Explicar como <strong>Delta UniForm</strong> habilita leitura cross-platform via Iceberg
+- Conectar os três conceitos em um padrão de pipeline completo</p>
 </section>
 <section class="notebook-cell">
-<h2>A. The Multiplex Pattern</h2>
-<p>The Multiplex pattern addresses a common production challenge: efficiently processing múltiplos tipos de eventos that arrive through um único transporte de dados mechanism.</p>
+<h2>A. O Padrão Multiplex</h2>
+<p>O padrão Multiplex endereça um desafio comum de produção: processar eficientemente múltiplos tipos de eventos que chegam por um único mecanismo de transporte de dados.</p>
 </section>
 <section class="notebook-cell">
-<h3>A1. The Problem: One Stream, Many Schemas</h3>
-<p>Em ambientes de produção, multiple business systems often share a <strong>single data transport</strong> como por exemplo:
-- One Kafka topic
-- One cloud storage path<br />
-- One message queue</p>
-<p>Each message carries a <strong>type field</strong> identifying which business domain it belongs to. Without the Multiplex pattern, this creates significant operational overhead:</p>
-<div style="display:flex;gap:16px;margin:16px 0;">
-<div style="flex:1;background:#FFEBEE;border:1px solid #FFCDD2;border-radius:6px;padding:14px 16px;">
-<div style="font-weight:bold;color:#C62828;font-size:13px;margin-bottom:8px;"> Without Multiplex</div>
-<ul style="font-size:13px;color:#333;margin:0;padding-left:16px;">
-<li>N event types → N separate pipelines</li>
-<li>N separate checkpoints and source scans</li>
-<li>Source change must be applied N times</li>
-</ul>
-</div>
-<div style="flex:1;background:#E8F5E9;border:1px solid #C8E6C9;border-radius:6px;padding:14px 16px;">
-<div style="font-weight:bold;color:#1B5E20;font-size:13px;margin-bottom:8px;"> With Multiplex</div>
-<ul style="font-size:13px;color:#333;margin:0;padding-left:16px;">
-<li>N event types → 1 ingestion pipeline</li>
-<li>1 checkpoint, 1 source scan shared across all domains</li>
-<li>Source change applied in one place</li>
-</ul>
-</div>
-</div>
-
-<p><strong>Reference Documentation:</strong>
-- <a href="https://www.databricks.com/blog/2022/04/27/how-uplift-built-cdc-and-multiplexing-data-pipelines-with-databricks-delta-live-tables.html">Multiplexing Data Pipelines Blog</a></p>
+<h3>A1. O Problema: Um Stream, Muitos Schemas</h3>
+<p>Em ambientes de produção, múltiplos sistemas de negócios frequentemente compartilham <strong>um único transporte de dados</strong> como:
+- Um tópico Kafka
+- Um caminho de cloud storage
+- Um endpoint de streaming API</p>
+<p>Os dados que chegam contêm <strong>múltiplos tipos de eventos</strong> (pedidos, devoluções, cliques, etc.), cada um com seu próprio schema. Processar cada tipo de evento separadamente na fonte é custoso e frágil — <strong>o padrão Multiplex resolve isso.</strong></p>
 </section>
 <section class="notebook-cell">
-<h3>A2. Ingest Once, Fan Out by Type</h3>
-<p>The Multiplex pattern follows a simple but powerful approach:</p>
+<h3>A2. Ingerir Uma Vez, Distribuir por Tipo</h3>
+<p>O padrão Multiplex segue uma abordagem simples mas poderosa:</p>
 <ol>
-<li><strong>Single Ingestion</strong>: Read all event types into one bronze table</li>
-<li><strong>Type-Based Filtering</strong>: Use the event type field to separate domains</li>
-<li><strong>Fan-Out Processing</strong>: Create domain-specific tables downstream</li>
+<li><strong>Ingestão Única</strong>: Ler todos os tipos de eventos em uma bronze table</li>
+<li><strong>Filtragem por Tipo</strong>: Usar queries filtradas para separar por tipo de evento</li>
+<li><strong>Tabelas Especializadas</strong>: Cada tipo de evento vai para sua própria silver table</li>
 </ol>
-<p><strong>Architecture Flow:</strong></p>
-<div class="mermaid">
-flowchart LR
-    SRC["☁️ Mixed Event Stream"]
-    BRZ["Bronze Table
-All event types together
-VARIANT PAYLOAD"]
-    A["Domain A Table
-WHERE type = A"]
-    B["Domain B Table
-WHERE type = B"]
-    C["Domain C Table
-WHERE type = C"]
-    SRC -->|"Single ingest
-one checkpoint"| BRZ
-    BRZ --> A
-    BRZ --> B
-    BRZ --> C
-    style SRC fill:#607D8B,color:#fff
-    style BRZ fill:#FF5722,color:#fff
-    style A fill:#EF6C00,color:#fff
-    style B fill:#EF6C00,color:#fff
-    style C fill:#EF6C00,color:#fff
-</div>
-<script type="module">
-import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-mermaid.initialize({ startOnLoad: true, theme: "default" });
-</script>
-
-<p><strong>Key Benefits:</strong>
-- Single checkpoint management
-- Shared source scanning
-- Centralized error handling
-- Simplified monitoring</p>
+<p>Isso é chamado de <strong>"fan out"</strong> — um único stream de entrada se divide em múltiplos streams especializados baseados no tipo de evento.</p>
+<p><strong>Vantagens</strong>: Uma única ingestão (eficiente), processamento isolado por tipo (robusto), schema evolution independente por tabela.</p>
 </section>
 <section class="notebook-cell">
 <h2>B. Sinks</h2>
-<p>Sinks provide a mechanism to write streaming data from a Spark Declarative Pipeline to external Delta tables that exist fora do pipeline's managed scope.</p>
-<div style="display:flex;justify-content:left;margin:32px 0;">
-<div class="mermaid" style="min-width:750px;">
-flowchart LR
-    F["Pipeline Flow\nappend_flow"]
-    D["Default"]
-    A["@dp.append_flow"]
-    subgraph PIPE["   Inside Pipeline — Managed Scope   "]
-        ST["Streaming Table\nMaterialized View"]
-    end
-    subgraph EXT["   Outside Pipeline — External Targets   "]
-        SK["Sink\nDelta · Kafka · Custom"]
-    end
-    F --- D --> ST
-    F --- A --> SK
-    style F fill:#FF7043,color:#fff,stroke:#E64A19,stroke-width:2px
-    style D fill:#F5F5F5,color:#333,stroke:#BDBDBD,stroke-width:1px
-    style A fill:#F5F5F5,color:#333,stroke:#BDBDBD,stroke-width:1px
-    style ST fill:#FFF3E0,stroke:#F57C00,stroke-width:2px,color:#000
-    style SK fill:#1565C0,color:#fff,stroke:#0D47A1,stroke-width:2px
-    style PIPE fill:#FFF8E1,stroke:#FF9800,stroke-width:2px,color:#E65100
-    style EXT fill:#E3F2FD,stroke:#1976D2,stroke-width:2px,color:#0D47A1
-</div>
-</div>
-
-<script type="module">
-import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-mermaid.initialize({
-    startOnLoad: true,
-    theme: "default",
-    flowchart: { padding: 40, nodeSpacing: 60, rankSpacing: 80 }
-});
-</script>
-
-<div style="background:#F8F9FA;border-left:4px solid #607D8B;padding:14px 18px;margin:24px 0;border-radius:4px;">
-  <div style="font-size:16px;color:#444;line-height:1.8;">
-    <strong>Only the Python API is supported</strong> — SQL is not supported for sinks. Only <code>append_flow</code> can write to a sink.
-  </div>
-</div>
-
-<p><strong>Reference Documentation:</strong>
-- <a href="https://docs.databricks.com/delta-live-tables/dlt-sinks.html">Sinks in SDP</a></p>
+<p>Sinks fornecem um mecanismo para escrever dados streaming de um Spark Declarative Pipeline para Delta tables externas que existem fora do escopo gerenciado do pipeline.</p>
+<p>Todo dataset padrão em um Spark Declarative Pipeline — streaming table ou materialized view — é <strong>possuído e gerenciado pelo pipeline</strong>. Isso significa que o pipeline controla o ciclo de vida da tabela: criação, atualizações e exclusão.</p>
+<p>Um <strong>sink</strong> quebra essa relação — ele escreve dados para uma tabela que <strong>existe independentemente</strong> do pipeline. O pipeline escreve, mas não possui.</p>
 </section>
 <section class="notebook-cell">
-<h3>B1. Supported Sink Types</h3>
-<p>Databricks supports <strong>four types of sinks</strong> — each suited for a different destination and use case.</p>
-<div style="display:flex;gap:0;margin:24px 0;align-items:stretch;">
-
-  <div style="flex:1;background:#E8F5E9;border-top:4px solid #388E3C;border-radius:12px 0 0 12px;padding:24px;">
-    <div style="font-weight:bold;color:#1B5E20;font-size:16px;margin-bottom:14px;">Delta Table Sink</div>
-    <ul style="font-size:16px;color:#555;line-height:2;margin:0;padding-left:20px;">
-      <li>Unity Catalog managed tables</li>
-      <li>External Delta tables</li>
-      <li>Write by path or table name</li>
-    </ul>
-  </div>
-
-  <div style="flex:1;background:#E3F2FD;border-top:4px solid #1976D2;padding:24px;">
-    <div style="font-weight:bold;color:#0D47A1;font-size:16px;margin-bottom:14px;">Apache Kafka Sink</div>
-    <ul style="font-size:16px;color:#555;line-height:2;margin:0;padding-left:20px;">
-      <li>Write back to Kafka topics</li>
-      <li>Low-latency operational use cases</li>
-      <li>Reverse ETL out of Databricks</li>
-    </ul>
-  </div>
-
-  <div style="flex:1;background:#FFF3E0;border-top:4px solid #F57C00;padding:24px;">
-    <div style="font-weight:bold;color:#E65100;font-size:16px;margin-bottom:14px;">Azure Event Hubs Sink</div>
-    <ul style="font-size:16px;color:#555;line-height:2;margin:0;padding-left:20px;">
-      <li>Uses Kafka interface format</li>
-      <li>Real-time event streaming</li>
-      <li>Fraud detection · recommendations</li>
-    </ul>
-  </div>
-
-  <div style="flex:1;background:#F3E5F5;border-top:4px solid #7B1FA2;border-radius:0 12px 12px 0;padding:24px;">
-    <div style="font-weight:bold;color:#6A1B9A;font-size:16px;margin-bottom:14px;">Python Custom Sink</div>
-    <ul style="font-size:16px;color:#555;line-height:2;margin:0;padding-left:20px;">
-      <li>Write to any data store</li>
-      <li>Uses PySpark custom data sources</li>
-      <li>Maximum flexibility</li>
-    </ul>
-  </div>
-
-</div>
-
-<div style="background:#E8F5E9;border-left:4px solid #388E3C;padding:14px 18px;margin:20px 0;border-radius:4px;">
-  <div style="font-size:16px;color:#1B5E20;line-height:1.8;">
-    For code examples of each sink type, refer to the <a href="https://docs.databricks.com/aws/en/ldp/ldp-sinks?language=Delta%C2%A0sinks#create-a-sink" style="color:#1976D2;">Creating a Sink Documentation</a>
-  </div>
-</div>
+<h3>B1. Tipos de Sink Suportados</h3>
+<p>O Databricks suporta <strong>quatro tipos de sinks</strong> — cada um adequado para um destino e caso de uso diferente.</p>
+<table>
+<thead>
+<tr>
+<th>Tipo de Sink</th>
+<th>Destino</th>
+<th>Caso de Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Delta Sink</strong></td>
+<td>Delta table externa</td>
+<td>Tabelas que precisam existir fora do lifecycle do pipeline</td>
+</tr>
+<tr>
+<td><strong>Kafka Sink</strong></td>
+<td>Tópico Kafka</td>
+<td>Streaming de eventos para sistemas downstream</td>
+</tr>
+<tr>
+<td><strong>Unity Catalog Sink</strong></td>
+<td>UC table</td>
+<td>Tabelas gerenciadas no Unity Catalog</td>
+</tr>
+<tr>
+<td><strong>Event Hubs Sink</strong></td>
+<td>Azure Event Hubs</td>
+<td>Streaming para Azure Event Hubs</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section class="notebook-cell">
-<h3>B2. Managed Tables vs. Sinks</h3>
-<p>Every standard dataset in a Spark Declarative Pipeline — streaming table or materialized view — is <strong>owned and managed by the pipeline</strong>. A <strong>sink</strong> breaks this intentionally: it lets the pipeline write streaming data to a <strong>plain Delta table that exists fora do pipeline's managed scope</strong>.</p>
-<div style="display:flex;gap:0;margin:24px 0;align-items:stretch;">
-
-  <div style="flex:1;background:#E8F5E9;border-top:4px solid #388E3C;border-radius:12px 0 0 12px;padding:24px;">
-    <div style="font-weight:bold;color:#1B5E20;font-size:16px;margin-bottom:14px;">Managed Table (Default)</div>
-    <ul style="font-size:16px;color:#555;line-height:2;margin:0;padding-left:20px;">
-      <li>Data stays within Unity Catalog</li>
-      <li>Full pipeline lineage tracking</li>
-      <li>Supports expectations and CDC</li>
-      <li>Streaming Tables and Materialized Views</li>
-    </ul>
-  </div>
-
-  <div style="display:flex;align-items:center;justify-content:center;padding:0 20px;background:#F8F9FA;border-top:1px solid #E0E0E0;border-bottom:1px solid #E0E0E0;">
-    <div style="font-size:24px;color:#999;font-weight:300;">vs</div>
-  </div>
-
-  <div style="flex:1;background:#E3F2FD;border-top:4px solid #1976D2;border-radius:0 12px 12px 0;padding:24px;">
-    <div style="font-weight:bold;color:#0D47A1;font-size:16px;margin-bottom:14px;">Sink</div>
-    <ul style="font-size:16px;color:#555;line-height:2;margin:0;padding-left:20px;">
-      <li>Write to external systems outside Databricks</li>
-      <li>Enables reverse ETL and operational use cases</li>
-      <li>Supports Kafka, Event Hubs, custom targets</li>
-      <li>No expectations — append only</li>
-    </ul>
-  </div>
-
-</div>
+<h3>B2. Tabelas Gerenciadas vs. Sinks</h3>
+<p>Todo dataset padrão em um Spark Declarative Pipeline — streaming table ou materialized view — é <strong>possuído e gerenciado pelo pipeline</strong>. Um <strong>sink</strong> quebra essa relação intencionalmente — ele escreve dados para uma tabela que existe <strong>independentemente</strong> do pipeline.</p>
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>Tabela Gerenciada</th>
+<th>Sink</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lifecycle</strong></td>
+<td>Pipeline cria, atualiza e pode deletar</td>
+<td>Tabela existe independentemente</td>
+</tr>
+<tr>
+<td><strong>Propriedade</strong></td>
+<td>Pipeline é o owner</td>
+<td>Outro processo ou equipe é o owner</td>
+</tr>
+<tr>
+<td><strong>Drop on delete</strong></td>
+<td>Pode ser deletada quando pipeline é removido</td>
+<td>Nunca é afetada pela remoção do pipeline</td>
+</tr>
+<tr>
+<td><strong>Configuração</strong></td>
+<td>Limitada ao que o pipeline suporta</td>
+<td>Configuração completa da tabela externa</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section class="notebook-cell">
-<h3>B3. Delta Sink In Action</h3>
-<p>A <strong>Delta sink</strong> writes pipeline output to a Delta table <em>outside</em> the pipeline's managed lifecycle — unlocking configurations not possible on pipeline-managed streaming tables, such as <strong>Iceberg compatibility</strong>.</p>
-<hr />
-<div style="display:flex;gap:16px;margin:16px 0 28px 0;">
-  <div style="flex:1;background:#FFF3E0;border-left:4px solid #F57C00;border-radius:4px;padding:16px 20px;">
-    <div style="font-weight:bold;color:#E65100;font-size:16px;margin-bottom:8px;">Streaming Tables Cannot</div>
-    <ul style="font-size:16px;color:#555;line-height:2;margin:0;padding-left:20px;">
-      <li>Enable Iceberg compatibility</li>
-      <li>Share with non-Databricks platforms</li>
-    </ul>
-  </div>
-  <div style="flex:1;background:#E8F5E9;border-left:4px solid #388E3C;border-radius:4px;padding:16px 20px;">
-    <div style="font-weight:bold;color:#1B5E20;font-size:16px;margin-bottom:8px;">Delta Sink Can</div>
-    <ul style="font-size:16px;color:#555;line-height:2;margin:0;padding-left:20px;">
-      <li>Have full Delta table property control</li>
-      <li>Enables Iceberg UniForm for cross-platform reads</li>
-    </ul>
-  </div>
-</div>
+<h3>B3. Delta Sink em Ação</h3>
+<p>Um <strong>Delta sink</strong> escreve output do pipeline para uma Delta table <em>fora</em> do lifecycle gerenciado do pipeline — habilitando configurações não possíveis em tabelas gerenciadas.</p>
+<pre><code class="language-sql">-- Criar a tabela externa primeiro
+CREATE TABLE IF NOT EXISTS catalog.schema.external_orders (
+  order_id STRING,
+  total DECIMAL(10,2),
+  order_date DATE
+) USING DELTA;
 
-<hr />
-<h4>Implementation</h4>
-<div style="display:flex;gap:0;margin:20px 0;align-items:stretch;">
-
-  <div style="flex:1;background:#E8F5E9;border-top:4px solid #388E3C;border-radius:12px 0 0 12px;padding:24px;">
-    <div style="font-weight:bold;color:#1B5E20;font-size:16px;margin-bottom:16px;">Step 1 — Register the Sink</div>
-    <pre style="background:#F8F9FA;border:1px solid #E0E0E0;border-radius:6px;padding:16px;font-size:14px;line-height:1.8;overflow-x:auto;">
-<div class="code-block" data-language="python">
-from pyspark import pipelines as dp
-
-dp.create_sink(
-    name    = "my_sink",
-    format  = "delta",
-    options = {
-        "tableName": "catalog.schema.table"
-    }
-)</pre>
-  </div>
-
-  <div style="display:flex;align-items:center;justify-content:center;padding:0 20px;background:#F8F9FA;border-top:1px solid #E0E0E0;border-bottom:1px solid #E0E0E0;">
-    <div style="font-size:24px;color:#999;font-weight:300;">→</div>
-  </div>
-
-  <div style="flex:1;background:#E3F2FD;border-top:4px solid #1976D2;border-radius:0 12px 12px 0;padding:24px;">
-    <div style="font-weight:bold;color:#0D47A1;font-size:16px;margin-bottom:16px;">Step 2 — Write to the Sink</div>
-    <pre style="background:#F8F9FA;border:1px solid #E0E0E0;border-radius:6px;padding:16px;font-size:14px;line-height:1.8;overflow-x:auto;">
-
-<div class="code-block" data-language="python">
-@dp.append_flow(
-name   = "my_sink_flow",
-target = "my_sink"
-)
-def my_sink_flow():
-    return spark.readStream.table(
-        "schema.source_table"
-    )</pre>
-  </div>
-
-</div>
-
-<div style="background:#F8F9FA;border-left:4px solid #607D8B;border-radius:4px;padding:16px 20px;margin-top:8px;">
-  <ul style="font-size:16px;color:#555;line-height:2;margin:0;padding-left:20px;">
-    <li>Checkpointing is handled automatically by <code>append_flow</code></li>
-    <li>Only new records written per run — no overwrites</li>
-    <li>Python only — no SQL equivalent</li>
-  </ul>
-</div>
-<p><link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" /></p>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-
-<script>
-(function() {
-    document.querySelectorAll('.code-block').forEach(function(block) {
-        if (block.getAttribute('data-processed')) return;
-        block.setAttribute('data-processed', 'true');
-        var lang = block.getAttribute('data-language') || 'sql';
-        var code = block.textContent.trim();
-        var id = 'code-' + Math.random().toString(36).substr(2, 9);
-        block.innerHTML = 
-            '<div style="position:relative;margin:16px 0;">' +
-                '<button class="copy-btn" style="position:absolute;top:8px;right:8px;padding:4px 12px;font-size:12px;background:#ddd;color:#333;border:1px solid #ccc;border-radius:4px;cursor:pointer;z-index:10;">Copy</button>' +
-                '<pre style="background:#f8f8f8;border-radius:8px;padding:16px;padding-top:40px;overflow-x:auto;margin:0;border:1px solid #e0e0e0;"><code id="' + id + '" class="language-' + lang + '" style="font-family:Consolas,Monaco,monospace;font-size:14px;"></code></pre>' +
-            '</div>';
-        var codeEl = document.getElementById(id);
-        codeEl.textContent = code;
-        Prism.highlightElement(codeEl);
-        block.querySelector('.copy-btn').onclick = function() {
-            var t = document.createElement('textarea');
-            t.value = code;
-            document.body.appendChild(t);
-            t.select();
-            document.execCommand('copy');
-            document.body.removeChild(t);
-            this.textContent = '✓ Copied!';
-            setTimeout(() => this.textContent = 'Copy', 2000);
-        };
-    });
-})();
-</script>
+-- Criar o sink que escreve nela
+CREATE SINK orders_external_sink
+AS INSERT INTO catalog.schema.external_orders BY NAME
+SELECT order_id, total, order_date
+FROM STREAM orders_silver;
+</code></pre>
+<p><strong>Pontos-chave</strong>: A tabela target deve existir antes de criar o sink. O sink processa incrementalmente (apenas dados novos). A tabela externa pode ter suas próprias configurações (Liquid Clustering, particionamento, etc.).</p>
 </section>
 <section class="notebook-cell">
 <h2>C. Iceberg Reads via Delta UniForm</h2>
-<p>Delta UniForm enables acesso cross-platform to Delta tables by automatically generating Apache Iceberg metadata sem duplicar os dados subjacentes.</p>
+<p>Delta UniForm permite acesso cross-platform a Delta tables gerando automaticamente metadata Apache Iceberg sem duplicar os dados subjacentes.</p>
 </section>
 <section class="notebook-cell">
-<h3>C1. The Cross-Platform Challenge</h3>
-<div style="font-size:16px;color:#555;line-height:1.8;margin-bottom:24px;">
-  Modern data architectures span multiple platforms. Traditionally, supporting each platform meant <strong>copying data into multiple formats</strong> — creating duplication, sync issues, and increased storage costs. <strong>Delta UniForm</strong> solves this with a single set of files and two metadata layers.
-</div>
-
-<div style="display:flex;gap:24px;margin:24px 0;align-items:flex-start;">
-
-  <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
-    <div class="mermaid" style="width:100%;">
-flowchart TB
-    subgraph OLD["Traditional Approach"]
-        D1["Delta Files"] --> C["Copy and Convert"]
-        C --> IC["Iceberg Copy"]
-        C --> PA["Parquet Copy"]
-        C --> HV["Hive Copy"]
-    end
-    style D1 fill:#FFEBEE,stroke:#C62828,color:#000
-    style C fill:#FFCDD2,stroke:#C62828,color:#000
-    style IC fill:#FFEBEE,stroke:#C62828,color:#000
-    style PA fill:#FFEBEE,stroke:#C62828,color:#000
-    style HV fill:#FFEBEE,stroke:#C62828,color:#000
-    style OLD fill:#FFF3F3,stroke:#C62828,stroke-width:2px,color:#C62828
-    </div>
-  </div>
-
-  <div style="display:flex;align-items:center;justify-content:center;padding:0 8px;margin-top:80px;">
-    <div style="font-size:28px;color:#999;font-weight:300;"></div>
-  </div>
-
-  <div style="flex:1;display:flex;flex-direction:column;align-items:center;">
-    <div class="mermaid" style="width:100%;">
-flowchart TB
-    subgraph NEW["Delta UniForm"]
-        PQ["One Set of Parquet Files"] --> DM["Delta Metadata"]
-        PQ --> IM["Iceberg Metadata"]
-    end
-    style PQ fill:#E8F5E9,stroke:#388E3C,color:#000
-    style DM fill:#E3F2FD,stroke:#1976D2,color:#000
-    style IM fill:#E3F2FD,stroke:#1976D2,color:#000
-    style NEW fill:#F1F8E9,stroke:#388E3C,stroke-width:2px,color:#388E3C
-    </div>
-  </div>
-
-</div>
-
-<script type="module">
-import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-mermaid.initialize({ startOnLoad: true, theme: "default" });
-</script>
-
-<div style="display:flex;gap:16px;margin:24px 0;">
-  <div style="flex:1;background:#FFEBEE;border-left:4px solid #C62828;border-radius:4px;padding:16px 20px;">
-    <div style="font-weight:bold;color:#C62828;font-size:16px;margin-bottom:8px;">Traditional Approach</div>
-    <ul style="font-size:16px;color:#555;line-height:2;margin:0;padding-left:20px;">
-      <li>Data copied into multiple formats</li>
-      <li>Sync issues across copies</li>
-      <li>Increased storage costs</li>
-    </ul>
-  </div>
-  <div style="flex:1;background:#E8F5E9;border-left:4px solid #388E3C;border-radius:4px;padding:16px 20px;">
-    <div style="font-weight:bold;color:#1B5E20;font-size:16px;margin-bottom:8px;">Delta UniForm</div>
-    <ul style="font-size:16px;color:#555;line-height:2;margin:0;padding-left:20px;">
-      <li>One set of Parquet files</li>
-      <li>Delta + Iceberg metadata layers</li>
-      <li>No duplication — automatic sync</li>
-    </ul>
-  </div>
-</div>
-
-<div style="background:#E3F2FD;border-left:4px solid #1976D2;padding:14px 18px;border-radius:4px;">
-  <div style="font-size:16px;color:#0D47A1;line-height:1.8;">
-    For full details refer to the <a href="https://docs.databricks.com/aws/en/delta/uniform" style="color:#1976D2;font-weight:bold;">Delta UniForm Documentation →</a>
-  </div>
-</div>
+<h3>C1. O Desafio Cross-Platform</h3>
+<p>Arquiteturas de dados modernas abrangem múltiplas plataformas. Tradicionalmente, suportar cada plataforma significava duplicar dados em formatos diferentes — caro, complexo e propenso a inconsistências.</p>
+<p>Delta UniForm resolve isso mantendo <strong>um único dataset físico</strong> com <strong>metadata em múltiplos formatos</strong> — Delta e Iceberg. Ferramentas que leem Iceberg (Snowflake, Trino, Presto, Apache Flink) podem acessar a mesma tabela Delta sem cópia de dados.</p>
 </section>
 <section class="notebook-cell">
-<h3>C2. How Delta UniForm Works</h3>
-<p>Delta UniForm maintains <strong>one physical dataset</strong> with <strong>two logical views</strong> — no data duplication, no separate copies. Iceberg metadata is generated <strong>asynchronously</strong> after every Delta write, keeping both views in sync automatically.</p>
-<hr />
-<div class="mermaid" style="min-width:700px;">
-flowchart LR
-    subgraph STORE["<b>One Delta Table — One Set of Parquet Files</b>"]
-        PF("<div style='text-align:center;font-size:13px;'>
-<img src='https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/icons/file_icon.png' width='10' style='display:inline-block;margin:0 3px;'/>
-<img src='https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/icons/file_icon.png' width='10' style='display:inline-block;margin:0 3px;'/>
-<br/><b>Parquet Data Files</b>
-</div>")
-        DL["Delta Transaction Log\n_delta_log/"]
-        IM["Iceberg Metadata\nmetadata/*.metadata.json"]
-        PF --- DL
-        PF --- IM
-    end
-    DC["Databricks Clients\nRead via Delta protocol"]
-    IC["External Tools\nSnowflake · Trino · Athena · Spark OSS\nRead via Iceberg REST Catalog"]
-    DL --> DC
-    IM --> IC
-    style DL fill:#1565C0,color:#fff,stroke:#0D47A1,stroke-width:2px
-    style IM fill:#2E7D32,color:#fff,stroke:#1B5E20,stroke-width:2px
-    style DC fill:#FF3621,color:#fff,stroke:#C62828,stroke-width:2px
-    style IC fill:#455A64,color:#fff,stroke:#263238,stroke-width:2px
-    style STORE fill:#F8F9FA,stroke:#607D8B,stroke-width:2px,color:#333
-</div>
-
-<script type="module">
-import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-mermaid.initialize({
-    startOnLoad: true,
-    theme: "default",
-    flowchart: { padding: 40, nodeSpacing: 60, rankSpacing: 80 }
-});
-</script>
-<h3>Enabling Iceberg Reads</h3>
-<div style="display:flex;flex-direction:column;gap:10px;margin:16px 0;">
-  <div style="display:flex;align-items:flex-start;gap:12px;background:#F5F5F5;border-radius:6px;padding:12px 14px;">
-    <div style="font-size:22px;min-width:32px;">1️⃣</div>
-    <div>
-      <div style="font-weight:bold;font-size:13px;color:#333;">Disable Deletion Vectors</div>
-      <div style="font-size:13px;color:#555;margin-top:2px;">
-        <strong>Property:</strong> <code style="font-size:12px;">'delta.enableDeletionVectors' = 'false'</code><br>
-        Iceberg v2 cannot represent Delta's soft-delete markers. Disabling ensures all deletes are hard deletes, making the table fully readable by Iceberg clients.
-      </div>
-    </div>
-  </div>
-  <div style="display:flex;align-items:flex-start;gap:12px;background:#F5F5F5;border-radius:6px;padding:12px 14px;">
-    <div style="font-size:22px;min-width:32px;">2️⃣</div>
-    <div>
-      <div style="font-weight:bold;font-size:13px;color:#333;">Column Mapping Mode</div>
-      <div style="font-size:13px;color:#555;margin-top:2px;">
-        <strong>Property:</strong> <code style="font-size:12px;">'delta.columnMapping.mode' = 'name'</code><br>
-        Ensures column identifiers are consistent between Delta and Iceberg schemas, preventing schema drift and enabling seamless acesso cross-platform.
-      </div>
-    </div>
-  </div>
-  <div style="display:flex;align-items:flex-start;gap:12px;background:#F5F5F5;border-radius:6px;padding:12px 14px;">
-    <div style="font-size:22px;min-width:32px;">3️⃣</div>
-    <div>
-      <div style="font-weight:bold;font-size:13px;color:#333;">Enable IcebergCompatV2</div>
-      <div style="font-size:13px;color:#555;margin-top:2px;">
-        <strong>Property:</strong> <code style="font-size:12px;">'delta.enableIcebergCompatV2' = 'true'</code><br>
-        Activates Delta's write protocol compatible with Iceberg v2, allowing Iceberg clients to read Delta tables without data conversion.
-      </div>
-    </div>
-  </div>
-  <div style="display:flex;align-items:flex-start;gap:12px;background:#F5F5F5;border-radius:6px;padding:12px 14px;">
-    <div style="font-size:22px;min-width:32px;">4️⃣</div>
-    <div>
-      <div style="font-weight:bold;font-size:13px;color:#333;">Enable Universal Format</div>
-      <div style="font-size:13px;color:#555;margin-top:2px;">
-        <strong>Property:</strong> <code style="font-size:12px;">'delta.universalFormat.enabledFormats' = 'iceberg'</code><br>
-        Triggers asynchronous Iceberg metadata generation after every Delta commit, ensuring up-to-date Iceberg views for external tools.
-      </div>
-    </div>
-  </div>
-</div>
-
-<div style="background:#FFEBEE;border-left:4px solid #F44336;border-radius:4px;padding:14px 18px;margin:16px 0;">
-  <div style="font-weight:bold;font-size:14px;color:#B71C1C;margin-bottom:6px;">⚠️ Iceberg Reads Only Work on Plain Delta Tables</div>
-  <div style="font-size:14px;color:#333;">
-    <strong>Note:</strong> Pipeline-managed <b>streaming tables</b> and <b>materialized views</b> cannot have Iceberg reads enabled. Only a plain external Delta table—such as one created via a <b>Delta Sink</b>—supports UniForm. This bridge is required for acesso cross-platform.
-    <br><br>
-    <strong>Detalhes Adicionais:</strong> Setting these properties is a one-time operation, but must be done before any data is written. Once enabled, Iceberg metadata is kept in sync automatically, allowing tools like Snowflake, Trino, and Athena to query the same Delta table.
-  </div>
-</div>
-
-<hr />
-<div style="background:#E3F2FD;border-left:4px solid #1976D2;padding:14px 18px;border-radius:4px;margin-top:8px;">
-  <div style="font-size:16px;color:#0D47A1;line-height:1.8;">
-    For more details refer to the <a href="https://docs.databricks.com/aws/en/delta/uniform" style="color:#1976D2;font-weight:bold;">Delta UniForm Documentation</a>
-  </div>
-</div>
+<h3>C2. Como Delta UniForm Funciona</h3>
+<p>Delta UniForm mantém <strong>um dataset físico</strong> com <strong>duas visões lógicas</strong> — sem duplicação de dados, sem cópias separadas. Metadata Iceberg é gerada automaticamente pelo Delta Lake.</p>
+<pre><code class="language-sql">-- Habilitar UniForm ao criar a tabela
+CREATE TABLE IF NOT EXISTS catalog.schema.orders_uniform
+TBLPROPERTIES (
+  'delta.universalFormat.enabledFormats' = 'iceberg'
+)
+AS SELECT * FROM orders_gold;
+</code></pre>
+<p>Para ler de dentro de um Spark Declarative Pipeline:</p>
+<pre><code class="language-sql">-- Ler tabela Iceberg dentro do pipeline
+CREATE OR REFRESH MATERIALIZED VIEW iceberg_analysis
+AS SELECT * FROM iceberg_catalog.schema.table_name;
+</code></pre>
+<p><strong>Pontos-chave</strong>: Sem duplicação de dados. Metadata Iceberg é gerada automaticamente. Qualquer ferramenta compatível com Iceberg pode ler a tabela.</p>
 </section>
 <section class="notebook-cell">
 <h4>EXPANDIR PARA DETALHES ADICIONAIS</h4>
 <details>
 
+Delta UniForm (Universal Format) resolve um problema antigo no ecossistema lakehouse: diferentes motores de processamento usam diferentes formatos de tabela. Com UniForm, você escreve uma vez em Delta e leitores Iceberg/Hudi acessam a mesma tabela — sem ETL adicional, sem cópias, sem inconsistências.
 
-<div style="font-size:16px;color:#555;line-height:2;margin-bottom:24px;">
-
-Delta UniForm (Universal Format) solves a long-standing problem in the lakehouse ecosystem: <strong>different tools speak different table formats</strong>. Snowflake, Trino, Athena, and open-source Spark all understand Apache Iceberg — but not Delta Lake natively. UniForm bridges this gap by making your Delta tables <em>simultaneously readable as Iceberg tables</em>, without any data duplication or separate pipelines.
-
-</div>
-
-<div style="font-size:16px;color:#555;line-height:2;margin-bottom:24px;">
-
-Both Delta Lake and Apache Iceberg are built on the same foundation: <strong>Parquet data files</strong> plus a <strong>metadata layer</strong>. UniForm exploits this by asynchronously generating Iceberg metadata after every Delta write — the same Parquet files now serve two formats at once. From a Delta client's perspective, nothing changes. From an Iceberg client's perspective, it looks like a native Iceberg table. You get <strong>one dataset, two logical views, zero duplication</strong>.
-
-</div>
-
----
-
-#### Benefits
-
-<div style="font-size:16px;color:#555;line-height:2;">
-
-- <strong>No data movement:</strong> A single copy of Parquet files is shared across Delta and Iceberg clients — no ETL, no replication, no storage overhead.
-- <strong>Cross-platform interoperability:</strong> Tools like Snowflake, Trino, Apache Athena, and open-source Spark can query your Delta tables directly via the Iceberg REST Catalog.
-- <strong>Negligible write overhead:</strong> Iceberg metadata generation happens asynchronously after the Delta commit, so your write pipelines are not slowed down.
-- <strong>Works with Unity Catalog:</strong> Unity Catalog acts as the Iceberg REST Catalog, meaning external clients get governed, catalogued access without any extra infrastructure.
-- <strong>Performance parity:</strong> Benchmarks show comparable read performance between Delta UniForm and natively managed Iceberg tables on Snowflake.
-
-</div>
-
----
-
-#### Limitations
-
-<div style="font-size:16px;color:#555;line-height:2;">
-
-- <strong>Read-only for Iceberg clients:</strong> External tools can only <em>read</em> via Iceberg. All writes must go through Delta — you cannot write to a UniForm table from Snowflake or Trino.
-- <strong>Deletion Vectors must be disabled:</strong> Tables using deletion vectors (a Delta performance feature) cannot have UniForm enabled. You must set <code>'delta.enableDeletionVectors' = 'false'</code>.
-- <strong>Streaming Tables and Materialized Views are excluded:</strong> Pipeline-managed tables in Spark Declarative Pipelines cannot have the required <code>delta.universalFormat.enabledFormats</code> property set directly. This is where <strong>Delta Sinks</strong> come in — they write to plain external Delta tables where UniForm can be freely enabled.
-- <strong>Column mapping is permanent:</strong> Enabling UniForm also enables column mapping (<code>delta.columnMapping.mode = 'name'</code>), which cannot be dropped once set.
-- <strong>Databricks Runtime 14.3 LTS or above required:</strong> Any Databricks client writing to a UniForm-enabled table must use DBR 14.3+.
-- <strong>Table must be accessed by name:</strong> Iceberg metadata generation is only triggered when the table is accessed by name (not by path).
-
-</div>
-
----
-
-<div style="background:#E8F5E9;border-left:4px solid #2E7D32;padding:14px 20px;border-radius:4px;margin-top:8px;font-size:15px;color:#1B5E20;line-height:1.9;">
-  <strong>🔗 How this connects to Delta Sinks:</strong> Since Streaming Tables and Materialized Views can't use UniForm directly, the pattern in this lecture is to use a <strong>Delta Sink</strong> — write your streaming pipeline output to a plain external Delta table, enable UniForm on that table, and Iceberg clients can immediately read it. This is the recommended production pattern for cross-platform Iceberg access from a live streaming pipeline.
-</div>
+</details>
+</section>
+<section class="notebook-cell">
+<h2>D. Conectando os Conceitos</h2>
+<p>Esses três conceitos trabalham juntos para resolver requisitos complexos de data pipelines no mundo real. Cada conceito resolve um problema distinto. Juntos formam um padrão completo para construir streaming pipelines de nível de produção.</p>
+<table>
+<thead>
+<tr>
+<th>Conceito</th>
+<th>Problema que Resolve</th>
+<th>Solução</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Multiplex</strong></td>
+<td>Múltiplos tipos de eventos em uma fonte</td>
+<td>Ingestão única, fan out por tipo</td>
+</tr>
+<tr>
+<td><strong>Delta Sink</strong></td>
+<td>Precisa escrever fora do pipeline</td>
+<td>Tabela externa não gerenciada pelo pipeline</td>
+</tr>
+<tr>
+<td><strong>Delta UniForm/Iceberg</strong></td>
+<td>Acesso cross-platform</td>
+<td>Metadata Iceberg gerada automaticamente</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section class="notebook-cell">
 <h2>D. Connecting the Concepts</h2>
-<p>These three concepts work together to solve complex real-world data pipeline requirements.Each concept solves a distinct problem. Together they form a complete pattern for pipelines that need real-time processing and acesso cross-platform.</p>
+<p>These three concepts work together to solve complex real-world data pipeline requirements.Each concept solves a distinct problem. Together they form a complete pattern for pipelines that need real-time processing and cross-platform access.</p>
 </section>
 <section class="notebook-cell">
 <div class="mermaid" style="min-width:800px;">
@@ -599,7 +243,7 @@ mermaid.initialize({
 - **Output**: Domain-specific silver tables
 
 #### 2. Delta Sink
-- **Problem**: Need external table for acesso cross-platform
+- **Problem**: Need external table for cross-platform access
 - **Solution**: `dp.create_sink()` + `@dp.append_flow`
 - **Output**: Plain Delta table outside pipeline scope
 
@@ -611,4 +255,6 @@ mermaid.initialize({
 </section>
 <section class="notebook-cell">
 <p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
-</section></div></div><div class="lightbox" id="lightbox" onclick="closeLightbox(event)"><button class="lb-close" onclick="closeLightbox(event)">✕</button><img id="lb-img" src="" alt=""></div><button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button><script>if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙'}function copyCode(b){var c=b.closest('.code-block').querySelector('code').textContent;navigator.clipboard.writeText(c).then(function(){b.textContent='✅ Copiado!';b.classList.add('copied');setTimeout(function(){b.textContent='📋 Copiar';b.classList.remove('copied')},2000)})}function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden'}function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow=''}document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e)});document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src)})});</script></body></html>
+</section>
+</div></div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)"><button class="lb-close" onclick="closeLightbox(event)">✕</button><img id="lb-img" src="" alt=""></div><button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button><script>if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙'}function copyCode(b){var c=b.closest('.code-block').querySelector('code').textContent;navigator.clipboard.writeText(c).then(function(){b.textContent='✅ Copiado!';b.classList.add('copied');setTimeout(function(){b.textContent='📋 Copiar';b.classList.remove('copied')},2000)})}function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden'}function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow=''}document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e)});document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src)})});</script></body></html>

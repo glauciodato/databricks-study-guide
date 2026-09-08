@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Multi Flows, Expectations e Liquid Clustering | Advanced SDP</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"><style>:root{--bg:#0e1117;--surface:#161b22;--surface-raised:#1c2129;--border:#2a313a;--text:#e6edf3;--text-muted:#8b949e;--text-faint:#6e7681;--accent:#ff6433;--accent-soft:rgba(255,100,51,0.12);--green:#3fb950;--blue:#58a6ff;--purple:#bc8cff;--yellow:#d29922;--radius:12px}body.light{--bg:#f8f9fb;--surface:#fff;--surface-raised:#f0f2f5;--border:#d8dce2;--text:#1a1d23;--text-muted:#5a6170;--text-faint:#8891a0;--accent:#e0501e;--accent-soft:rgba(224,80,30,0.08);--green:#1a8a3e;--blue:#2563eb;--purple:#7c3aed}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}.top-bar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.top-bar a{color:var(--text-muted);text-decoration:none;font-size:13px}.top-bar a:hover{color:var(--accent)}.top-bar .sep{color:var(--text-faint);font-size:11px}.top-bar .title{font-size:14px;font-weight:600;color:var(--text);flex:1}.layout{display:flex;min-height:calc(100vh - 50px)}.sidebar{width:300px;min-width:300px;background:var(--surface);border-right:1px solid var(--border);padding:20px 0;overflow-y:auto;position:sticky;top:50px;height:calc(100vh - 50px)}.sidebar .nav-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint);padding:0 16px;margin-bottom:8px}.sidebar a{display:block;padding:6px 16px;font-size:12px;color:var(--text-muted);text-decoration:none;border-left:2px solid transparent;line-height:1.5;transition:all 0.15s}.sidebar a:hover{color:var(--text);background:var(--surface-raised)}.sidebar a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}.content{flex:1;max-width:900px;padding:32px 40px 80px}.notebook-cell{margin-bottom:24px}.notebook-cell h1{font-size:26px;font-weight:700;margin-bottom:12px}.notebook-cell h2{font-size:21px;font-weight:700;margin:28px 0 12px;padding-top:20px;border-top:1px solid var(--border)}.notebook-cell h3{font-size:17px;font-weight:600;margin:20px 0 10px}.notebook-cell h4{font-size:15px;font-weight:600;margin:16px 0 8px}.notebook-cell h5{font-size:12px;font-weight:600;margin:14px 0 6px;color:var(--text-muted)}.notebook-cell p{margin-bottom:10px;font-size:14.5px}.notebook-cell ul,.notebook-cell ol{margin:0 0 10px 20px;font-size:14.5px}.notebook-cell li{margin-bottom:4px}.notebook-cell code{font-family:'IBM Plex Mono',monospace;background:var(--surface-raised);padding:1px 5px;border-radius:3px;font-size:12.5px}.notebook-cell pre{background:var(--surface-raised);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;margin:10px 0}.notebook-cell pre code{background:none;padding:0}.notebook-cell img{max-width:100%;height:auto;border-radius:6px;cursor:zoom-in}.notebook-cell details{margin:10px 0;padding:10px 14px;background:var(--surface-raised);border-radius:6px;border:1px solid var(--border);font-size:13.5px}.notebook-cell details summary{cursor:pointer;font-weight:600;color:var(--text-muted);font-size:12px}.notebook-cell svg{max-width:100%;height:auto}.notebook-cell table{width:100%;border-collapse:collapse;margin:10px 0}.notebook-cell th,.notebook-cell td{padding:6px 10px;border:1px solid var(--border);font-size:13px}.notebook-cell th{background:var(--surface-raised);font-weight:600}.code-block{position:relative;margin:12px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden}.code-header{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:var(--surface);border-bottom:1px solid var(--border)}.code-lang{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint)}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;font-family:inherit;transition:all 0.15s}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}.copy-btn.copied{color:var(--green);border-color:var(--green)}.code-block pre{margin:0;border:none;border-radius:0;background:var(--surface-raised)}.theme-btn{position:fixed;bottom:16px;right:16px;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:200}.lightbox{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);cursor:zoom-out;align-items:center;justify-content:center;padding:20px}.lightbox.open{display:flex}.lightbox img{max-width:95vw;max-height:92vh;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,0.5);object-fit:contain;background:#fff;padding:6px;cursor:default}.lightbox .lb-close{position:fixed;top:12px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}@media(max-width:768px){.sidebar{display:none}.content{padding:20px 16px 60px}}</style></head><body><div class="top-bar"><a href="index.html">← Início</a><span class="sep">›</span><a href="capitulo-5.html">Capítulo 5</a><span class="sep">›</span><span class="title">1. Multi Flows, Expectations e Liquid Clustering</span></div><div class="layout"><nav class="sidebar"><div class="nav-title">Capítulo 5 · Advanced SDP</div>    <a href="ch5-00-overview.html">📋 0. Visão Geral do Curso</a>
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Multi Flows, Expectations e Liquid Clustering | Advanced SDP</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"><style>:root{--bg:#0e1117;--surface:#161b22;--surface-raised:#1c2129;--border:#2a313a;--text:#e6edf3;--text-muted:#8b949e;--text-faint:#6e7681;--accent:#ff6433;--accent-soft:rgba(255,100,51,0.12);--green:#3fb950;--blue:#58a6ff;--purple:#bc8cff;--yellow:#d29922;--radius:12px}body.light{--bg:#f8f9fb;--surface:#fff;--surface-raised:#f0f2f5;--border:#d8dce2;--text:#1a1d23;--text-muted:#5a6170;--text-faint:#8891a0;--accent:#e0501e;--accent-soft:rgba(224,80,30,0.08);--green:#1a8a3e;--blue:#2563eb;--purple:#7c3aed}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}.top-bar{position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.top-bar a{color:var(--text-muted);text-decoration:none;font-size:13px}.top-bar a:hover{color:var(--accent)}.top-bar .sep{color:var(--text-faint);font-size:11px}.top-bar .title{font-size:14px;font-weight:600;color:var(--text);flex:1}.layout{display:flex;min-height:calc(100vh - 50px)}.sidebar{width:300px;min-width:300px;background:var(--surface);border-right:1px solid var(--border);padding:20px 0;overflow-y:auto;position:sticky;top:50px;height:calc(100vh - 50px)}.sidebar .nav-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint);padding:0 16px;margin-bottom:8px}.sidebar a{display:block;padding:6px 16px;font-size:12px;color:var(--text-muted);text-decoration:none;border-left:2px solid transparent;line-height:1.5;transition:all 0.15s}.sidebar a:hover{color:var(--text);background:var(--surface-raised)}.sidebar a.active{color:var(--accent);border-left-color:var(--accent);font-weight:600}.content{flex:1;max-width:900px;padding:32px 40px 80px}.notebook-cell{margin-bottom:24px}.notebook-cell h1{font-size:26px;font-weight:700;margin-bottom:12px}.notebook-cell h2{font-size:21px;font-weight:700;margin:28px 0 12px;padding-top:20px;border-top:1px solid var(--border)}.notebook-cell h3{font-size:17px;font-weight:600;margin:20px 0 10px}.notebook-cell h4{font-size:15px;font-weight:600;margin:16px 0 8px}.notebook-cell h5{font-size:12px;font-weight:600;margin:14px 0 6px;color:var(--text-muted)}.notebook-cell p{margin-bottom:10px;font-size:14.5px}.notebook-cell ul,.notebook-cell ol{margin:0 0 10px 20px;font-size:14.5px}.notebook-cell li{margin-bottom:4px}.notebook-cell code{font-family:'IBM Plex Mono',monospace;background:var(--surface-raised);padding:1px 5px;border-radius:3px;font-size:12.5px}.notebook-cell pre{background:var(--surface-raised);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;margin:10px 0}.notebook-cell pre code{background:none;padding:0}.notebook-cell img{max-width:100%;height:auto;border-radius:6px;cursor:zoom-in}.notebook-cell details{margin:10px 0;padding:10px 14px;background:var(--surface-raised);border-radius:6px;border:1px solid var(--border);font-size:13.5px}.notebook-cell details summary{cursor:pointer;font-weight:600;color:var(--text-muted);font-size:12px}.notebook-cell svg{max-width:100%;height:auto}.notebook-cell table{width:100%;border-collapse:collapse;margin:10px 0}.notebook-cell th,.notebook-cell td{padding:6px 10px;border:1px solid var(--border);font-size:13px}.notebook-cell th{background:var(--surface-raised);font-weight:600}.code-block{position:relative;margin:12px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden}.code-header{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:var(--surface);border-bottom:1px solid var(--border)}.code-lang{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint)}.copy-btn{background:none;border:1px solid var(--border);color:var(--text-muted);font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;font-family:inherit;transition:all 0.15s}.copy-btn:hover{color:var(--text);border-color:var(--text-muted)}.copy-btn.copied{color:var(--green);border-color:var(--green)}.code-block pre{margin:0;border:none;border-radius:0;background:var(--surface-raised)}.theme-btn{position:fixed;bottom:16px;right:16px;background:var(--surface);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:200}.lightbox{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);cursor:zoom-out;align-items:center;justify-content:center;padding:20px}.lightbox.open{display:flex}.lightbox img{max-width:95vw;max-height:92vh;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,0.5);object-fit:contain;background:#fff;padding:6px;cursor:default}.lightbox .lb-close{position:fixed;top:12px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}@media(max-width:768px){.sidebar{display:none}.content{padding:20px 16px 60px}}</style></head><body><div class="top-bar"><a href="index.html">← Início</a><span class="sep">›</span><a href="capitulo-5.html">Capítulo 5</a><span class="sep">›</span><span class="title">1. Multi Flows, Expectations e Liquid Clustering</span></div>
+<div class="layout"><nav class="sidebar"><div class="nav-title">Capítulo 5 · Advanced SDP</div>
+    <a href="ch5-00-overview.html">📋 0. Visão Geral do Curso</a>
     <a href="ch5-01-lecture-multi-flows.html" class="active">📖 1. Multi Flows, Expectations e Liquid Clustering</a>
     <a href="ch5-02-demo-multi-flow.html">⚙️ 2. Demo: Multi Flow SDP + Liquid Clustering</a>
     <a href="ch5-03-lecture-multiplex.html">📖 3. Multiplex Streaming, Delta Sinks e Iceberg</a>
@@ -8,754 +10,388 @@
     <a href="ch5-07-lecture-quality.html">📖 7. Advanced Data Quality e Quarantine Pattern</a>
     <a href="ch5-08-demo-quality.html">⚙️ 8. Demo: Advanced Quality + Quarantine</a>
     <a href="ch5-09-lab-pipeline.html">🧪 9. Lab: Multi-Source Ecommerce Pipeline</a>
-    <a href="ch5-99-summary.html">📋 99. Resumo e Próximos Passos</a></nav><div class="content"><section class="notebook-cell">
-<div style="text-align: center; line-height: 0; padding-top: 9px;">
-  <img
-    src="https://databricks.com/wp-content/uploads/2018/03/db-academy-rgb-1200px.png"
-    alt="Databricks Learning"
-  >
-</div>
-</section>
+    <a href="ch5-99-summary.html">📋 99. Resumo e Próximos Passos</a>
+</nav><div class="content">
 <section class="notebook-cell">
-<h1>Lecture - Introduction to Multi Flows, Expectation and Liquid Clustering in SDP</h1>
-<p>Esta aula apresenta <strong>Flows</strong> in Spark Declarative Pipelines as the mecanismo principal para loading and processando dados incrementalmente — including how to use multiple flows to write to um único target table. It then explores how <strong>Liquid Clustering</strong> and <strong>Data Quality Expectations</strong> are applied specifically within a declarative pipeline context.</p>
+<h1>Aula — Introdução a Multi Flows, Expectations e Liquid Clustering em SDP</h1>
+<p>Esta aula apresenta <strong>Flows</strong> em Spark Declarative Pipelines como o mecanismo principal para carregar e processar dados incrementalmente — incluindo como usar múltiplos flows para escrever em uma única target table. Em seguida, explora como <strong>Liquid Clustering</strong> e <strong>Data Quality Expectations</strong> são aplicados especificamente dentro do contexto de um pipeline declarativo.</p>
 <h2>Objetivos de Aprendizado</h2>
 <p>Ao final desta aula, você será capaz de:</p>
 <ul>
-<li>Explain what a <strong>flow</strong> is and how it relates to a streaming table or materialized view</li>
-<li>Describe the difference between a <strong>default flow</strong> and an <strong>explicit flow</strong></li>
-<li>Apply the <strong>multi-flow pattern</strong> to write from múltiplas fontes into um único target table</li>
-<li>Explain why <strong>multi-flow is preferred over UNION</strong> for incremental pipelines</li>
-<li>Recall how <strong>Liquid Clustering</strong> and <strong>Data Quality Expectations</strong> are configured in Spark Declarative Pipelines</li>
+<li>Explicar o que é um <strong>flow</strong> e como se relaciona com uma streaming table ou materialized view</li>
+<li>Descrever a diferença entre um <strong>default flow</strong> e um <strong>explicit flow</strong></li>
+<li>Aplicar o <strong>padrão multi-flow</strong> para escrever de múltiplas fontes em uma única target table</li>
+<li>Explicar por que <strong>multi-flow é preferível a UNION</strong></li>
+<li>Aplicar <strong>Data Quality Expectations</strong> a streaming tables em um Spark Declarative Pipeline</li>
+<li>Aplicar <strong>Liquid Clustering</strong> a streaming tables para otimizar performance de queries em um Spark Declarative Pipeline</li>
 </ul>
 </section>
 <section class="notebook-cell">
-<h2>A. Understanding Flows in Spark Declarative Pipelines</h2>
+<h2>A. Entendendo Flows em Spark Declarative Pipelines</h2>
 </section>
 <section class="notebook-cell">
-<h3>A1. What is Flow(Recap...)</h3>
+<h3>A1. O que é um Flow (Revisão...)</h3>
 <h4>Flow = Query + Target</h4>
 <div class="mermaid">
 flowchart LR
     A["<b>Query</b><br/>SQL · Filters · Joins"] --> C["<b>FLOW</b><br/>Execution Unit"]
-    B["<b>Target</b><br/>Streaming Table or MV"] --> C
-    C --> D["<b>Output</b><br/>Processed Data"]
-    style A fill:#E3F2FD,stroke:#1976d2,stroke-width:2px,color:#000
-    style B fill:#E8F5E9,stroke:#388E3C,stroke-width:2px,color:#000
-    style C fill:#FFF3E0,stroke:#F57C00,stroke-width:3px,color:#000
-    style D fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px,color:#000
+    B["<b>Target</b><br/>Streaming Table · MV"] --> C
+    C --> D["<b>Resultado</b><br/>Dados escritos no target"]
+    style C fill:#2196F3,color:#fff,stroke:#1565C0,stroke-width:2px
 </div>
 
-<hr />
-<h4>Flow Processing Modes</h4>
-<div style="display:flex;gap:48px;margin:24px 0;align-items:flex-start;">
-
-  <!-- Incremental -->
-  <div style="flex:1;max-width:480px;">
-    <div style="font-weight:600;color:#1B5E20;font-size:20px;margin-bottom:4px;">
-      Incremental Mode
-    </div>
-    <div class="mermaid">
-flowchart TB
-    I1[Source Data] --> I2[<b>Read Checkpoint</b>]
-    I2 --> I3[New Records Only]
-    I3 --> I4[Write to Target]
-    I4 --> I5[Update Checkpoint]
-    I5 -.->|Next Run| I2
-    style I1 fill:#C8E6C9,stroke:#2E7D32,color:#000
-    style I2 fill:#A5D6A7,stroke:#1B5E20,color:#000
-    style I3 fill:#81C784,stroke:#1B5E20,color:#000
-    style I4 fill:#66BB6A,stroke:#1B5E20,color:#000
-    style I5 fill:#66BB6A,stroke:#1B5E20,color:#000
-    </div>
-  </div>
-
-  <!-- Full Refresh -->
-  <div style="flex:1;max-width:480px;">
-    <div style="font-weight:600;color:#0D47A1;font-size:20px;margin-bottom:4px;">
-      Full Refresh Mode
-    </div>
-    <div class="mermaid">
-flowchart TB
-    F1[Source Data] --> F2[<b>Discard Checkpoint</b>]
-    F2 --> F3[Read ALL Records]
-    F3 --> F4[Process Everything]
-    F4 --> F5[Overwrite Target]
-    style F1 fill:#BBDEFB,stroke:#1565C0,color:#000
-    style F2 fill:#90CAF9,stroke:#0D47A1,color:#000
-    style F3 fill:#64B5F6,stroke:#0D47A1,color:#000
-    style F4 fill:#42A5F5,stroke:#0D47A1,color:#000
-    style F5 fill:#1E88E5,stroke:#0D47A1,color:#fff
-    </div>
-  </div>
-
-</div>
-
-<script type="module">
-import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-mermaid.initialize({ startOnLoad: true, theme: "default", themeVariables: {edgeLabelBackground: "#FFFFFF"}});
-</script>
+<p>Um <strong>flow</strong> é a unidade básica de trabalho em um Spark Declarative Pipeline. Cada flow lê, processa e escreve dados independentemente, permitindo design de pipeline modular e escalável.</p>
+<h5>Query</h5>
+<p>A <strong>Query</strong> define <em>de onde</em> e <em>como</em> os dados são lidos — usando <code>STREAM read_files()</code>, <code>FROM STREAM tabela</code>, ou uma simples query <code>SELECT</code> — mais quaisquer transformações como filtros e joins.</p>
+<h5>Target</h5>
+<p>O <strong>Target</strong> define <em>para onde</em> os dados processados vão — uma <strong>streaming table</strong> ou <strong>materialized view</strong>. O target é declarado e gerenciado pelo pipeline.</p>
 </section>
 <section class="notebook-cell">
-<h4>Click For Notas Adicionais</h4>
-<details> 
+<h4>Clique para Notas Adicionais</h4>
+<details>
 
-### Flow 
+### Flow
+Um **flow** é a unidade básica de trabalho em um Spark Declarative Pipeline. Cada flow lê, processa e escreve dados independentemente, permitindo design de pipeline modular e escalável.
 
-A **flow** is the basic unit of work in a Spark Declarative Pipeline. Each flow independently reads, processes, and writes data, enabling modular and reliable pipeline updates.
+### Query (Fonte)
+A **query** é a parte de leitura e transformação do flow:
+- Ela define de onde os dados vêm (tabelas, arquivos, streams)
+- Quais transformações aplicar (filtros, joins, agregações)
+- Pode ser escrita em SQL ou Python
+- Determina o modo de processamento (incremental ou completo)
 
-##### Query
+### Target (Destino)
+O **target** define onde os dados processados são escritos:
+- Pode ser uma **Streaming Table** ou **Materialized View**
+- O pipeline gerencia o ciclo de vida da tabela target automaticamente
+- O target possui estado: ele rastreia o que foi processado
 
-The **Query** defines *what data to read* and how to transform it — this is your SQL or DataFrame logic, including filtering, joining, and aggregating.
+### Conexão Flow
+Juntos, *query + target = flow*. O flow é a unidade de execução que orquestra uma leitura, transforma e escreve no destino.
 
-##### Target
-The **Target** defines *where the results land* — either a **Streaming Table** for incremental ingestion or a **Materialized View** for computed or aggregated results.
-
----
-### Processing Modes
-##### Incremental Mode
-
-Processes **only new records** since the last pipeline run using a **checkpoint** stored per flow. This is highly efficient for large datasets and streaming sources — on restart, the flow resumes exactly where it left off without reprocessing historical data.
-
-**When to use:** Ongoing ingestion from streaming sources like Kafka, Auto Loader, or any append-only table.
-
-
-
-##### Full Refresh Mode
-
-Reprocesses **all records from the source from scratch** — the existing checkpoint is discarded and the target table is fully overwritten. This is more expensive but necessary when business logic changes require recomputing historical data.
-
-**When to use:** After modifying transformation logic, fixing data quality issues, or when a clean slate is required.
+</details>
 </section>
 <section class="notebook-cell">
-<h3>A2. Flow Lifecycle and Checkpoint Management</h3>
+<h3>A2. Ciclo de Vida do Flow e Gerenciamento de Checkpoint</h3>
 <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
   <div style="font-size:15px;color:#555;line-height:1.6;">
-    Each flow maintains its own <strong>checkpoint</strong> that tracks exactly how far it has read from its source — enabling reliable restarts, independent progress, and failure isolation.
+    Cada flow mantém seu próprio <strong>checkpoint</strong> — um marcador persistente que rastreia quais dados já foram processados. Isso permite que o pipeline <strong>retome exatamente de onde parou</strong>, processando apenas dados novos em cada execução.
   </div>
 </div>
 
 <hr />
-<h4>How a Flow Checkpoint Works</h4>
-<div class="mermaid">
-flowchart LR
-    A[Flow Starts] --> B[Read Checkpoint]
-    B --> C{Checkpoint Exists?}
-    C -->|Yes| D[Resume from Last Position]
-    C -->|No| E[Start from Beginning]
-    D --> F[Process New Records]
-    E --> F
-    F --> G[Write to Target]
-    G --> H[Update Checkpoint]
-    H -.->|Next Run| B
-    style A fill:#E3F2FD,stroke:#1976d2,stroke-width:2px,color:#000
-    style B fill:#E8F5E9,stroke:#388E3C,stroke-width:2px,color:#000
-    style C fill:#FFF3E0,stroke:#F57C00,stroke-width:2px,color:#000
-    style D fill:#E8F5E9,stroke:#388E3C,color:#000
-    style E fill:#FFEBEE,stroke:#C62828,color:#000
-    style F fill:#F3E5F5,stroke:#7B1FA2,color:#000
-    style G fill:#E8F5E9,stroke:#388E3C,color:#000
-    style H fill:#E3F2FD,stroke:#1976d2,color:#000
-</div>
-
-<script type="module">
-import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-mermaid.initialize({ startOnLoad: true, theme: "default" });
-</script>
-
+<h4>Como um Flow processa dados:</h4>
+<ol>
+<li><strong>Primeira Execução</strong> — O flow processa <strong>todos os dados disponíveis</strong> e cria o checkpoint inicial</li>
+<li><strong>Execuções Subsequentes</strong> — O flow lê o checkpoint, encontra dados novos desde a última execução e processa <strong>apenas os novos dados</strong></li>
+</ol>
 <hr />
-<h4>Four Key Rules of Checkpoint Management</h4>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0;">
-
-  <div style="background:#F3F4F6;border-left:4px solid #607D8B;border-radius:8px;padding:18px 20px;">
-    <div style="font-weight:bold;font-size:16px;color:#111;margin-bottom:6px;">Flow Name = Checkpoint Identity</div>
-    <div style="font-size:16px;color:#555;line-height:1.6;">The flow name directly maps to its checkpoint location on storage. Each flow's progress is tracked and stored independently under its name.</div>
-  </div>
-
-  <div style="background:#FFF3E0;border-left:4px solid #F57C00;border-radius:8px;padding:18px 20px;">
-    <div style="font-weight:bold;font-size:16px;color:#E65100;margin-bottom:6px;">Renaming Resets Progress</div>
-    <div style="font-size:16px;color:#555;line-height:1.6;">Changing a flow's name creates a brand new checkpoint and abandons the old one. The flow reprocesses data from the beginning as if it has never run before.</div>
-  </div>
-
-  <div style="background:#E8F5E9;border-left:4px solid #388E3C;border-radius:8px;padding:18px 20px;">
-    <div style="font-weight:bold;font-size:16px;color:#1B5E20;margin-bottom:6px;">Independent Progression</div>
-    <div style="font-size:16px;color:#555;line-height:1.6;">Each flow processes data at its own pace. A slow or lagging flow has no effect on other flows within the same pipeline — they advance independently.</div>
-  </div>
-
-  <div style="background:#E3F2FD;border-left:4px solid #1976d2;border-radius:8px;padding:18px 20px;">
-    <div style="font-weight:bold;font-size:16px;color:#0D47A1;margin-bottom:6px;">Failure Isolation</div>
-    <div style="font-size:16px;color:#555;line-height:1.6;">If one flow fails, remaining flows continue processing normally. Failures are scoped to the individual flow — not the entire pipeline.</div>
-  </div>
-
-</div>
-
-<div style="background:#FFF9C4;border-left:4px solid #F9A825;padding:14px 18px;margin:20px 0;border-radius:4px;">
-  <div style="display:flex;align-items:start;gap:10px;">
-    <span style="font-size:20px;">💡</span>
-    <div style="font-size:16px;color:#444;line-height:1.7;">
-      <strong>Summary:</strong> A flow's checkpoint acts like a bookmark, tracking progress independently. Renaming a flow resets its checkpoint, starting from the beginning and discarding previous progress.
-    </div>
-  </div>
-</div>
+<h3>Modos de Processamento</h3>
+<h4>Modo Incremental (Padrão)</h4>
+<p>O modo incremental processa <strong>apenas novos dados</strong> desde o último checkpoint. Isso é altamente eficiente porque apenas dados novos precisam ser processados em cada execução.</p>
+<ul>
+<li><strong>Quando usar:</strong> Ingestão contínua de dados, processamento de novos registros, pipelines append-only</li>
+</ul>
+<h4>Modo Full Refresh</h4>
+<p>O modo Full Refresh <strong>reprocessa todos os dados do zero</strong>, descartando o checkpoint existente e reconstruindo a tabela completa. Isso é mais custoso e tipicamente reservado para casos onde todo o dataset precisa ser recalculado.</p>
+<ul>
+<li><strong>Quando usar:</strong> Após mudanças de schema, correção de dados, quando os dados precisam ser recalculados por completo</li>
+</ul>
 </section>
 <section class="notebook-cell">
 <h3>A3. Default Flow vs. Explicit Flow</h3>
-<p>Most of the time, a flow is created <strong>automatically and implicitly</strong> when you define a streaming table or materialized view. This is the <strong>default flow</strong> — it shares the name of its target table.</p>
-<p>Você também pode create <strong>explicit flows</strong> separately from the table definition. This is required when você precisa write to an existing table from a new source, or when múltiplas fontes need to converge into one target.</p>
-<div style="display:flex;gap:16px;margin:16px 0;">
-<div style="flex:1;background:#F3F4F6;border:1px solid #E0E0E0;border-radius:6px;padding:14px 16px;">
-<div style="font-weight:bold;color:#333;font-size:16px;margin-bottom:1px;">Default Flow (implicit)</div>
-<div style="font-size:16px;color:#555;margin-bottom:8px;">Table and flow created in one step. The flow takes the name of the table.</div>
-<pre style="background:#fff;border:1px solid #ddd;border-radius:4px;padding:10px;font-size:15px;margin:0;">
-<div class="code-block" data-language="sql">
-CREATE OR REFRESH STREAMING TABLE target_table
-AS SELECT *
-FROM STREAM source_table;
-</pre>
-</div>
-<div style="flex:1;background:#F3F4F6;border:1px solid #E0E0E0;border-radius:6px;padding:14px 16px;">
-<div style="font-weight:bold;color:#333;font-size:16px;margin-bottom:10px;">Explicit Flow (separate definition)</div>
-<div style="font-size:16px;color:#555;margin-bottom:8px;">Table defined first. Flow defined separately and attached to the target by name.</div>
-<pre style="background:#fff;border:1px solid #ddd;border-radius:4px;padding:10px;font-size:15px;margin:0;">
-<div class="code-block" data-language="sql">
-CREATE OR REFRESH STREAMING TABLE target_table;
+<p>Na maioria das vezes, um flow é criado <strong>automática e implicitamente</strong> quando você define uma streaming table ou materialized view. Este é o <strong>default flow</strong> — ele compartilha o mesmo nome do dataset target.</p>
+<p>Quando você precisa de mais controle — como escrever de <strong>múltiplas fontes no mesmo target</strong> — você cria um <strong>explicit flow</strong> usando a cláusula <code>CREATE FLOW</code>. Explicit flows permitem nomear e gerenciar flows individuais de forma independente.</p>
+<p><strong>Default Flow</strong> — Criado implicitamente. Uma query, um target. Um flow por tabela.</p>
+<pre><code class="language-sql">-- Default flow: criado automaticamente
+CREATE OR REFRESH STREAMING TABLE orders_bronze
+AS SELECT * FROM STREAM read_files('path/to/orders')
+</code></pre>
+<p><strong>Explicit Flow</strong> — Criado manualmente com <code>CREATE FLOW</code>. Múltiplas queries podem escrever no mesmo target.</p>
+<pre><code class="language-sql">-- Explicit flows: múltiplas fontes → um target
+CREATE FLOW ingest_online
+AS INSERT INTO orders_bronze BY NAME
+SELECT * FROM STREAM read_files('path/to/online');
 
-CREATE FLOW my_flow
-AS INSERT INTO target_table BY NAME
-SELECT * FROM STREAM source_table;
-</div>
-
-<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
-
-<script>
-(function() {
-    document.querySelectorAll('.code-block').forEach(function(block) {
-        if (block.getAttribute('data-processed')) return;
-        block.setAttribute('data-processed', 'true');
-        var lang = block.getAttribute('data-language') || 'sql';
-        var code = block.textContent.trim();
-        var id = 'code-' + Math.random().toString(36).substr(2, 9);
-        block.innerHTML = 
-            '<div style="position:relative;margin:16px 0;">' +
-                '<button class="copy-btn" style="position:absolute;top:8px;right:8px;padding:4px 12px;font-size:15px;background:#ddd;color:#333;border:1px solid #ccc;border-radius:4px;cursor:pointer;z-index:10;">Copy</button>' +
-                '<pre style="background:#f8f8f8;border-radius:8px;padding:16px;padding-top:40px;overflow-x:auto;margin:0;border:1px solid #e0e0e0;"><code id="' + id + '" class="language-' + lang + '" style="font-family:Consolas,Monaco,monospace;font-size:16px;"></code></pre>' +
-            '</div>';
-        var codeEl = document.getElementById(id);
-        codeEl.textContent = code;
-        Prism.highlightElement(codeEl);
-        block.querySelector('.copy-btn').onclick = function() {
-            var t = document.createElement('textarea');
-            t.value = code;
-            document.body.appendChild(t);
-            t.select();
-            document.execCommand('copy');
-            document.body.removeChild(t);
-            this.textContent = '✓ Copied!';
-            setTimeout(() => this.textContent = 'Copy', 2000);
-        };
-    });
-})();
-</script>
-</pre>
-</div>
-</div>
+CREATE FLOW ingest_retail
+AS INSERT INTO orders_bronze BY NAME
+SELECT * FROM STREAM read_files('path/to/retail');
+</code></pre>
 </section>
 <section class="notebook-cell">
-<h2>B. The Multi-Flow Pattern</h2>
+<h2>B. O Padrão Multi-Flow</h2>
 </section>
 <section class="notebook-cell">
-<h3>B1. Writing Multiple Sources into One Target</h3>
-<p>The power of explicit flows is that you can define <strong>multiple flows targeting the same table</strong>. Each flow independently reads from a different source and appends its records to the shared target.</p>
-<p>This is the <strong>multi-flow pattern</strong> — it is the recommended approach when você precisa consolidate data from several sources into a single unified table.
-<br/>
-<br/></p>
-<div class="mermaid">
-flowchart LR
-    S1("<div style='text-align:center;font-size:15px;'>
-<img src='https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/icons/csv_file_icon.png' width='28' style='display:block;margin:0 auto 4px;'/>
-<b>Source A</b><br/>CSV file
-</div>")
-    S2("<div style='text-align:center;font-size:15px;'>
-<img src='https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/icons/json_file_icon.png' width='28' style='display:block;margin:0 auto 4px;'/>
-<b>Source B</b><br/>JSON file
-</div>")
-    S3("<div style='text-align:center;font-size:15px;'>
-<img src='https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/icons/csv_file_icon.png' width='28' style='display:block;margin:0 auto 4px;'/>
-<b>Source C</b><br/>CSV file
-</div>")
-    F1["Flow A<br/>source_a_flow"]
-    F2["Flow B<br/>source_b_flow"]
-    F3["Flow C<br/>source_c_flow"]
-    T[" Single Target<br/>Streaming Table<br/>INSERT INTO ... BY NAME"]
-    S1 -----> F1
-    S2 -----> F2
-    S3 -----> F3
-    F1 -----> T
-    F2 -----> T
-    F3 -----> T
-    style F1 fill:#1976D2,color:#fff,stroke:#1565C0
-    style F2 fill:#1976D2,color:#fff,stroke:#1565C0
-    style F3 fill:#1976D2,color:#fff,stroke:#1565C0
-    style T fill:#FF5722,color:#fff,stroke:#E64A19
-</div>
+<h3>B1. Escrevendo de Múltiplas Fontes em Um Único Target</h3>
+<p>O poder dos explicit flows é que você pode definir <strong>múltiplos flows apontando para a mesma tabela</strong>. Cada flow lê independentemente de uma fonte diferente e escreve na mesma streaming table. Isso é chamado de <strong>padrão multi-flow</strong>.</p>
+<p>O target é definido <strong>uma vez</strong> como uma streaming table vazia (sem query), e cada flow é definido separadamente com sua própria query de ingestão.</p>
+<pre><code class="language-sql">-- 1. Defina a tabela target vazia
+CREATE OR REFRESH STREAMING TABLE orders_bronze;
 
-<script type="module">
-import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-mermaid.initialize({ startOnLoad: true, theme: "default" });
-</script>
+-- 2. Flow para pedidos online
+CREATE FLOW online_orders
+AS INSERT INTO orders_bronze BY NAME
+SELECT * FROM STREAM read_files('/data/online_orders');
 
-<div style="background:#E8F5E9;border-left:4px solid #388E3C;padding:14px 18px;margin:20px 0;border-radius:4px;">
-  <div style="font-size:16px;color:#1B5E20;line-height:1.7;">
-    💡 Each flow has its <strong>own independent checkpoint</strong> — if a new source is added later, only that flow needs to backfill. The other flows are completely unaffected.
-  </div>
-</div>
+-- 3. Flow para pedidos da loja
+CREATE FLOW retail_orders
+AS INSERT INTO orders_bronze BY NAME
+SELECT * FROM STREAM read_files('/data/retail_orders');
+</code></pre>
+<p>Cada flow mantém seu próprio checkpoint e processa dados independentemente. Isso proporciona <strong>melhor isolamento de erros</strong> — se um flow falhar, os outros continuam processando.</p>
 </section>
 <section class="notebook-cell">
-<h3>B2. Multi-Flow vs. UNION — Why It Matters</h3>
-<p>A common alternative to multi-flow is combining sources with a <code>UNION</code> clause inside a single streaming table definition. For incremental pipelines, this creates critical limitations.</p>
-<div style="display:flex;gap:16px;margin:16px 0;">
-<div style="flex:1;background:#FFEBEE;border:1px solid #FFCDD2;border-radius:6px;padding:14px 16px;">
-<div style="font-weight:bold;color:#C62828;font-size:16px;margin-bottom:8px;">❌ UNION Approach</div>
-<ul style="font-size:16px;color:#333;margin:0;padding-left:16px;">
-<li>All sources share a <strong>single checkpoint</strong></li>
-<li>Adding a new source <strong>requires a full refresh</strong> to reprocess everything</li>
-<li>A failure in one source can block all others</li>
-<li>Harder to track lineage per source</li>
-<li>Complex error handling across multiple data sources</li>
-<li>Limited scalability as source count increases</li>
-</ul>
-</div>
-<div style="flex:1;background:#E8F5E9;border:1px solid #C8E6C9;border-radius:6px;padding:14px 16px;">
-<div style="font-weight:bold;color:#1B5E20;font-size:16px;margin-bottom:8px;">✅ Multi-Flow Approach</div>
-<ul style="font-size:16px;color:#333;margin:0;padding-left:16px;">
-<li>Each flow has its <strong>own independent checkpoint</strong></li>
-<li>New sources can be added <strong>without a full refresh</strong></li>
-<li>Flows are isolated — one source failure does not affect others</li>
-<li>Clear per-source lineage and monitoring</li>
-<li>Independent error handling and recovery per source</li>
-<li>Better scalability and maintainability</li>
-</ul>
-</div>
-</div>
+<h3>B2. Multi-Flow vs. UNION — Por que Importa</h3>
+<p>Uma alternativa comum ao multi-flow é combinar fontes com uma cláusula <code>UNION</code> dentro de uma única definição de streaming table. Para pipelines incrementais, isso é geralmente <strong>menos eficiente e mais frágil</strong> que o padrão multi-flow.</p>
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>Multi-Flow</th>
+<th>UNION</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Checkpointing</strong></td>
+<td>Cada flow rastreia seu progresso independentemente</td>
+<td>Um único checkpoint compartilhado entre todas as fontes</td>
+</tr>
+<tr>
+<td><strong>Isolamento de Falhas</strong></td>
+<td>Se um flow falhar, os outros continuam</td>
+<td>Se uma fonte falhar, toda a ingestão para</td>
+</tr>
+<tr>
+<td><strong>Performance</strong></td>
+<td>Cada flow processa apenas seus próprios dados novos</td>
+<td>Todas as fontes precisam ser escaneadas a cada execução</td>
+</tr>
+<tr>
+<td><strong>Evolução de Schema</strong></td>
+<td>Cada flow pode evoluir de forma independente</td>
+<td>Mudanças de schema afetam toda a UNION</td>
+</tr>
+<tr>
+<td><strong>Observabilidade</strong></td>
+<td>Métricas por flow (linhas, duração, erros)</td>
+<td>Métricas agregadas apenas</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Resumo</strong>: Multi-flow é preferível porque oferece melhor isolamento, checkpoint independente e falha parcial em vez de falha total.</p>
 </section>
 <section class="notebook-cell">
 <h2>C. Data Quality Expectations</h2>
-<p>Data quality means making sure your pipeline only stores registros válidos e confiáveis. In Spark Declarative Pipelines, you use <strong>expectations</strong> to set simple rules directly on streaming tables. If a record breaks a rule, you can choose to warn, drop, or fail the update.</p>
-<p>All flows writing to a table follow the same expectations, making it easy to monitor and enforce data quality.</p>
-<blockquote>
-<p>Refer to <a href="https://docs.databricks.com/aws/en/ldp/expectations">Data Quality Expectations in Spark Declarative Pipelines</a> documentation for more details.</p>
-</blockquote>
+<p>Data quality significa garantir que seu pipeline armazene apenas registros válidos e confiáveis. Em Spark Declarative Pipelines, você usa <strong>expectations</strong> para definir regras simples diretamente na definição da tabela. A cada execução do pipeline, cada linha é avaliada contra essas regras — e o resultado é registrado e aplicado automaticamente.</p>
 </section>
 <section class="notebook-cell">
-<h3>C1. Defining Expectations on Streaming Tables</h3>
-<p>In Spark Declarative Pipelines, constraints are defined inline in the table's column definition block using <code>CONSTRAINT ... EXPECT</code>. There are three violation modes that control what happens when a record fails a rule:</p>
-<div style="display:flex;flex-direction:column;gap:10px;margin:16px 0;">
-<div style="display:flex;align-items:flex-start;gap:12px;background:#E8F5E9;border:1px solid #C8E6C9;border-radius:6px;padding:12px 14px;">
-  <div style="font-size:20px;min-width:32px;">🟢</div>
-  <div>
-    <div style="font-weight:bold;font-size:16px;color:#1B5E20;">WARN (default — no ON VIOLATION clause)</div>
-    <div style="font-size:16px;color:#555;margin-top:2px;">Invalid rows are <strong>kept</strong> in the table. A warning metric is logged in the pipeline event log. Use for monitoring without blocking data.</div>
-    <code style="font-size:15px;">CONSTRAINT valid_field EXPECT (field IS NOT NULL)</code>
-  </div>
-</div>
-<div style="display:flex;align-items:flex-start;gap:12px;background:#FFF3E0;border:1px solid #FFE0B2;border-radius:6px;padding:12px 14px;">
-  <div style="font-size:20px;min-width:32px;">🟡</div>
-  <div>
-    <div style="font-weight:bold;font-size:16px;color:#E65100;">DROP ROW</div>
-    <div style="font-size:16px;color:#555;margin-top:2px;">Invalid rows are <strong>removed</strong> from the table. Dropped records are counted in metrics but do not appear in the final dataset.</div>
-    <code style="font-size:15px;">CONSTRAINT valid_qty EXPECT (qty > 0) ON VIOLATION DROP ROW</code>
-  </div>
-</div>
-<div style="display:flex;align-items:flex-start;gap:12px;background:#FFEBEE;border:1px solid #FFCDD2;border-radius:6px;padding:12px 14px;">
-  <div style="font-size:20px;min-width:32px;">🔴</div>
-  <div>
-    <div style="font-weight:bold;font-size:16px;color:#C62828;">FAIL UPDATE</div>
-    <div style="font-size:16px;color:#555;margin-top:2px;">The entire pipeline update is <strong>halted</strong> when even one record violates the rule. Use for critical fields where any violation indicates a serious upstream issue.</div>
-    <code style="font-size:15px;">CONSTRAINT not_null_id EXPECT (id IS NOT NULL) ON VIOLATION FAIL UPDATE</code>
-  </div>
-</div>
-</div>
-
-<div style="border-left: 4px solid #009688; background: #e0f2f1; padding: 16px 20px; border-radius: 4px; margin: 16px 0;">
-  <div style="display: flex; align-items: flex-start; gap: 12px;">
-    <span style="font-size: 24px;">💡</span>
-    <div>
-      <strong style="color: #00695c; font-size: 1.1em;">Expectation Strategy</strong>
-      <p style="margin: 8px 0 0 0; color: #333;">Use a layered approach: <code>FAIL UPDATE</code> for critical business keys, <code>DROP ROW</code> for data quality issues that can be filtered out, and <code>WARN</code> for monitoring unusual but potentially valid data patterns.</p>
-    </div>
-  </div>
-</div>
+<h3>C1. Definindo Expectations em Streaming Tables</h3>
+<p>Em Spark Declarative Pipelines, constraints são definidas inline no bloco de definição de colunas da tabela usando <code>CONSTRAINT ... EXPECT</code>. Existem três modos de enforcement:</p>
+<table>
+<thead>
+<tr>
+<th>Modo</th>
+<th>Sintaxe</th>
+<th>Comportamento</th>
+<th>Quando Usar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>WARN</strong></td>
+<td><code>CONSTRAINT nome EXPECT (condição)</code></td>
+<td>Registra violações mas <strong>mantém</strong> a linha</td>
+<td>Monitoramento — não quer bloquear o pipeline</td>
+</tr>
+<tr>
+<td><strong>DROP</strong></td>
+<td><code>CONSTRAINT nome EXPECT (condição) ON VIOLATION DROP ROW</code></td>
+<td><strong>Remove</strong> linhas inválidas silenciosamente</td>
+<td>Dados ruins devem ser excluídos</td>
+</tr>
+<tr>
+<td><strong>FAIL</strong></td>
+<td><code>CONSTRAINT nome EXPECT (condição) ON VIOLATION FAIL UPDATE</code></td>
+<td><strong>Para</strong> o flow com erro</td>
+<td>Dados críticos devem estar corretos</td>
+</tr>
+</tbody>
+</table>
+<p>As expectations são avaliadas <strong>por linha</strong> durante a escrita. As métricas (quantas passaram/falharam) são automaticamente rastreadas e visíveis na UI do Pipeline e nas system tables.</p>
 </section>
 <section class="notebook-cell">
-<h3>C2. Expectation Implementation Example</h3>
-<p>Here's a comprehensive example showing how to implement data quality expectations on a streaming table:</p>
-<div class="code-block" data-language="sql">
-CREATE OR REFRESH STREAMING TABLE streaming_table
-  (
-    CONSTRAINT valid_qty        EXPECT (qty >= 0)                     ON VIOLATION DROP ROW,
-    CONSTRAINT valid_amount     EXPECT (total_amount >= 0)            ON VIOLATION DROP ROW,
-    CONSTRAINT not_null_ts      EXPECT (order_timestamp IS NOT NULL) ON VIOLATION FAIL UPDATE,
-    CONSTRAINT valid_email      EXPECT (customer_email RLIKE '^[^@]+@[^@]+\\.[^@]+$'),
-    CONSTRAINT reasonable_qty   EXPECT (qty <= 1000)                 ON VIOLATION WARN
-  )
-</div>
+<h3>C2. Exemplo de Implementação de Expectations</h3>
+<p>Aqui está um exemplo abrangente mostrando como implementar expectations de data quality em uma streaming table:</p>
+<pre><code class="language-sql">CREATE OR REFRESH STREAMING TABLE orders_silver
+(
+  -- WARN: registra se order_id está nulo, mas mantém a linha
+  CONSTRAINT valid_order_id EXPECT (order_id IS NOT NULL),
 
-<p><link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" /></p>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+  -- DROP: remove linhas com valor total inválido
+  CONSTRAINT valid_total EXPECT (total &gt; 0) ON VIOLATION DROP ROW,
 
-<script>
-(function() {
-    document.querySelectorAll('.code-block').forEach(function(block) {
-        if (block.getAttribute('data-processed')) return;
-        block.setAttribute('data-processed', 'true');
-        var lang = block.getAttribute('data-language') || 'sql';
-        var code = block.textContent.trim();
-        var id = 'code-' + Math.random().toString(36).substr(2, 9);
-        block.innerHTML = 
-            '<div style="position:relative;margin:16px 0;">' +
-                '<button class="copy-btn" style="position:absolute;top:8px;right:8px;padding:4px 12px;font-size:15px;background:#ddd;color:#333;border:1px solid #ccc;border-radius:4px;cursor:pointer;z-index:10;">Copy</button>' +
-                '<pre style="background:#f8f8f8;border-radius:8px;padding:16px;padding-top:40px;overflow-x:auto;margin:0;border:1px solid #e0e0e0;"><code id="' + id + '" class="language-' + lang + '" style="font-family:Consolas,Monaco,monospace;font-size:16px;"></code></pre>' +
-            '</div>';
-        var codeEl = document.getElementById(id);
-        codeEl.textContent = code;
-        Prism.highlightElement(codeEl);
-        block.querySelector('.copy-btn').onclick = function() {
-            var t = document.createElement('textarea');
-            t.value = code;
-            document.body.appendChild(t);
-            t.select();
-            document.execCommand('copy');
-            document.body.removeChild(t);
-            this.textContent = '✓ Copied!';
-            setTimeout(() => this.textContent = 'Copy', 2000);
-        };
-    });
-})();
-</script>
-<div style="border-left: 4px solid #ff9800; background: #fff3e0; padding: 16px 20px; border-radius: 4px; margin: 16px 0;">
-  <div style="display: flex; align-items: flex-start; gap: 12px;">
-    <span style="font-size: 24px;">⚠️</span>
-    <div>
-      <strong style="color: #e65100; font-size: 1.1em;">Data Quality Expectations Cannot Be Defined on a Flow</strong>
-      <p style="margin: 8px 0 0 0; color: #333;">When using the multi-flow pattern, <strong>quality constraints must be defined on the target table</strong> — not inside the <code>CREATE FLOW</code> or <code>@dp.append_flow</code> definition. The table enforces quality rules centrally for all flows that write to it.</p>
-    </div>
-  </div>
-</div>
+  -- FAIL: para o flow se houver tipo de pedido desconhecido
+  CONSTRAINT valid_type EXPECT (order_type IN ('online', 'retail', 'wholesale'))
+    ON VIOLATION FAIL UPDATE
+)
+AS SELECT
+  order_id,
+  customer_id,
+  order_type,
+  total,
+  order_date
+FROM STREAM orders_bronze
+</code></pre>
+<p>Neste exemplo:
+- <code>valid_order_id</code> — registra um aviso se <code>order_id</code> for nulo, mas a linha <strong>continua</strong> no target
+- <code>valid_total</code> — <strong>remove</strong> silenciosamente linhas onde <code>total</code> não é positivo
+- <code>valid_type</code> — <strong>para</strong> o flow se encontrar um <code>order_type</code> que não é 'online', 'retail' ou 'wholesale'</p>
 </section>
 <section class="notebook-cell">
-<h3>C3. Monitoring and Observability</h3>
-<p>Data quality expectations automatically generate metrics accessible through two channels 
-- <strong>Pipeline UI</strong> for at-a-glance health 
-- <strong>System tables</strong> for deep programmatic analysis</p>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0;">
-
-  <div style="background:#F3F4F6;border:1px solid #E0E0E0;border-radius:8px;padding:16px 18px;">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-      <div style="font-size:28px;"></div>
-      <div style="font-weight:bold;font-size:16px;color:#111;">Records Processed</div>
-    </div>
-    <div style="font-size:16px;color:#555;line-height:1.7;">Total rows read and written per pipeline update — gives you a baseline throughput view for each flow.</div>
-  </div>
-
-  <div style="background:#FFEBEE;border:1px solid #FFCDD2;border-radius:8px;padding:16px 18px;">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-      <div style="font-size:28px;"></div>
-      <div style="font-weight:bold;font-size:16px;color:#C62828;">Records Failing Each Constraint</div>
-    </div>
-    <div style="font-size:16px;color:#555;line-height:1.7;">Per-constraint violation counts — identifies exactly which rule is failing and how many records are affected.</div>
-  </div>
-
-  <div style="background:#FFF3E0;border:1px solid #FFE0B2;border-radius:8px;padding:16px 18px;">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-      <div style="font-size:28px;"></div>
-      <div style="font-weight:bold;font-size:16px;color:#E65100;">Violation Percentage</div>
-    </div>
-    <div style="font-size:16px;color:#555;line-height:1.7;">Proportion of records violating each expectation — helps distinguish a minor blip from a systemic quality issue.</div>
-  </div>
-
-  <div style="background:#E8F5E9;border:1px solid #C8E6C9;border-radius:8px;padding:16px 18px;">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-      <div style="font-size:28px;"></div>
-      <div style="font-weight:bold;font-size:16px;color:#1B5E20;">Historical Trends</div>
-    </div>
-    <div style="font-size:16px;color:#555;line-height:1.7;">Quality metrics over time — surfaces gradual data drift or regressions introduced by upstream schema changes.</div>
-  </div>
-
-</div>
-
-<div style="background:#E3F2FD;border-left:4px solid #1976D2;border-radius:4px;padding:14px 18px;margin:10px 0 16px 0;">
-  <div style="font-weight:bold;font-size:16px;color:#0D47A1;margin-bottom:6px;">Going Deeper — System Tables and Event Logs</div>
-  <div style="font-size:16px;color:#333;margin-bottom:10px;">The pipeline event log records one row per flow update, capturing both throughput metrics and per-constraint expectation results. You can query it directly to build custom monitoring dashboards or alert pipelines.</div>
-
-<div class="code-block" data-language="sql">
-SELECT timestamp, table_name, output_rows,
-       data_quality.expectations
-FROM event_log("pipeline_id")
-WHERE event_type = 'flow_progress'
-  AND data_quality.expectations IS NOT NULL
-ORDER BY timestamp DESC;
-</div>
-
-<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
-
-<script>
-(function() {
-    document.querySelectorAll('.code-block').forEach(function(block) {
-        if (block.getAttribute('data-processed')) return;
-        block.setAttribute('data-processed', 'true');
-        var lang = block.getAttribute('data-language') || 'sql';
-        var code = block.textContent.trim();
-        var id = 'code-' + Math.random().toString(36).substr(2, 9);
-        block.innerHTML = 
-            '<div style="position:relative;margin:16px 0;">' +
-                '<button class="copy-btn" style="position:absolute;top:8px;right:8px;padding:4px 12px;font-size:15px;background:#ddd;color:#333;border:1px solid #ccc;border-radius:4px;cursor:pointer;z-index:10;">Copy</button>' +
-                '<pre style="background:#f8f8f8;border-radius:8px;padding:16px;padding-top:40px;overflow-x:auto;margin:0;border:1px solid #e0e0e0;"><code id="' + id + '" class="language-' + lang + '" style="font-family:Consolas,Monaco,monospace;font-size:16px;"></code></pre>' +
-            '</div>';
-        var codeEl = document.getElementById(id);
-        codeEl.textContent = code;
-        Prism.highlightElement(codeEl);
-        block.querySelector('.copy-btn').onclick = function() {
-            var t = document.createElement('textarea');
-            t.value = code;
-            document.body.appendChild(t);
-            t.select();
-            document.execCommand('copy');
-            document.body.removeChild(t);
-            this.textContent = '✓ Copied!';
-            setTimeout(() => this.textContent = 'Copy', 2000);
-        };
-    });
-})();
-</script>
-
-</div>
+<h3>C3. Monitoramento e Observabilidade</h3>
+<p>Expectations de data quality geram automaticamente métricas acessíveis por dois canais:</p>
+<ul>
+<li><strong>UI do Pipeline</strong> para saúde visual rápida</li>
+<li><strong>System tables</strong> para análise profunda com SQL</li>
+</ul>
+<h4>Métricas na UI do Pipeline</h4>
+<p>Na aba de detalhes do dataset, métricas de flow mostram contagens de registros e taxas de pass/fail de expectations para cada execução, permitindo que você identifique rapidamente problemas de data quality.</p>
+<h4>System Tables para Análise Profunda</h4>
+<p>Use system tables para consultar métricas de expectations com SQL, permitindo rastreamento histórico de tendências e alertas automatizados.</p>
+<pre><code class="language-sql">-- Consultar resultados de expectations via system table
+SELECT
+  dataset_name,
+  expectation_name,
+  passed_records,
+  failed_records,
+  ROUND(failed_records * 100.0 / (passed_records + failed_records), 2) AS pct_failed
+FROM system.lakeflow.flow_progress_expectations
+WHERE pipeline_id = '&lt;seu-pipeline-id&gt;'
+ORDER BY timestamp DESC
+</code></pre>
 </section>
 <section class="notebook-cell">
-<h2>D. Liquid Clustering in Spark Declarative Pipelines</h2>
+<h2>D. Liquid Clustering em Spark Declarative Pipelines</h2>
 </section>
 <section class="notebook-cell">
-<h3>D1. What is Liquid Clustering?</h3>
-<p>Liquid Clustering is a otimização de layout de dados technique in Delta Lake that replaces <strong>traditional Hive-style partitioning and Z-Ordering</strong>. It organizes data files based on <strong>clustering keys</strong> to improve query performance through efficient data skipping.</p>
-<hr />
-<h4>How It Evolved</h4>
-<div style="display:flex;align-items:stretch;gap:0;margin:20px 0;">
-
-  <div style="flex:1;background:#FFEBEE;border-top:4px solid #C62828;border-radius:8px;padding:18px 20px;">
-    <div style="font-weight:bold;color:#C62828;font-size:16px;margin-bottom:12px;">Hive Partitioning</div>
-    <ul style="font-size:16px;color:#555;line-height:2;margin:0;padding-left:18px;">
-      <li>Rigid directory structure</li>
-      <li>Full rewrite to change keys</li>
-    </ul>
-  </div>
-
-  <div style="display:flex;align-items:center;padding:0 12px;font-size:22px;color:#999;">→</div>
-
-  <div style="flex:1;background:#FFF3E0;border-top:4px solid #F57C00;border-radius:8px;padding:18px 20px;">
-    <div style="font-weight:bold;color:#E65100;font-size:16px;margin-bottom:12px;">Z-Ordering</div>
-    <ul style="font-size:16px;color:#555;line-height:2;margin:0;padding-left:18px;">
-      <li>Manual <code>OPTIMIZE</code> required</li>
-      <li>Full rewrite on every run</li>
-    </ul>
-  </div>
-
-  <div style="display:flex;align-items:center;padding:0 12px;font-size:22px;color:#999;">→</div>
-
-  <div style="flex:1;background:#E8F5E9;border-top:4px solid #388E3C;border-radius:8px;padding:18px 20px;">
-    <div style="font-weight:bold;color:#1B5E20;font-size:16px;margin-bottom:12px;">Liquid Clustering</div>
-    <ul style="font-size:16px;color:#555;line-height:2;margin:0;padding-left:18px;">
-      <li>Incremental — only new data reorganized</li>
-      <li>Keys changeable at any time</li>
-    </ul>
-  </div>
-
-</div>
-
-<hr />
-<h4>Three Properties That Make Liquid Clustering Powerful</h4>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin:20px 0;">
-
-  <div style="background:#E8F5E9;border-top:4px solid #388E3C;border-radius:8px;padding:18px 20px;">
-    <div style="font-weight:bold;color:#1B5E20;font-size:16px;margin-bottom:8px;">Incremental</div>
-    <div style="font-size:16px;color:#555;line-height:1.6;">Optimizes only new or unclustered data; avoids rewriting already clustered files. Efficient for streaming and write-heavy workloads.</div>
-  </div>
-
-  <div style="background:#E3F2FD;border-top:4px solid #1976d2;border-radius:8px;padding:18px 20px;">
-    <div style="font-weight:bold;color:#0D47A1;font-size:16px;margin-bottom:8px;">Flexible</div>
-    <div style="font-size:16px;color:#555;line-height:1.6;">Clustering keys can be updated anytime without full table rewrite. Adapts to evolving query patterns.</div>
-  </div>
-
-  <div style="background:#FFF3E0;border-top:4px solid #F57C00;border-radius:8px;padding:18px 20px;">
-    <div style="font-weight:bold;color:#E65100;font-size:16px;margin-bottom:8px;">Self-Tuning</div>
-    <div style="font-size:16px;color:#555;line-height:1.6;">With <code>CLUSTER BY AUTO</code>, Databricks automatically selects optimal keys based on observed query usage.</div>
-  </div>
-
-</div>
-
-<div style="background:#F8F9FA;border-left:4px solid #607D8B;padding:14px 18px;margin:20px 0;border-radius:4px;">
-  <div style="font-size:16px;color:#444;line-height:1.7;">
-    Think of it as a <strong>library that continuously rearranges its shelves</strong> based on what readers actually look for — <strong>Hive partitioning</strong> locks books into fixed rooms by genre, <strong>Z-Ordering</strong> sorts within those rooms manually, but <strong>Liquid Clustering</strong> observes borrowing patterns and reorganizes automatically over time.
-  </div>
-</div>
+<h3>D1. O que é Liquid Clustering?</h3>
+<p>Liquid Clustering é uma técnica de otimização de layout de dados no Delta Lake que substitui o <strong>particionamento Hive-style tradicional e Z-Ordering</strong>. Ele organiza arquivos de dados baseado em colunas de clustering que você especifica, otimizando a performance de queries agrupando dados relacionados.</p>
+<h4>Benefícios do Liquid Clustering:</h4>
+<table>
+<thead>
+<tr>
+<th>Benefício</th>
+<th>Descrição</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Automático</strong></td>
+<td>Otimiza dados automaticamente — sem necessidade de <code>OPTIMIZE</code> ou <code>ZORDER</code> manual</td>
+</tr>
+<tr>
+<td><strong>Adaptativo</strong></td>
+<td>Adapta-se a mudanças de padrões de query ao longo do tempo</td>
+</tr>
+<tr>
+<td><strong>Incremental</strong></td>
+<td>Só reorganiza dados novos ou modificados — não o dataset inteiro</td>
+</tr>
+<tr>
+<td><strong>Simples</strong></td>
+<td>Uma cláusula <code>CLUSTER BY</code> substitui particionamento + Z-ordering</td>
+</tr>
+</tbody>
+</table>
+<h4>Quando Usar Liquid Clustering:</h4>
+<ul>
+<li>Tabelas frequentemente filtradas por colunas específicas (data, região, tipo)</li>
+<li>Tabelas com volumes de dados crescentes onde performance de queries importa</li>
+<li>Como substituto de particionamento Hive-style e Z-ordering combinados</li>
+</ul>
 </section>
 <section class="notebook-cell">
-<h3>D2. How Liquid Clustering Works</h3>
-<p>Below is a series of snapshots illustrating how liquid clustering works. We have a sales table where clustering keys are defined as Date and Customer Id columns (replacing traditional partitions). Click each step to explore further; an explanation for each step is provided below its image.</p>
-<div style="width:100%; margin:auto; font-family:sans-serif;">
-
-  <!-- Tab buttons -->
-  <div style="display:flex; border-bottom:2px solid #e0e0e0; margin-bottom:0;">
-    <button class="dbtab" onclick="showTab(1)" style="padding:10px 18px; border:none; border-bottom:3px solid #1976d2; background:none; font-size:15px; font-weight:bold; color:#1976d2; cursor:pointer; margin-bottom:-2px;">Step 1 — Before Clustering</button>
-    <button class="dbtab" onclick="showTab(2)" style="padding:10px 18px; border:none; border-bottom:3px solid transparent; background:none; font-size:15px; font-weight:bold; color:#888; cursor:pointer; margin-bottom:-2px;">Step 2 — Cluster Analysis</button>
-    <button class="dbtab" onclick="showTab(3)" style="padding:10px 18px; border:none; border-bottom:3px solid transparent; background:none; font-size:15px; font-weight:bold; color:#888; cursor:pointer; margin-bottom:-2px;">Step 3 — After Clustering</button>
-  </div>
-
-  <!-- Tab panels -->
-  <div class="dbpanel" style="display:block;">
-    <img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/multi_flows_lecture/lq_1.png" style="width:50%; display:block; margin-top:16px;">
-    <div style="color:#444; font-size:16px; padding:12px 4px; line-height:1.8;">
-      <strong>Before clustering:</strong> Data files are scattered randomly by Date and Customer Id. This means queries must scan all files, even for a single customer or date. Small files exist for low-volume customers (D, E), while high-volume Customer C has larger files. There is no grouping — so performance is poor.
-    </div>
-  </div>
-
-  <div class="dbpanel" style="display:none;">
-    <img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/multi_flows_lecture/lq_2.png" style="width:50%; display:block; margin-top:16px;">
-    <div style="color:#444; font-size:16px; padding:12px 4px; line-height:1.8;">
-      <strong>Clustering analysis:</strong> Liquid Clustering examines the data and groups files by key ranges (shown as green dashed boxes). Low-volume customers (A, B, D, E, F) are grouped together for better co-location. High-volume C is left alone. Only the files that need improvement are reorganized, not the whole table.
-    </div>
-  </div>
-
-  <div class="dbpanel" style="display:none;">
-    <img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/multi_flows_lecture/lq_3.png" style="width:50%; display:block; margin-top:16px;">
-    <div style="color:#444; font-size:16px; padding:12px 4px; line-height:1.8;">
-      <strong>After clustering:</strong> Files are now grouped by Date and Customer Id. Queries can skip files that don't match their filters, so performance improves. Liquid Clustering uses a Hilbert curve to make file boundaries tighter, so skipping is more effective. Only fragmented files are rewritten; future runs only cluster new data.
-    </div>
-  </div>
-</div>
-
-</div>
-</div>
-<script>
-function showTab(n) {
-  var tabs   = document.getElementsByClassName("dbtab");
-  var panels = document.getElementsByClassName("dbpanel");
-  for (var i = 0; i < tabs.length; i++) {
-    tabs[i].style.color = "#888";
-    tabs[i].style.borderBottom = "3px solid transparent";
-    panels[i].style.display = "none";
-  }
-  tabs[n-1].style.color = "#1976d2";
-  tabs[n-1].style.borderBottom = "3px solid #1976d2";
-  panels[n-1].style.display = "block";
-}
-window.onload = function() { showTab(1); };
-</script>
+<h3>D2. Como Liquid Clustering Funciona</h3>
+<p>Abaixo está uma série de snapshots ilustrando como liquid clustering funciona. Temos uma tabela de vendas onde as colunas de clustering são definidas como Date e Customer Id (representadas por cores).</p>
+<h4>Sem Clustering</h4>
+<p>Dados são escritos conforme chegam — nenhuma organização. Queries que filtram por data ou cliente precisam escanear <strong>todos os arquivos</strong>.</p>
+<h4>Com Liquid Clustering</h4>
+<p>Dados são reorganizados com base nas colunas de clustering. Queries que filtram por essas colunas pulam arquivos irrelevantes — <strong>data skipping</strong> significativo.</p>
+<h4>Após Novos Dados</h4>
+<p>Quando novos dados chegam, apenas os <strong>novos arquivos</strong> são reorganizados incrementalmente. Dados existentes não precisam ser re-clusterizados (ao contrário de Z-ordering que reprocessa tudo).</p>
 </section>
 <section class="notebook-cell">
-<h3>D3. Applying Liquid Clustering to Streaming Tables in SDP</h3>
-<p>You are already familiar with Liquid Clustering on Delta tables. In Spark Declarative Pipelines, it is enabled directly on the streaming table definition using the <code>CLUSTER BY</code> clause — no separate <code>OPTIMIZE</code> command is needed.</p>
-<div style="display:flex;gap:16px;margin:16px 0;">
-<div style="flex:1;background:#F3F4F6;border:1px solid #E0E0E0;border-radius:6px;padding:14px 16px;">
-<div style="font-weight:bold;color:#333;font-size:16px;margin-bottom:8px;"><code>CLUSTER BY AUTO</code></div>
-<div style="font-size:16px;color:#555;margin-bottom:8px;">Databricks <strong>automatically selects</strong> the best clustering keys based on query history. Best when you are unsure which columns will be most frequently filtered.</div>
-<pre style="background:#fff;border:1px solid #ddd;border-radius:4px;padding:10px;font-size:14px;margin:0;">
-<div class="code-block" data-language="sql">
-CREATE OR REFRESH STREAMING TABLE my_table
+<h3>D3. Aplicando Liquid Clustering a Streaming Tables em SDP</h3>
+<p>Você já está familiarizado com Liquid Clustering em Delta tables. Em Spark Declarative Pipelines, ele é habilitado diretamente na definição da streaming table com a cláusula <code>CLUSTER BY</code>.</p>
+<pre><code class="language-sql">-- Liquid Clustering em uma streaming table
+CREATE OR REFRESH STREAMING TABLE orders_silver
+CLUSTER BY (order_date, region)
+AS SELECT *
+FROM STREAM orders_bronze
+</code></pre>
+<h4>Pontos-Chave:</h4>
+<ul>
+<li><code>CLUSTER BY</code> é aplicado na <strong>definição da tabela</strong> — não como operação separada</li>
+<li>O clustering acontece <strong>automaticamente</strong> durante atualizações do pipeline</li>
+<li>Não há necessidade de executar <code>OPTIMIZE</code> ou <code>ZORDER</code> manualmente</li>
+<li>As colunas de clustering podem ser alteradas a qualquer momento sem recriar a tabela</li>
+</ul>
+<h4>CLUSTER BY AUTO</h4>
+<p>Use <code>CLUSTER BY AUTO</code> para deixar o Databricks <strong>selecionar automaticamente</strong> as melhores colunas de clustering baseado nos padrões de query reais.</p>
+<pre><code class="language-sql">-- Deixe o Databricks escolher as colunas de clustering automaticamente
+CREATE OR REFRESH STREAMING TABLE orders_silver
 CLUSTER BY AUTO
-AS SELECT * FROM STREAM source_table;</pre>
-</div>
-<div style="flex:1;background:#F3F4F6;border:1px solid #E0E0E0;border-radius:6px;padding:14px 16px;">
-<div style="font-weight:bold;color:#333;font-size:16px;margin-bottom:8px;"><code>CLUSTER BY (columns)</code></div>
-<div style="font-size:16px;color:#555;margin-bottom:8px;">You <strong>explicitly specify</strong> the clustering keys. Best when you have strong domain knowledge of your most common filter patterns.</div>
-<pre style="background:#fff;border:1px solid #ddd;border-radius:4px;padding:10px;font-size:14px;margin:0;">
-<div class="code-block" data-language="sql">
-CREATE OR REFRESH STREAMING TABLE my_table
-CLUSTER BY (region, order_date)
-AS SELECT * FROM STREAM source_table;</pre>
-</div>
-</div>
-<p><link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" /></p>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
-
-<script>
-(function() {
-    document.querySelectorAll('.code-block').forEach(function(block) {
-        if (block.getAttribute('data-processed')) return;
-        block.setAttribute('data-processed', 'true');
-        var lang = block.getAttribute('data-language') || 'sql';
-        var code = block.textContent.trim();
-        var id = 'code-' + Math.random().toString(36).substr(2, 9);
-        block.innerHTML = 
-            '<div style="position:relative;margin:16px 0;">' +
-                '<button class="copy-btn" style="position:absolute;top:8px;right:8px;padding:4px 12px;font-size:15px;background:#ddd;color:#333;border:1px solid #ccc;border-radius:4px;cursor:pointer;z-index:10;">Copy</button>' +
-                '<pre style="background:#f8f8f8;border-radius:8px;padding:16px;padding-top:40px;overflow-x:auto;margin:0;border:1px solid #e0e0e0;"><code id="' + id + '" class="language-' + lang + '" style="font-family:Consolas,Monaco,monospace;font-size:16px;"></code></pre>' +
-            '</div>';
-        var codeEl = document.getElementById(id);
-        codeEl.textContent = code;
-        Prism.highlightElement(codeEl);
-        block.querySelector('.copy-btn').onclick = function() {
-            var t = document.createElement('textarea');
-            t.value = code;
-            document.body.appendChild(t);
-            t.select();
-            document.execCommand('copy');
-            document.body.removeChild(t);
-            this.textContent = '✓ Copied!';
-            setTimeout(() => this.textContent = 'Copy', 2000);
-        };
-    });
-})();
-</script>
-<p></pre>
-</div>
-</div></p>
+AS SELECT * FROM STREAM orders_bronze
+</code></pre>
 </section>
 <section class="notebook-cell">
-<h3>D4. Clustering Strategy Selection</h3>
-<div style="display:flex;gap:0;align-items:stretch;margin:32px 0;">
+<h3>D4. Seleção de Estratégia de Clustering</h3>
+<table>
+<thead>
+<tr>
+<th>Estratégia</th>
+<th>Colunas</th>
+<th>Quando Usar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CLUSTER BY (colunas)</strong></td>
+<td>Você especifica as colunas</td>
+<td>Quando você conhece os padrões de query e quer controle total</td>
+</tr>
+<tr>
+<td><strong>CLUSTER BY AUTO</strong></td>
+<td>Databricks seleciona automaticamente</td>
+<td>Melhor para tabelas novas ou quando você não conhece os padrões de query ainda</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CLUSTER BY AUTO</strong> é melhor para:
+- Tabelas novas onde padrões de query ainda não são conhecidos
+- Quando você quer que o Databricks escolha automaticamente o melhor clustering
+- Quando padrões de query mudam com o tempo</p>
+<p><strong>CLUSTER BY (colunas)</strong> é melhor para:
+- Quando você conhece exatamente os filtros mais comuns das queries
+- Quando quer controle total sobre a estratégia de clustering
+- Tabelas maduras com padrões de acesso bem definidos</p>
+</section>
+<section class="notebook-cell">
+<h4>CLIQUE PARA NOTAS ADICIONAIS</h4>
+<details>
 
-  <div style="flex:1;display:flex;flex-direction:column;padding:32px 24px;background:#E8F5E9;border-radius:12px 0 0 12px;border:1px solid #C8E6C9;">
-    <div style="font-size:18px;font-weight:bold;color:#1B5E20;margin-bottom:16px;">CLUSTER BY AUTO</div>
-    <div style="font-size:16px;color:#555;margin-bottom:8px;">Let Databricks <strong>learn and decide</strong></div>
-    <ul style="font-size:16px;color:#555;line-height:2;margin:0;padding-left:20px;">
-      <li>Keys evolve with query patterns</li>
-      <li>Zero manual tuning needed</li>
-      <li>Best for new or evolving tables</li>
-    </ul>
-  </div>
+#### Quando usar CLUSTER BY AUTO
+- Melhor para tabelas novas ou quando você não conhece seus padrões de query ainda
+- Deixa o Databricks escolher automaticamente o melhor clustering baseado em queries reais
+- Adapta-se ao longo do tempo conforme os padrões de query mudam
 
-  <div style="display:flex;align-items:center;justify-content:center;padding:0 20px;background:#F8F9FA;border-top:1px solid #E0E0E0;border-bottom:1px solid #E0E0E0;">
-    <div style="font-size:28px;color:#999;font-weight:300;">vs</div>
-  </div>
+#### Quando usar CLUSTER BY (colunas)
+- Quando você sabe exatamente quais colunas são filtradas com mais frequência
+- Dá controle total sobre a estratégia de clustering
+- Melhor para tabelas estabelecidas com padrões de acesso previsíveis
 
-  <div style="flex:1;display:flex;flex-direction:column;padding:32px 24px;background:#E3F2FD;border-radius:0 12px 12px 0;border:1px solid #BBDEFB;">
-    <div style="font-size:18px;font-weight:bold;color:#0D47A1;margin-bottom:16px;">CLUSTER BY (columns)</div>
-    <div style="font-size:16px;color:#555;margin-bottom:8px;">You <strong>know your queries</strong></div>
-    <ul style="font-size:16px;color:#555;line-height:2;margin:0;padding-left:20px;">
-      <li>Consistent filter columns</li>
-      <li>Full control, predictable layout</li>
-      <li>Best for stable, well-known patterns</li>
-    </ul>
-  </div>
-
-</div>
-
-<div style="display:flex;gap:16px;margin:24px 0;">
-
-  <div style="flex:1;display:flex;align-items:center;gap:14px;background:#FFF3E0;border-left:4px solid #F57C00;border-radius:4px;padding:16px 20px;">
-    <div style="font-size:16px;color:#555;line-height:1.7;"><strong style="color:#E65100;">AUTO starts unset</strong> — Databricks needs to observe queries first before selecting keys. Check <code>clusterByAuto=true</code> to confirm it is active.</div>
-  </div>
-
-  <div style="flex:1;display:flex;align-items:center;gap:14px;background:#F3E5F5;border-left:4px solid #7B1FA2;border-radius:4px;padding:16px 20px;">
-    <div style="font-size:16px;color:#555;line-height:1.7;"><strong style="color:#6A1B9A;">Hybrid is possible</strong> — set explicit columns as a starting hint while still enabling <code>clusterByAuto=true</code> for long-term evolution.</div>
-  </div>
-
-</div>
+</details>
 </section>
 <section class="notebook-cell">
 <h4>CLIQUE PARA NOTAS ADICIONAIS</h4>
@@ -778,4 +414,6 @@ Databricks does not blindly pick columns — it runs a continuous **cost-benefit
 </section>
 <section class="notebook-cell">
 <p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
-</section></div></div><div class="lightbox" id="lightbox" onclick="closeLightbox(event)"><button class="lb-close" onclick="closeLightbox(event)">✕</button><img id="lb-img" src="" alt=""></div><button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button><script>if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙'}function copyCode(b){var c=b.closest('.code-block').querySelector('code').textContent;navigator.clipboard.writeText(c).then(function(){b.textContent='✅ Copiado!';b.classList.add('copied');setTimeout(function(){b.textContent='📋 Copiar';b.classList.remove('copied')},2000)})}function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden'}function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow=''}document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e)});document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src)})});</script></body></html>
+</section>
+</div></div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)"><button class="lb-close" onclick="closeLightbox(event)">✕</button><img id="lb-img" src="" alt=""></div><button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button><script>if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙'}function copyCode(b){var c=b.closest('.code-block').querySelector('code').textContent;navigator.clipboard.writeText(c).then(function(){b.textContent='✅ Copiado!';b.classList.add('copied');setTimeout(function(){b.textContent='📋 Copiar';b.classList.remove('copied')},2000)})}function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden'}function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow=''}document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e)});document.querySelectorAll('.notebook-cell img').forEach(function(i){i.addEventListener('click',function(){openLightbox(i.src)})});</script></body></html>
