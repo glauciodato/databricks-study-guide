@@ -21,24 +21,15 @@
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
-  .top-bar {
-    position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border);
-    padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
-  }
+  .top-bar { position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border); padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
   .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
   .top-bar a:hover { color:var(--accent); }
   .top-bar .sep { color:var(--text-faint); font-size:11px; }
   .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
   .layout { display:flex; min-height:calc(100vh - 50px); }
-  .sidebar {
-    width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border);
-    padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px);
-  }
+  .sidebar { width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border); padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px); }
   .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
-  .sidebar a {
-    display:block; padding:6px 16px; font-size:12px; color:var(--text-muted); text-decoration:none;
-    border-left:2px solid transparent; line-height:1.5; transition:all 0.15s;
-  }
+  .sidebar a { display:block; padding:6px 16px; font-size:12px; color:var(--text-muted); text-decoration:none; border-left:2px solid transparent; line-height:1.5; transition:all 0.15s; }
   .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
   .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
   .content { flex:1; max-width:900px; padding:32px 40px 80px; }
@@ -61,6 +52,16 @@
   .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
   .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
   .notebook-cell th { background:var(--surface-raised); font-weight:600; }
+
+  /* Code blocks with copy */
+  .code-block { position:relative; margin:12px 0; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+  .code-header { display:flex; align-items:center; justify-content:space-between; padding:6px 12px; background:var(--surface); border-bottom:1px solid var(--border); }
+  .code-lang { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); }
+  .copy-btn { background:none; border:1px solid var(--border); color:var(--text-muted); font-size:11px; padding:3px 10px; border-radius:4px; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+  .copy-btn:hover { color:var(--text); border-color:var(--text-muted); }
+  .copy-btn.copied { color:var(--green); border-color:var(--green); }
+  .code-block pre { margin:0; border:none; border-radius:0; background:var(--surface-raised); }
+
   .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
   .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
   .lightbox.open { display:flex; }
@@ -105,7 +106,7 @@
 <h1>Lab - Building Multi-Source E-commerce Pipeline with Spark Declarative Pipelines</h1>
 </section>
 <section class="notebook-cell">
-<h2>Lab Scenario</h2>
+<h2>Cenário do Laboratório</h2>
 <p>You are a data engineer working for an e-commerce company that receives orders from two channels: their website and mobile app. These channels store data in different formats and may have some similarities and differences in how they capture order information. Your role is to build a streaming data pipeline using Spark Declarative Pipelines that can process data from these different channels and generate weekly revenue reports for business stakeholders.</p>
 <p>This lab will demonstrate advanced techniques including multi-flow ingestion, stream-static joins, data quality expectations, and materialized views for analytics.</p>
 </section>
@@ -169,7 +170,7 @@
 </section>
 <section class="notebook-cell">
 <h3>A1. Configure Your Catalog and Schema</h3>
-<p>Run the cell below to initialize your environment. This setup step does the following:
+<p>Execute a célula abaixo to initialize your environment. This setup step does O seguinte:
     - <strong>Assumes you have permission to create a catalog</strong> when running outside of a Databricks provided Vocareum workspace
     - Creates three schemas in your specified catalog:
         - <strong>lab_1_bronze</strong>
@@ -180,7 +181,7 @@
 <pre><code>This ensures that all schemas, tables and objects are created in your catalog.
 </code></pre>
 <blockquote>
-<p><strong>Important:</strong> You must have permission to create catalogs in your own non-Vocareum workspace. If you do not have the required permissions, this step will fail. Review the note below before continuing.</p>
+<p><strong>Importante:</strong> You must have permission to create catalogs in your own non-Vocareum workspace. If you do not have the required permissions, this step will fail. Review the note below before continuing.</p>
 </blockquote>
 </section>
 <section class="notebook-cell">
@@ -208,12 +209,13 @@ This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
 </section>
 <section class="notebook-cell">
 <h3>A2. Verify Volume Path Configuration</h3>
-<p>Run the cell below to view the value of the <code>my_vol_path</code> variable.</p>
+<p>Execute a célula abaixo to view the value of the <code>my_vol_path</code> variable.</p>
 <p>Confirm that the value references your <strong>your-catalog.lab_1_bronze</strong> path. This will be used to dynamically reference your source volumes throughout this lab.</p>
 </section>
+<section class="notebook-cell"><div class="code-block" data-lang="python"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>print(my_vol_path)</code></pre></div></section>
 <section class="notebook-cell">
 <h2>B. Explore Source Data Characteristics</h2>
-<p>Before building our pipeline, let's understand the structure and characteristics of our source data. This e-commerce company receives orders from two different channels, each with its own data format and schema variations.</p>
+<p>Before building our pipeline, Vamos understand the structure and characteristics of our source data. This e-commerce company receives orders from two different channels, each with its own data format and schema variations.</p>
 </section>
 <section class="notebook-cell">
 <h3>B1. Understanding Data File Structure</h3>
@@ -253,23 +255,29 @@ This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
 </section>
 <section class="notebook-cell">
 <h3>B2. Listing Data in Destination Volumes</h3>
-<p>Let's examine the files available in each volume to understand our data sources.</p>
+<p>Vamos examine the files available in each volume to understand our data sources.</p>
 </section>
 <section class="notebook-cell">
 <h4>1. Operations Volume</h4>
 <p>The operations volume contains static reference data like product catalogs.</p>
 </section>
+<section class="notebook-cell"><div class="code-block" data-lang="python"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># List files in ops volume
+display(spark.sql(f"LIST '{my_vol_path}/ops'"))</code></pre></div></section>
 <section class="notebook-cell">
 <h4>2. Web Orders Volume</h4>
 <p>The web orders volume contains CSV files with order data from the company's website.</p>
 </section>
+<section class="notebook-cell"><div class="code-block" data-lang="python"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># List files in web_orders volume
+display(spark.sql(f"LIST '{my_vol_path}/web_orders'"))</code></pre></div></section>
 <section class="notebook-cell">
 <h4>3. App Orders Volume</h4>
 <p>The app orders volume contains JSON files with order data from the mobile application.</p>
 </section>
+<section class="notebook-cell"><div class="code-block" data-lang="python"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># List files in app_orders volume
+display(spark.sql(f"LIST '{my_vol_path}/app_orders'"))</code></pre></div></section>
 <section class="notebook-cell">
 <h3>B3. Analyzing Data Structure and Content</h3>
-<p>Now let's examine the actual data structure and content from each source to understand schema differences and commonalities.</p>
+<p>Now Vamos examine the actual data structure and content from each source to understand schema differences and commonalities.</p>
 </section>
 <section class="notebook-cell">
 <h4>1. Analyzing Operations Data</h4>
@@ -285,7 +293,7 @@ This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
 </section>
 <section class="notebook-cell">
 <h4>Checkpoint - Data Exploration</h4>
-<p>Confirm the following data counts:
+<p>Confirm O seguinte data counts:
 - Web orders: Rows loaded from <code>web_orders_1.csv</code>
 - App orders: Rows loaded from <code>app_orders_1.json</code>
 - Product catalog: 50 products</p>
@@ -297,7 +305,7 @@ This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
 </section>
 <section class="notebook-cell">
 <h3>C1. Enable the Apache Spark™ Pipelines Editor</h3>
-<p>Complete the following steps to confirm or enable the <strong>Apache Spark™ Pipelines Editor</strong>:</p>
+<p>Complete O seguinte steps to confirm or enable the <strong>Apache Spark™ Pipelines Editor</strong>:</p>
 <ol>
 <li>
 <p>In the top-right corner of the workspace, select your <strong>account icon</strong> <img alt="Account Icon" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/account_icon.png" /> (<em>Your icon letter will differ</em>).  </p>
@@ -315,7 +323,7 @@ This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
 </section>
 <section class="notebook-cell">
 <h3>C2. Create a Apache Spark™ Spark Declarative Pipeline</h3>
-<p>Complete the following steps to create your Spark Declarative Pipeline using the Apache Spark™ Pipelines Editor:</p>
+<p>Complete O seguinte steps to create your Spark Declarative Pipeline using the Apache Spark™ Pipelines Editor:</p>
 <ol>
 <li>
 <p>In the main navigation pane, right-click <strong>Jobs &amp; Pipelines</strong> and select <strong>Open link in New Tab</strong>.  </p>
@@ -324,14 +332,14 @@ This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
 <p>In the new tab, select <strong>Create → ETL Pipeline</strong>.  </p>
 </li>
 </ol>
-<p><strong>NOTE:</strong> If prompted to <strong>Try the new Apache Spark™ Pipelines Editor</strong>, choose <strong>Enable Apache Spark™ Pipelines Editor</strong>. This appears only if you did not complete the previous step.  </p>
+<p><strong>Nota:</strong> If prompted to <strong>Try the new Apache Spark™ Pipelines Editor</strong>, choose <strong>Enable Apache Spark™ Pipelines Editor</strong>. This appears only if you did not complete the previous step.  </p>
 <ol>
 <li>Configure the pipeline settings:</li>
 <li><strong>Pipeline Name</strong>: <code>lab_ecommerce_yourname</code></li>
 <li><strong>Default Catalog</strong>: <code>YOUR_LABUSER_CATALOG</code></li>
 <li>
 <p><strong>Default Schema</strong>: <code>lab_1_bronze</code><br />
-<strong>NOTE:</strong> Clear the selected schema using the cross icon to view all schemas.</p>
+<strong>Nota:</strong> Clear the selected schema using the cross icon to view all schemas.</p>
 </li>
 <li>
 <p><strong>Rename pipeline components</strong>:</p>
@@ -351,9 +359,21 @@ This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
 </section>
 <section class="notebook-cell">
 <ol>
-<li>Run the cell below to retrieve the key-value pairs needed to set your pipeline configuration parameters for the source volumes.</li>
+<li>Execute a célula abaixo to retrieve the key-value pairs needed to set your pipeline configuration parameters for the source volumes.</li>
 </ol>
 </section>
+<section class="notebook-cell"><div class="code-block" data-lang="python"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>config_parameters = [
+    ("web_orders_source",      f"{my_vol_path}/web_orders"),
+    ("app_orders_source",      f"{my_vol_path}/app_orders"),
+    ("product_catalog_source", f"{my_vol_path}/ops"),
+]
+print("=" * 65)
+print("  Add these as Configuration Parameters in your Pipeline:")
+print("=" * 65)
+for key, value in config_parameters:
+    print(f"  Key  : {key}")
+    print(f"  Value: {value}")
+    print()</code></pre></div></section>
 <section class="notebook-cell">
 <ol>
 <li>Copy the paths above and add each one as a configuration parameter in your <strong>Spark Declarative Pipeline</strong>.</li>
@@ -376,12 +396,12 @@ This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
 <p>Select <strong>Save</strong></p>
 </li>
 </ol>
-<p><strong>NOTE:</strong> For more details on configuration parameters, see the Databricks documentation: <a href="https://docs.databricks.com/aws/en/ldp/parameters">Use parameters with Apache Spark™ Declarative Pipelines</a></p>
+<p><strong>Nota:</strong> For more details on configuration parameters, see the Databricks documentation: <a href="https://docs.databricks.com/aws/en/ldp/parameters">Use parameters with Apache Spark™ Declarative Pipelines</a></p>
 </section>
 <section class="notebook-cell">
 <h2>D. Bronze Layer — Multi-Flow Ingestion</h2>
 <p>We have orders data coming from two sources: <strong>web and app</strong>. The Bronze layer will use multi-flow ingestion to combine data from both sources into a unified table.</p>
-<p>To build the Bronze layer, follow these three steps:
+<p>To build the Bronze layer, follow these three Passo(s):
 1. Create a Bronze table that can accept data from both sources.
 2. Create a flow for web orders data.
 3. Create a flow for app orders data.</p>
@@ -444,6 +464,10 @@ This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
 <p><strong>To Do:</strong>
 Using these requirements, write the full <code>CREATE OR REPLACE STREAMING TABLE</code> statement, including all columns, data types, <code>COMMENT</code>, and <code>TBLPROPERTIES</code>.</p>
 </section>
+<section class="notebook-cell"><div class="code-block" data-lang="sql"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>## Create the Bronze streaming table for combined orders
+## Use the requirements specified above
+%sql
+&lt;FILL_IN&gt;</code></pre></div></section>
 <section class="notebook-cell">
 <h5>CODE ANSWER - Bronze Table Structure</h5>
 <details>
@@ -644,6 +668,9 @@ function fallbackCopy(text) {
 <p><strong>To Do:</strong></p>
 <p>Using these requirements, write the full flow for web orders yourself.</p>
 </section>
+<section class="notebook-cell"><div class="code-block" data-lang="sql"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>## Create the web orders flow
+## Follow the requirements specified above
+## &lt;FILL_IN&gt;</code></pre></div></section>
 <section class="notebook-cell">
 <h5>CODE ANSWER - Web Orders Flow</h5>
 <details>
@@ -748,7 +775,7 @@ function fallbackCopy(text) {
 </section>
 <section class="notebook-cell">
 <h3>D5. Confirming Ingestion of Records</h3>
-<p>Let's verify that our multi-flow ingestion is working correctly by examining the ingested data.</p>
+<p>Vamos verify that our multi-flow ingestion is working correctly by examining the ingested data.</p>
 </section>
 <section class="notebook-cell">
 <h4>Checkpoint - Bronze Layer</h4>
@@ -1170,7 +1197,7 @@ function fallbackCopy(text) {
 <p><strong>orders_clean</strong> should show <strong>192</strong> records, with 2 expectations met and 3 unmet.</p>
 </li>
 <li>
-<p>Hover over <strong>orders_clean</strong> in the pipeline graph to see <strong>8</strong> records dropped and <strong>8</strong> records with warnings. Click on "Expectations" for details:</p>
+<p>Hover over <strong>orders_clean</strong> in the pipeline graph to see <strong>8</strong> records dropped and <strong>8</strong> records with warnings. Clique em "Expectations" for details:</p>
 <ul>
 <li><strong>8</strong> records dropped due to the <code>positive_quantity</code> constraint.</li>
 <li><strong>10</strong> records triggered warnings for the <code>positive_unit_price</code> constraint.</li>
@@ -1190,7 +1217,7 @@ function fallbackCopy(text) {
 </section>
 <section class="notebook-cell">
 <h3>E7. Confirming Transformation of Records</h3>
-<p>Let's verify that our Silver layer transformations are working correctly.</p>
+<p>Vamos verify that our Silver layer transformations are working correctly.</p>
 </section>
 <section class="notebook-cell">
 <h4>Checkpoint — Silver Layer</h4>
@@ -1258,6 +1285,10 @@ function fallbackCopy(text) {
 <p><strong>To Do:</strong>
 Using these requirements, write the full code for the Gold analytics view.</p>
 </section>
+<section class="notebook-cell"><div class="code-block" data-lang="sql"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>## Create the Gold layer analytics materialized view
+## Follow the requirements specified above
+%sql
+&lt;FILL_IN&gt;</code></pre></div></section>
 <section class="notebook-cell">
 <h5>CODE ANSWER - Gold Analytics View</h5>
 <details>
@@ -1359,10 +1390,15 @@ function fallbackCopy(text) {
 <h3>G1. Land Additional Files</h3>
 <p>Run the function below to automatically land new files into the source locations for both web and app orders.</p>
 </section>
+<section class="notebook-cell"><div class="code-block" data-lang="python"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>copy_second_file()</code></pre></div></section>
 <section class="notebook-cell">
 <h3>G2. Listing Available Files</h3>
-<p>Let's verify that the new files have been added to our source volumes.</p>
+<p>Vamos verify that the new files have been added to our source volumes.</p>
 </section>
+<section class="notebook-cell"><div class="code-block" data-lang="python"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># List files in web_orders volume
+display(spark.sql(f"LIST '{my_vol_path}/web_orders'"))</code></pre></div></section>
+<section class="notebook-cell"><div class="code-block" data-lang="python"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># List files in app_orders volume
+display(spark.sql(f"LIST '{my_vol_path}/app_orders'"))</code></pre></div></section>
 <section class="notebook-cell">
 <h3>G3. Run and Explore the Pipeline</h3>
 <ol>
@@ -1379,7 +1415,7 @@ function fallbackCopy(text) {
 <p><strong>orders_clean</strong> should have <strong>191</strong> records, with 3 expectations met and 2 unmet.</p>
 </li>
 <li>
-<p>Hover over <strong>orders_clean</strong> in the pipeline graph to see <strong>9</strong> records dropped and <strong>7</strong> records with warnings. Click on "Expectations" for details:</p>
+<p>Hover over <strong>orders_clean</strong> in the pipeline graph to see <strong>9</strong> records dropped and <strong>7</strong> records with warnings. Clique em "Expectations" for details:</p>
 <ul>
 <li>A total of <strong>9</strong> records were dropped: <strong>8</strong> due to the <code>positive_quantity</code> constraint and <strong>1</strong> due to the <code>valid_sku</code> constraint.</li>
 <li><strong>7</strong> records triggered warnings for the <code>positive_unit_price</code> constraint.</li>
@@ -1400,7 +1436,7 @@ function fallbackCopy(text) {
 </section>
 <section class="notebook-cell">
 <h3>G4. Validating the Pipeline</h3>
-<p>Let's validate that our incremental processing is working correctly by examining the data at each layer.</p>
+<p>Vamos validate that our incremental processing is working correctly by examining the data at each layer.</p>
 </section>
 <section class="notebook-cell">
 <h4>1. Verify Bronze Cumulative Totals</h4>
@@ -1426,6 +1462,13 @@ function fallbackCopy(text) {
 <button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
 <script>
 if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
+function copyCode(btn){
+  var code=btn.closest('.code-block').querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(function(){
+    btn.textContent='✅ Copiado!';btn.classList.add('copied');
+    setTimeout(function(){btn.textContent='📋 Copiar';btn.classList.remove('copied');},2000);
+  });
+}
 function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
 function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});

@@ -21,24 +21,15 @@
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
-  .top-bar {
-    position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border);
-    padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
-  }
+  .top-bar { position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border); padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
   .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
   .top-bar a:hover { color:var(--accent); }
   .top-bar .sep { color:var(--text-faint); font-size:11px; }
   .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
   .layout { display:flex; min-height:calc(100vh - 50px); }
-  .sidebar {
-    width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border);
-    padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px);
-  }
+  .sidebar { width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border); padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px); }
   .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
-  .sidebar a {
-    display:block; padding:6px 16px; font-size:12px; color:var(--text-muted); text-decoration:none;
-    border-left:2px solid transparent; line-height:1.5; transition:all 0.15s;
-  }
+  .sidebar a { display:block; padding:6px 16px; font-size:12px; color:var(--text-muted); text-decoration:none; border-left:2px solid transparent; line-height:1.5; transition:all 0.15s; }
   .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
   .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
   .content { flex:1; max-width:900px; padding:32px 40px 80px; }
@@ -61,6 +52,16 @@
   .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
   .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
   .notebook-cell th { background:var(--surface-raised); font-weight:600; }
+
+  /* Code blocks with copy */
+  .code-block { position:relative; margin:12px 0; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+  .code-header { display:flex; align-items:center; justify-content:space-between; padding:6px 12px; background:var(--surface); border-bottom:1px solid var(--border); }
+  .code-lang { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); }
+  .copy-btn { background:none; border:1px solid var(--border); color:var(--text-muted); font-size:11px; padding:3px 10px; border-radius:4px; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+  .copy-btn:hover { color:var(--text); border-color:var(--text-muted); }
+  .copy-btn.copied { color:var(--green); border-color:var(--green); }
+  .code-block pre { margin:0; border:none; border-radius:0; background:var(--surface-raised); }
+
   .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
   .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
   .lightbox.open { display:flex; }
@@ -103,15 +104,15 @@
 </section>
 <section class="notebook-cell">
 <h1>Lecture - Introduction to Multi Flows, Expectation and Liquid Clustering in SDP</h1>
-<p>This lecture introduces <strong>Flows</strong> in Spark Declarative Pipelines as the primary mechanism for loading and processing data incrementally — including how to use multiple flows to write to a single target table. It then explores how <strong>Liquid Clustering</strong> and <strong>Data Quality Expectations</strong> are applied specifically within a declarative pipeline context.</p>
-<h2>Learning Objectives</h2>
+<p>This lecture introduces <strong>Flows</strong> in Spark Declarative Pipelines as the primary mechanism for loading and processing data incrementally — including how to use multiple flows to write to a single target table. It then explores how <strong>Liquid Clustering</strong> and <strong>Expectations de Data Quality</strong> are applied specifically within a declarative pipeline context.</p>
+<h2>Objetivos de Aprendizado</h2>
 <p>By the end of this lecture, you will be able to:</p>
 <ul>
 <li>Explain what a <strong>flow</strong> is and how it relates to a streaming table or materialized view</li>
 <li>Describe the difference between a <strong>default flow</strong> and an <strong>explicit flow</strong></li>
 <li>Apply the <strong>multi-flow pattern</strong> to write from multiple sources into a single target table</li>
 <li>Explain why <strong>multi-flow is preferred over UNION</strong> for incremental pipelines</li>
-<li>Recall how <strong>Liquid Clustering</strong> and <strong>Data Quality Expectations</strong> are configured in Spark Declarative Pipelines</li>
+<li>Recall how <strong>Liquid Clustering</strong> and <strong>Expectations de Data Quality</strong> are configured in Spark Declarative Pipelines</li>
 </ul>
 </section>
 <section class="notebook-cell">
@@ -689,7 +690,7 @@ ORDER BY timestamp DESC;
 </section>
 <section class="notebook-cell">
 <h3>D2. How Liquid Clustering Works</h3>
-<p>Below is a series of snapshots illustrating how liquid clustering works. We have a sales table where clustering keys are defined as Date and Customer Id columns (replacing traditional partitions). Click each step to explore further; an explanation for each step is provided below its image.</p>
+<p>Abaixo está a series of snapshots illustrating how liquid clustering works. We have a sales table where clustering keys are defined as Date and Customer Id columns (replacing traditional partitions). Click each step to explore further; an explanation for each step is provided below its image.</p>
 <div style="width:100%; margin:auto; font-family:sans-serif;">
 
   <!-- Tab buttons -->
@@ -703,7 +704,7 @@ ORDER BY timestamp DESC;
   <div class="dbpanel" style="display:block;">
     <img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/multi_flows_lecture/lq_1.png" style="width:50%; display:block; margin-top:16px;">
     <div style="color:#444; font-size:16px; padding:12px 4px; line-height:1.8;">
-      <strong>Before clustering:</strong> Data files are scattered randomly by Date and Customer Id. This means queries must scan all files, even for a single customer or date. Small files exist for low-volume customers (D, E), while high-volume Customer C has larger files. There is no grouping — so performance is poor.
+      <strong>Before clustering:</strong> Data files are scattered randomly by Date and Customer Id. This means queries must scan all files, even for a single customer or date. Small files exist for low-volume customers (D, E), while high-volume Customer C has larger files. TAqui está no grouping — so performance is poor.
     </div>
   </div>
 
@@ -873,6 +874,13 @@ Databricks does not blindly pick columns — it runs a continuous **cost-benefit
 <button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
 <script>
 if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
+function copyCode(btn){
+  var code=btn.closest('.code-block').querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(function(){
+    btn.textContent='✅ Copiado!';btn.classList.add('copied');
+    setTimeout(function(){btn.textContent='📋 Copiar';btn.classList.remove('copied');},2000);
+  });
+}
 function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
 function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});

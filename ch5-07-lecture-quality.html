@@ -21,24 +21,15 @@
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
-  .top-bar {
-    position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border);
-    padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
-  }
+  .top-bar { position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border); padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
   .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
   .top-bar a:hover { color:var(--accent); }
   .top-bar .sep { color:var(--text-faint); font-size:11px; }
   .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
   .layout { display:flex; min-height:calc(100vh - 50px); }
-  .sidebar {
-    width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border);
-    padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px);
-  }
+  .sidebar { width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border); padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px); }
   .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
-  .sidebar a {
-    display:block; padding:6px 16px; font-size:12px; color:var(--text-muted); text-decoration:none;
-    border-left:2px solid transparent; line-height:1.5; transition:all 0.15s;
-  }
+  .sidebar a { display:block; padding:6px 16px; font-size:12px; color:var(--text-muted); text-decoration:none; border-left:2px solid transparent; line-height:1.5; transition:all 0.15s; }
   .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
   .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
   .content { flex:1; max-width:900px; padding:32px 40px 80px; }
@@ -61,6 +52,16 @@
   .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
   .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
   .notebook-cell th { background:var(--surface-raised); font-weight:600; }
+
+  /* Code blocks with copy */
+  .code-block { position:relative; margin:12px 0; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+  .code-header { display:flex; align-items:center; justify-content:space-between; padding:6px 12px; background:var(--surface); border-bottom:1px solid var(--border); }
+  .code-lang { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); }
+  .copy-btn { background:none; border:1px solid var(--border); color:var(--text-muted); font-size:11px; padding:3px 10px; border-radius:4px; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+  .copy-btn:hover { color:var(--text); border-color:var(--text-muted); }
+  .copy-btn.copied { color:var(--green); border-color:var(--green); }
+  .code-block pre { margin:0; border:none; border-radius:0; background:var(--surface-raised); }
+
   .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
   .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
   .lightbox.open { display:flex; }
@@ -104,7 +105,7 @@
 <section class="notebook-cell">
 <h1>Lecture — Advanced Data Quality Checks and Expectations in Spark Declarative Pipelines</h1>
 <p>In production data pipelines, data quality is paramount. While Spark Declarative Pipelines provide built-in expectations with three violation modes — <strong>WARN</strong>, <strong>DROP ROW</strong>, and <strong>FAIL UPDATE</strong> — real-world scenarios demand more sophisticated approaches. Production pipelines must validate business rules, handle schema evolution gracefully, and preserve every record for audit and remediation purposes.</p>
-<h3>Learning Objectives</h3>
+<h3>Objetivos de Aprendizado</h3>
 <p>By the end of this lecture, you will be able to:</p>
 <ul>
 <li>Explain the limitations of basic violation modes for production-grade data quality</li>
@@ -171,7 +172,7 @@
 </table>
 
 <div style="background:#FFF8E8;border-left:4px solid #FFAB00;border-radius:4px;padding:14px 20px;font-size:16px;color:#0b2026;line-height:1.9;">
-  <strong style="color:#FF5F46;"> Real-World Example:</strong> A <code>discount_rate</code> field containing <code>120</code> passes every <code>NOT NULL</code> check without complaint — but it represents an impossible discount that will silently corrupt downstream revenue calculations. Only a range constraint like <code>discount_rate BETWEEN 0 AND 100</code> catches this before it flows downstream.
+  <strong style="color:#FF5F46;"> Real-World Exemplo:</strong> A <code>discount_rate</code> field containing <code>120</code> passes every <code>NOT NULL</code> check without complaint — but it represents an impossible discount that will silently corrupt downstream revenue calculations. Only a range constraint like <code>discount_rate BETWEEN 0 AND 100</code> catches this before it flows downstream.
 </div>
 
 <script>
@@ -283,7 +284,7 @@ GROUP BY pk</div>
 </section>
 <section class="notebook-cell">
 <h3>A3. Writing NULL-Tolerant Constraints</h3>
-<p>Each <code>CONSTRAINT</code> block should validate a <strong>single logical rule</strong>. This gives the pipeline UI precise per-constraint metrics. But there is a critical trap: <strong>NULL evaluates to NOT TRUE</strong> in SQL, so a basic range check treats every NULL as a violation.</p>
+<p>Each <code>CONSTRAINT</code> block should validate a <strong>single logical rule</strong>. This gives the pipeline UI precise per-constraint metrics. But tAqui está a critical trap: <strong>NULL evaluates to NOT TRUE</strong> in SQL, so a basic range check treats every NULL as a violation.</p>
 <div style="display:flex;flex-direction:column;gap:20px;margin:20px 0;">
 
   <!-- Card 1: Naive -->
@@ -543,7 +544,7 @@ mermaid.initialize({ startOnLoad: true, theme: "default" });
 </section>
 <section class="notebook-cell">
 <h3>C2. Zero Data Loss with Inverse Logic</h3>
-<p><code>DROP ROW</code> permanently deletes invalid records — there is no recovery path. The <strong>quarantine pattern</strong> eliminates data loss entirely by routing <em>every</em> record into the table, then using an <code>is_quarantined</code> flag and inverse logic to split clean and failed records into separate downstream views.</p>
+<p><code>DROP ROW</code> permanently deletes invalid records — tAqui está no recovery path. The <strong>quarantine pattern</strong> eliminates data loss entirely by routing <em>every</em> record into the table, then using an <code>is_quarantined</code> flag and inverse logic to split clean and failed records into separate downstream views.</p>
 <div style="display:flex;gap:16px;margin:20px 0;">
 
   <div style="flex:1;background:#E3F2FD;border-top:4px solid #4299E0;border-radius:8px;padding:18px;">
@@ -571,12 +572,12 @@ FROM STREAM bronze_trips</div>
     <div class="code-block" data-language="sql">-- Clean records for downstream analytics
 CREATE OR REFRESH MATERIALIZED VIEW valid_trips_data
 AS SELECT * FROM trips_quarantine
-WHERE is_quarantined = FALSE;
+WAqui está_quarantined = FALSE;
 
 -- Failed records preserved for remediation and audit
 CREATE OR REFRESH MATERIALIZED VIEW invalid_trips_data
 AS SELECT * FROM trips_quarantine
-WHERE is_quarantined = TRUE;</div>
+WAqui está_quarantined = TRUE;</div>
   </div>
 
 </div>
@@ -684,6 +685,13 @@ mermaid.initialize({ startOnLoad: true, theme: "default", flowchart: { rankSpaci
 <button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
 <script>
 if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
+function copyCode(btn){
+  var code=btn.closest('.code-block').querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(function(){
+    btn.textContent='✅ Copiado!';btn.classList.add('copied');
+    setTimeout(function(){btn.textContent='📋 Copiar';btn.classList.remove('copied');},2000);
+  });
+}
 function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
 function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});

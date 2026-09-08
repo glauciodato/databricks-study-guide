@@ -21,24 +21,15 @@
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
-  .top-bar {
-    position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border);
-    padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
-  }
+  .top-bar { position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border); padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
   .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
   .top-bar a:hover { color:var(--accent); }
   .top-bar .sep { color:var(--text-faint); font-size:11px; }
   .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
   .layout { display:flex; min-height:calc(100vh - 50px); }
-  .sidebar {
-    width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border);
-    padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px);
-  }
+  .sidebar { width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border); padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px); }
   .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
-  .sidebar a {
-    display:block; padding:6px 16px; font-size:12px; color:var(--text-muted); text-decoration:none;
-    border-left:2px solid transparent; line-height:1.5; transition:all 0.15s;
-  }
+  .sidebar a { display:block; padding:6px 16px; font-size:12px; color:var(--text-muted); text-decoration:none; border-left:2px solid transparent; line-height:1.5; transition:all 0.15s; }
   .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
   .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
   .content { flex:1; max-width:900px; padding:32px 40px 80px; }
@@ -61,6 +52,16 @@
   .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
   .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
   .notebook-cell th { background:var(--surface-raised); font-weight:600; }
+
+  /* Code blocks with copy */
+  .code-block { position:relative; margin:12px 0; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+  .code-header { display:flex; align-items:center; justify-content:space-between; padding:6px 12px; background:var(--surface); border-bottom:1px solid var(--border); }
+  .code-lang { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); }
+  .copy-btn { background:none; border:1px solid var(--border); color:var(--text-muted); font-size:11px; padding:3px 10px; border-radius:4px; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+  .copy-btn:hover { color:var(--text); border-color:var(--text-muted); }
+  .copy-btn.copied { color:var(--green); border-color:var(--green); }
+  .code-block pre { margin:0; border:none; border-radius:0; background:var(--surface-raised); }
+
   .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
   .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
   .lightbox.open { display:flex; }
@@ -103,10 +104,10 @@
 </section>
 <section class="notebook-cell">
 <h1>Demo - Multiplex Streaming SDP with Delta Sinks and Iceberg Reads</h1>
-<h2>Overview</h2>
+<h2>Visão Geral</h2>
 <p>This demonstration showcases how to build a multiplex data pipeline using Spark Declarative Pipelines (Lakeflow). You will learn how to ingest multiplexed data from a single source into a bronze streaming table, then demultiplex that data into multiple silver streaming tables based on event types, and finally create aggregated gold-layer views for analytics.</p>
 <p>The demo simulates a real-world scenario where multiple business domains (store operations, marketing, and logistics) generate events that are ingested into a single data stream. Using the medallion architecture pattern, you will process this multiplexed data through bronze, silver, and gold layers while enabling Iceberg compatibility for cross-platform analytics.</p>
-<h2>Learning Objectives</h2>
+<h2>Objetivos de Aprendizado</h2>
 <p>By the end of this demonstration, you will be able to:</p>
 <ul>
 <li><strong>Build multiplex data pipelines</strong> using Spark Declarative Pipelines to handle multiple event types from a single source</li>
@@ -116,7 +117,7 @@
 </ul>
 </section>
 <section class="notebook-cell">
-<h2>REQUIRED - SELECT A COMPUTE ENVIRONMENT</h2>
+<h2>OBRIGATÓRIO — SELECIONE UM AMBIENTE DE COMPUTE</h2>
 <div style="
   border-left: 4px solid #f44336;
   background: #ffebee;
@@ -132,7 +133,7 @@ Before starting this notebook, select the required compute environment listed be
 - **Serverless Compute, Version 4**  
   - [How to select an environment version](https://docs.databricks.com/aws/en/compute/serverless/dependencies#-select-an-environment-version)
 
-**NOTE:**  This notebook was **developed and tested using Serverless V4**. Other compute options may work but are not guaranteed to behave the same or support all features demonstrated.
+**Nota:**  This notebook was **developed and tested using Serverless V4**. Other compute options may work but are not guaranteed to behave the same or support all features demonstrated.
   </div>
 </div>
 </section>
@@ -216,7 +217,7 @@ The catalog name is derived from your Databricks username and follows this patte
 <h3>A1. Configure Your Catalog and Schema</h3>
 <ol>
 <li>
-<p>Run the cell below to initialize your environment. This setup step does the following:</p>
+<p>Execute a célula abaixo to initialize your environment. This setup step does O seguinte:</p>
 <ul>
 <li><strong>Assumes you have permission to create a catalog</strong> when running outside of a Databricks provided Vocareum workspace</li>
 <li>Create three schemas in your specified catalog:<ul>
@@ -232,7 +233,7 @@ The catalog name is derived from your Databricks username and follows this patte
 </li>
 </ol>
 <blockquote>
-<p><strong>Important:</strong> You must have permission to create catalogs in your own non Vocareum workspace. If you do not have the required permissions, this step will fail. Review the note below before continuing.</p>
+<p><strong>Importante:</strong> You must have permission to create catalogs in your own non Vocareum workspace. If you do not have the required permissions, this step will fail. Review the note below before continuing.</p>
 </blockquote>
 </section>
 <section class="notebook-cell">
@@ -261,11 +262,12 @@ This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
 <section class="notebook-cell">
 <ol>
 <li>
-<p>Run the cell below to view the value of the <code>my_vol_path</code> variable.</p>
+<p>Execute a célula abaixo to view the value of the <code>my_vol_path</code> variable.</p>
 <p>Confirm that the value references your <strong>your-catalog.multiplex_1_bronze</strong> path. This will be used to dynamically reference your source volumes throughout this demonstration.</p>
 </li>
 </ol>
 </section>
+<section class="notebook-cell"><div class="code-block" data-lang="python"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>print(my_vol_path)</code></pre></div></section>
 <section class="notebook-cell">
 <h2>B. Explore the Raw Source Data for the Multiplex Data Ingestion</h2>
 <p>Before building the multiplex pipeline, start by exploring the raw source data stored in the volume.</p>
@@ -287,9 +289,10 @@ This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
 </li>
 </ol>
 </section>
+<section class="notebook-cell"><div class="code-block" data-lang="python"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>spark.sql(f"LIST '{my_vol_path}/business_events' ").display()</code></pre></div></section>
 <section class="notebook-cell">
 <ol>
-<li>Query the raw Parquet in volume to view the raw data and note the following:<ul>
+<li>Query the raw Parquet in volume to view the raw data and note O seguinte:<ul>
 <li>The data is packed in <strong>BINARY</strong> format</li>
 <li>The <strong>key</strong> columns holds a unique identifier for the data </li>
 <li>The <strong>volume</strong> column holds the actual data.</li>
@@ -302,7 +305,7 @@ This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
 <ol>
 <li>
 <p>View the data by <strong>casting <code>BINARY</code> columns to <code>STRING</code></strong> to view the values.</p>
-<p>Notice the following:
+<p>Notice O seguinte:
 - The <strong>value_str</strong> column contains a JSON string of key-value pairs, which vary depending on the business event group
 - The <strong>topic</strong> column indicates the different event types present in this source location</p>
 </li>
@@ -331,7 +334,7 @@ This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
 <li>Keeps both raw and extracted fields for downstream use</li>
 </ul>
 <p>VARIANT lets us ingest once, then shape the data later as part of the pipeline.</p>
-<p><strong>NOTE:</strong> This is a <strong>quick introduction</strong> to the VARIANT data type used in this notebook. We will use the <code>VARIANT</code> data type in your Spark Declarative Pipeline (SDP).</p>
+<p><strong>Nota:</strong> This is a <strong>quick introduction</strong> to the VARIANT data type used in this notebook. We will use the <code>VARIANT</code> data type in your Spark Declarative Pipeline (SDP).</p>
 <ul>
 <li><a href="https://docs.databricks.com/aws/en/sql/language-manual/data-types/variant-type">VARIANT type</a></li>
 <li><a href="https://www.youtube.com/watch?v=jtjOfggD4YY">Variant Data Type - Making Semi-Structured Data Fast and Simple - Deep Dive</a></li>
@@ -342,24 +345,40 @@ This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
 <h3>B3. Analyze Raw Data Statistics</h3>
 <ol>
 <li>
-<p>Explore the raw data for <strong>business_events</strong>. The cell below performs the following:</p>
+<p>Explore the raw data for <strong>business_events</strong>. The cell below performs O seguinte:</p>
 <ul>
 <li>Counts the number of records in the file within the volume  </li>
 <li>Counts the number of records in the file for each event group in our volume</li>
 </ul>
-<p>In the output, notice the following:
+<p>In the output, notice O seguinte:
 - <strong>372</strong> rows are present in this file<br />
 - You will see counts for each of the three different sources</p>
 </li>
 </ol>
 </section>
+<section class="notebook-cell"><div class="code-block" data-lang="python"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># a. Total row count
+df_count = spark.sql(f"""
+    SELECT COUNT(*) AS total_rows
+    FROM  read_files('{my_vol_path}/business_events')
+""")
+display(df_count)
+# b. Data source count by topic
+df_data_source_count = spark.sql(f"""
+    SELECT 
+        topic,
+        COUNT(*) AS total_rows
+    FROM read_files('{my_vol_path}/business_events')
+    GROUP BY topic
+    ORDER BY topic
+""")
+display(df_data_source_count)</code></pre></div></section>
 <section class="notebook-cell">
 <h2>C. Create the Spark Declarative Pipeline</h2>
 <p>Now that we have explored the data and reviewed casting from <code>BINARY</code> to <code>STRING</code> along with the <code>VARIANT</code> data type, we are ready to create the Spark Declarative Pipeline.</p>
 </section>
 <section class="notebook-cell">
 <h3>C1. Enable the Lakeflow Pipelines Editor</h3>
-<p>Complete the following steps to confirm or enable the <strong>Lakeflow Pipelines Editor</strong>:</p>
+<p>Complete O seguinte steps to confirm or enable the <strong>Lakeflow Pipelines Editor</strong>:</p>
 <ol>
 <li>
 <p>In the top-right corner of the workspace, select your <strong>account icon</strong> <img alt="Account Icon" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/account_icon.png" /> (<em>Your icon letter will differ</em>).  </p>
@@ -377,7 +396,7 @@ This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
 </section>
 <section class="notebook-cell">
 <h3>C2. Create a Apache Spark™ Declarative Pipeline Using the Lakeflow Pipelines Editor</h3>
-<p>Complete the following steps to create your Spark Declarative Pipeline:</p>
+<p>Complete O seguinte steps to create your Spark Declarative Pipeline:</p>
 <ol>
 <li>
 <p>In the main navigation pane, right-click <strong>Jobs &amp; Pipelines</strong> and select <strong>Open link in New Tab</strong>.  </p>
@@ -386,15 +405,15 @@ This function is defined in the notebook: `./Includes/Classroom-Setup-multiplex`
 <p>In the new tab, select <strong>Create → ETL Pipeline</strong>.  </p>
 </li>
 </ol>
-<p><strong>NOTE:</strong> If prompted to <strong>Try the new Lakeflow Pipelines Editor</strong>, choose <strong>Enable Lakeflow Pipelines Editor</strong>. This appears only if you did not complete the previous step.  </p>
+<p><strong>Nota:</strong> If prompted to <strong>Try the new Lakeflow Pipelines Editor</strong>, choose <strong>Enable Lakeflow Pipelines Editor</strong>. This appears only if you did not complete the previous step.  </p>
 <ol>
-<li>At the top, complete the following:</li>
+<li>At the top, complete O seguinte:</li>
 <li>Name your pipeline <code>demo_multiplex_yourname</code></li>
 <li>
 <p>Select your default <strong>catalog</strong> and <strong>schema</strong>:<br />
         - <strong>Catalog:</strong> <code>YOUR_LABUSER_CATALOG</code>
         - <strong>Schema:</strong> <strong>multiplex_1_bronze</strong><br />
-<strong>NOTE:</strong> Clear the selected schema using the cross icon to view all schemas.</p>
+<strong>Nota:</strong> Clear the selected schema using the cross icon to view all schemas.</p>
 </li>
 <li>
 <p>Rename the <strong>transformations</strong> folder to <code>multiplex_pipeline</code>.</p>
@@ -485,12 +504,12 @@ function fallbackCopy(text) {
 </section>
 <section class="notebook-cell">
 <p><strong>Review the Code</strong></p>
-<p>The <code>TBLPROPERTIES</code> statement configures the following settings:
+<p>The <code>TBLPROPERTIES</code> statement configures O seguinte settings:
 - <strong>Reset Protection</strong>: The <code>'pipelines.reset.allowed' = false</code> property prevents full refreshes on the streaming table, which helps avoid accidentally removing checkpoints and truncating the streaming table data
 - <strong>Variant Type Support</strong>: <code>'delta.feature.variantType-preview' = 'supported'</code> enables the variant data type, which lets you efficiently store and query semi-structured data like JSON. This property must be set to unlock native support for variant columns</p>
-<h4>IMPORTANT: Understanding Full Table Refresh Protection</h4>
+<h4>Importante: Understanding Full Table Refresh Protection</h4>
 <p>This protection is particularly important when your raw data source automatically removes files after a certain timeframe. Without this setting, data that is no longer present in the source directory would not be re-ingested into the target table during a <strong>Run pipeline with full table refresh</strong> operation.</p>
-<p><strong>NOTE:</strong> For guidance on when to use full refreshes, see the <a href="https://docs.databricks.com/aws/en/ldp/updates#should-i-use-a-full-refresh">Should I use a full refresh?</a> documentation.</p>
+<p><strong>Nota:</strong> For guidance on when to use full refreshes, see the <a href="https://docs.databricks.com/aws/en/ldp/updates#should-i-use-a-full-refresh">Should I use a full refresh?</a> documentation.</p>
 </section>
 <section class="notebook-cell">
 <h2>E. Fan Out the Bronze Table by Business Event</h2>
@@ -744,9 +763,15 @@ function fallbackCopy(text) {
 <section class="notebook-cell">
 <h3>E4. Configure the Pipeline Parameters</h3>
 <ol>
-<li>Run the cell below to retrieve the key-value pairs needed to set your pipeline configuration parameters for the <strong>source volume</strong>.</li>
+<li>Execute a célula abaixo to retrieve the key-value pairs needed to set your pipeline configuration parameters for the <strong>source volume</strong>.</li>
 </ol>
 </section>
+<section class="notebook-cell"><div class="code-block" data-lang="python"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>config_parameters = [
+    ('business_events_source', f'{my_vol_path}/business_events'),
+    ('my_catalog',my_catalog)
+]
+for key, value in config_parameters:
+    print(f"Key: {key}\nValue: {value}\n")</code></pre></div></section>
 <section class="notebook-cell">
 <ol>
 <li>
@@ -759,7 +784,7 @@ function fallbackCopy(text) {
 <p>c. For each <strong>Key</strong>, enter the key name shown above  </p>
 <p>d. For each <strong>Value</strong>, enter the corresponding volume path  </p>
 <p>e. Select <strong>Save</strong></p>
-<p><strong>NOTE:</strong> For more details on configuration parameters, see the Databricks documentation: <a href="https://docs.databricks.com/aws/en/ldp/parameters">Use parameters with Spark Declarative Pipelines</a></p>
+<p><strong>Nota:</strong> For more details on configuration parameters, see the Databricks documentation: <a href="https://docs.databricks.com/aws/en/ldp/parameters">Use parameters with Spark Declarative Pipelines</a></p>
 </section>
 <section class="notebook-cell">
 <h3>E5. Run and Explore the Pipeline</h3>
@@ -1100,8 +1125,8 @@ function fallbackCopy(text) {
 <li>Provide stable, analytics ready datasets for dashboards and reporting</li>
 <li>Reduce query complexity for downstream consumers</li>
 </ul>
-<p>In this section, we will create a materialized view on top of the marketing silver table to support common business questions.</p>
-<p><strong>NOTE:</strong> For this training, we will create a single materialized view. In a real production scenario, you would typically create multiple materialized views to support different analytics needs.</p>
+<p>Nesta seção, vamos create a materialized view on top of the marketing silver table to support common business questions.</p>
+<p><strong>Nota:</strong> For this training, we will create a single materialized view. In a real production scenario, you would typically create multiple materialized views to support different analytics needs.</p>
 </section>
 <section class="notebook-cell">
 <h3>G1. Create a New SQL File in Your Pipeline</h3>
@@ -1237,7 +1262,7 @@ function fallbackCopy(text) {
 <section class="notebook-cell">
 <ol>
 <li>Begin by creating a new Python File in Your Pipeline to create the <strong>delta_sink_logistics</strong> sink . <ul>
-<li><strong>NOTE: Only the Python API is supported. SQL is not supported.</strong></li>
+<li><strong>Nota: Only the Python API is supported. SQL is not supported.</strong></li>
 </ul>
 </li>
 </ol>
@@ -1248,7 +1273,7 @@ function fallbackCopy(text) {
 </section>
 <section class="notebook-cell">
 <ol>
-<li>Here is what the code below does:</li>
+<li>Aqui está what the code below does:</li>
 <li><strong>Defines a Destination (Sink):</strong> The <code>create_sink</code> function registers a specific endpoint for your data—a Delta table named <code>logistics_delta_sink</code> in the Gold schema—separately from the logic that populates it.</li>
 <li><strong>Establishes a Streaming Flow:</strong> The <code>@dp.append_flow</code> decorator creates a continuous data pipeline that links your processing logic directly to the defined sink, automating the movement of data.</li>
 <li><strong>Enables Append-Only Logic:</strong> The append flow optimizes performance by adding new records as they arrive, rather than re-processing or overwriting existing data.</li>
@@ -1346,7 +1371,7 @@ function fallbackCopy(text) {
 </section>
 <section class="notebook-cell">
 <ol>
-<li>Review the table properties and note the following:</li>
+<li>Review the table properties and note O seguinte:</li>
 <li>In <strong>Detailed Table Information</strong>, confirm that the <strong>type</strong> is <strong>managed</strong> and the <strong>provider</strong> is <strong>delta</strong>. This indicates it is a managed Delta table.</li>
 <li>In the <strong>table_properties</strong> column of the same section, you will see that deletion vectors are enabled: <code>delta.enableDeletionVectors=true</code>.</li>
 </ol>
@@ -1362,14 +1387,14 @@ function fallbackCopy(text) {
 </li>
 </ol>
 <blockquote>
-<p><strong>NOTE:</strong><br />
+<p><strong>Nota:</strong><br />
 With <a href="https://docs.databricks.com/aws/en/iceberg/iceberg-v3">Iceberg v3</a> (private preview as of January 21, 2026), you do <strong>not</strong> need to disable deletion vectors. </p>
 </blockquote>
 <p>For more details, see the <a href="https://docs.databricks.com/aws/en/delta/deletion-vectors">Databricks documentation on deletion vectors</a>.</p>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>Let's review the table properties and observe the changes:</li>
+<li>Vamos review the table properties and observe the changes:</li>
 <li>You will see a new section called <strong>Delta Uniform Iceberg</strong>, which includes details such as </li>
 <li><strong>metadata location</strong>, </li>
 <li><strong>converted delta version</strong>,</li>
@@ -1378,7 +1403,7 @@ With <a href="https://docs.databricks.com/aws/en/iceberg/iceberg-v3">Iceberg v3<
 </section>
 <section class="notebook-cell">
 <ol>
-<li>Let's view the table properties:</li>
+<li>Vamos view the table properties:</li>
 <li><code>delta.universalFormat.enabledFormats = iceberg</code> confirms that Iceberg format is enabled.</li>
 <li><code>delta.enableDeletionVectors = false</code> shows that deletion vectors is not enabled.</li>
 <li>The table currently supports Iceberg version 2: <code>delta.feature.icebergCompatV2 = supported</code>.</li>
@@ -1391,9 +1416,14 @@ With <a href="https://docs.databricks.com/aws/en/iceberg/iceberg-v3">Iceberg v3<
 <li>Run the command below to add the new file to your source volume, then confirm that the volume now contains two files.</li>
 </ol>
 </section>
+<section class="notebook-cell"><div class="code-block" data-lang="python"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>ops_path = f'/Volumes/{my_catalog}/multiplex_1_bronze/ops'
+business_events_source_path = f'/Volumes/{my_catalog}/multiplex_1_bronze/business_events'
+#copy files from Ops location to user's source volume
+copy_files(copy_from = f'{ops_path}', copy_to = business_events_source_path, n = 2)
+spark.sql(f"LIST '{business_events_source_path}' ").display()</code></pre></div></section>
 <section class="notebook-cell">
 <ol>
-<li>Let's review the number of rows present in the newly landed file that will be ingested by our pipeline:</li>
+<li>Vamos review the number of rows present in the newly landed file that will be ingested by our pipeline:</li>
 <li><strong>Marketing</strong>: 62 new records</li>
 <li><strong>Store Ops</strong>: 80 new records</li>
 <li><strong>Logistics</strong>: 158 new records</li>
@@ -1447,6 +1477,13 @@ With <a href="https://docs.databricks.com/aws/en/iceberg/iceberg-v3">Iceberg v3<
 <button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
 <script>
 if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
+function copyCode(btn){
+  var code=btn.closest('.code-block').querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(function(){
+    btn.textContent='✅ Copiado!';btn.classList.add('copied');
+    setTimeout(function(){btn.textContent='📋 Copiar';btn.classList.remove('copied');},2000);
+  });
+}
 function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
 function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});

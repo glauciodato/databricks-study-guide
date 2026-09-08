@@ -21,24 +21,15 @@
   }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
-  .top-bar {
-    position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border);
-    padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
-  }
+  .top-bar { position:sticky; top:0; z-index:100; background:var(--surface); border-bottom:1px solid var(--border); padding:10px 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
   .top-bar a { color:var(--text-muted); text-decoration:none; font-size:13px; }
   .top-bar a:hover { color:var(--accent); }
   .top-bar .sep { color:var(--text-faint); font-size:11px; }
   .top-bar .title { font-size:14px; font-weight:600; color:var(--text); flex:1; }
   .layout { display:flex; min-height:calc(100vh - 50px); }
-  .sidebar {
-    width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border);
-    padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px);
-  }
+  .sidebar { width:300px; min-width:300px; background:var(--surface); border-right:1px solid var(--border); padding:20px 0; overflow-y:auto; position:sticky; top:50px; height:calc(100vh - 50px); }
   .sidebar .nav-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); padding:0 16px; margin-bottom:8px; }
-  .sidebar a {
-    display:block; padding:6px 16px; font-size:12px; color:var(--text-muted); text-decoration:none;
-    border-left:2px solid transparent; line-height:1.5; transition:all 0.15s;
-  }
+  .sidebar a { display:block; padding:6px 16px; font-size:12px; color:var(--text-muted); text-decoration:none; border-left:2px solid transparent; line-height:1.5; transition:all 0.15s; }
   .sidebar a:hover { color:var(--text); background:var(--surface-raised); }
   .sidebar a.active { color:var(--accent); border-left-color:var(--accent); font-weight:600; }
   .content { flex:1; max-width:900px; padding:32px 40px 80px; }
@@ -61,6 +52,16 @@
   .notebook-cell table { width:100%; border-collapse:collapse; margin:10px 0; }
   .notebook-cell th, .notebook-cell td { padding:6px 10px; border:1px solid var(--border); font-size:13px; }
   .notebook-cell th { background:var(--surface-raised); font-weight:600; }
+
+  /* Code blocks with copy */
+  .code-block { position:relative; margin:12px 0; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+  .code-header { display:flex; align-items:center; justify-content:space-between; padding:6px 12px; background:var(--surface); border-bottom:1px solid var(--border); }
+  .code-lang { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-faint); }
+  .copy-btn { background:none; border:1px solid var(--border); color:var(--text-muted); font-size:11px; padding:3px 10px; border-radius:4px; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+  .copy-btn:hover { color:var(--text); border-color:var(--text-muted); }
+  .copy-btn.copied { color:var(--green); border-color:var(--green); }
+  .code-block pre { margin:0; border:none; border-radius:0; background:var(--surface-raised); }
+
   .theme-btn { position:fixed; bottom:16px; right:16px; background:var(--surface); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:200; }
   .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); cursor:zoom-out; align-items:center; justify-content:center; padding:20px; }
   .lightbox.open { display:flex; }
@@ -103,22 +104,22 @@
 </section>
 <section class="notebook-cell">
 <h1>Advanced Techniques with Apache Spark™ Declarative Pipelines</h1>
-<h2>Overview</h2>
+<h2>Visão Geral</h2>
 <p>This course provides a hands-on exploration of <strong>Apache Spark™ Declarative Pipelines (SDP)</strong> —Databricks modern framework for building production-grade streaming pipelines. You will learn advanced pipeline design patterns, data quality enforcement, and cross-platform integration essential for real-world lakehouse engineering.</p>
-<p>The course starts with <strong>Multi-Flow pipelines</strong>, ingesting from multiple sources into a single target table using explicit flows. You will then explore <strong>Liquid Clustering</strong> for adaptive data layout optimization and <strong>Data Quality Expectations</strong> for enforcing business rules at every pipeline stage.</p>
+<p>The course starts with <strong>Multi-Flow pipelines</strong>, ingesting from multiple sources into a single target table using explicit flows. You will then explore <strong>Liquid Clustering</strong> for adaptive data layout optimization and <strong>Expectations de Data Quality</strong> for enforcing business rules at every pipeline stage.</p>
 <p>Next, you will learn the <strong>Multiplex Streaming pattern</strong> for processing mixed-schema event streams, connecting with <strong>Delta Sinks</strong> and <strong>Iceberg Reads via Delta UniForm</strong> for cross-platform access to live streaming data.</p>
 <p>The course also covers <strong>Change Data Capture (CDC)</strong> —including <strong>SCD Type 1</strong> (current state) and <strong>SCD Type 2</strong> (full history tracking)—automated with <code>AUTO CDC INTO</code> in SDP.</p>
 <p>Finally, you will implement advanced data quality techniques, including range-based constraints, NULL-tolerant expressions, schema evolution handling, and the <strong>Quarantine Pattern</strong> for zero-data-loss pipelines with full audit trails.</p>
 <p>Through lectures and hands-on demos, you will:</p>
 <ul>
 <li>Build <strong>multi-flow pipelines</strong> ingesting data from multiple retail subsidiaries into a single Bronze streaming table</li>
-<li>Apply <strong>Liquid Clustering</strong> and <strong>Data Quality Expectations</strong> to Silver and Gold tables</li>
+<li>Apply <strong>Liquid Clustering</strong> and <strong>Expectations de Data Quality</strong> to Silver and Gold tables</li>
 <li>Implement the <strong>Multiplex pattern</strong> with Delta Sinks and Iceberg UniForm for cross-platform access</li>
 <li>Automate <strong>SCD Type 2 history tracking</strong> using <code>AUTO CDC INTO</code></li>
 <li>Design <strong>quarantine-based quality pipelines</strong> that preserve invalid records for audit and remediation</li>
 </ul>
 <p>By the end of this course, you will be equipped to design and build enterprise-grade streaming pipelines on Databricks that are reliable, observable, and production-ready.</p>
-<h2>Terminal Objectives</h2>
+<h2>Objetivos do Curso</h2>
 <ul>
 <li>
 <p>Build <strong>multi-flow Bronze streaming tables</strong> consolidating CSV and JSON data from multiple sources using explicit <strong><code>CREATE FLOW</code></strong> definitions</p>
@@ -142,11 +143,11 @@
 <p>Apply the <strong>Quarantine Pattern</strong> using <strong>inverse logic</strong> to route invalid records without data loss, and monitor per-constraint violation metrics in the <strong>Pipelines UI</strong></p>
 </li>
 </ul>
-<h5>NOTE: Course updates and version details can be found in the <code>Version Info</code> file.</h5>
+<h5>Nota: Course updates and version details can be found in the <code>Version Info</code> file.</h5>
 </section>
 <section class="notebook-cell">
 <h2>A. Prerequisites</h2>
-<p>Before starting this course, learners should be comfortable with the following:</p>
+<p>Before starting this course, learners should be comfortable with O seguinte:</p>
 <ol>
 <li>
 <p><strong>Spark Declarative Pipelines</strong> — Completion of the <strong>"Build Data Pipelines with Apache Spark Declarative Pipelines"</strong> course or familiarity with <code>CREATE OR REFRESH STREAMING TABLE</code>, <code>CONSTRAINTS</code>, and the Pipelines UI.</p>
@@ -216,7 +217,7 @@
 <br></br>
 #### Access Marketplace Data
 
-If you are running this in your own Workspace, complete the following steps to get your own copy of the Marketplace data. If you already have this share simply add that name to the variable below.
+If you are running this in your own Workspace, complete O seguinte steps to get your own copy of the Marketplace data. If you already have this share simply add that name to the variable below.
 
 1. Open **Databricks Marketplace** in a new tab.  
 
@@ -226,7 +227,7 @@ If you are running this in your own Workspace, complete the following steps to g
 
 4. Click **Get instant access**.  
 
-5. **Enter a unique catalog name** for your share to avoid receiving a duplicate catalog error in shared Workspaces. For example: `dbacademy_retail_yourname`.  
+5. **Enter a unique catalog name** for your share to avoid receiving a duplicate catalog error in shared Workspaces. For Exemplo: `dbacademy_retail_yourname`.  
 
 6. Review and accept the terms, then click **Get instant access** to complete the setup.
 
@@ -257,7 +258,7 @@ If you are running this in your own Workspace, complete the following steps to g
 </section>
 <section class="notebook-cell">
 <h3>B3. Bring Your Own Workspace (BYOW)</h3>
-<p>If you are running this course in your <strong>own Databricks workspace</strong>, complete the following before starting Module 1:</p>
+<p>If you are running this course in your <strong>own Databricks workspace</strong>, complete O seguinte before starting Module 1:</p>
 <ol>
 <li>
 <p><strong>Databricks Runtime</strong> — Use <strong>DBR 15.4 LTS</strong> or above (required for Spark Declarative Pipelines and Delta UniForm features).</p>
@@ -288,6 +289,13 @@ If you are running this in your own Workspace, complete the following steps to g
 <button class="theme-btn" onclick="document.body.classList.toggle('light');localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark');this.textContent=document.body.classList.contains('light')?'🌙':'☀️'">☀️</button>
 <script>
 if(localStorage.getItem('theme')==='light'){document.body.classList.add('light');document.querySelector('.theme-btn').textContent='🌙';}
+function copyCode(btn){
+  var code=btn.closest('.code-block').querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(function(){
+    btn.textContent='✅ Copiado!';btn.classList.add('copied');
+    setTimeout(function(){btn.textContent='📋 Copiar';btn.classList.remove('copied');},2000);
+  });
+}
 function openLightbox(s){document.getElementById('lb-img').src=s;document.getElementById('lightbox').classList.add('open');document.body.style.overflow='hidden';}
 function closeLightbox(e){if(e&&e.target.id==='lb-img')return;document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLightbox(e);});
