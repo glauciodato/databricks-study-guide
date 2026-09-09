@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capítulo 6 — Databricks Data Privacy | Databricks Study Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1117;
+    --surface: #161b22;
+    --surface-raised: #1c2129;
+    --border: #2a313a;
+    --border-subtle: #21262d;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --text-faint: #6e7681;
+    --accent: #ff6433;
+    --accent-soft: rgba(255,100,51,0.12);
+    --accent-text: #ff8c66;
+    --green: #3fb950;
+    --green-soft: rgba(63,185,80,0.12);
+    --blue: #58a6ff;
+    --blue-soft: rgba(88,166,255,0.10);
+    --purple: #bc8cff;
+    --purple-soft: rgba(188,140,255,0.10);
+    --yellow: #d29922;
+    --yellow-soft: rgba(210,153,34,0.12);
+    --code-bg: #0d1117;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed; top: 0; left: 0; width: 300px; height: 100vh;
+    background: var(--surface); border-right: 1px solid var(--border);
+    overflow-y: auto; z-index: 100; padding: 0 0 40px; transition: transform 0.3s;
+  }
+  .sidebar-header { padding: 28px 24px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); z-index: 2; }
+  .sidebar-header .logo { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+  .sidebar-header h1 { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1.3; }
+  .nav-section { padding: 16px 16px 4px; }
+  .nav-section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-faint); padding: 0 8px; margin-bottom: 6px; }
+  .nav-theme { margin-bottom: 4px; }
+  .nav-theme-toggle {
+    display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 6px;
+    cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--text);
+    border: none; background: none; width: 100%; text-align: left; transition: background 0.15s;
+  }
+  .nav-theme-toggle:hover { background: var(--surface-raised); }
+  .nav-lessons { display: none; padding: 2px 0 6px 20px; }
+  .nav-theme.open > .nav-lessons { display: block; }
+  .nav-lessons a {
+    display: block; padding: 5px 8px; font-size: 12.5px; color: var(--text-muted);
+    text-decoration: none; border-radius: 4px; border-left: 2px solid transparent;
+    transition: all 0.15s; line-height: 1.5;
+  }
+  .nav-lessons a:hover { color: var(--text); background: var(--surface-raised); border-left-color: var(--accent); }
+  .nav-lessons a.active { color: var(--text); border-left-color: var(--accent); background: var(--accent-soft); }
+
+  /* Main */
+  .main { margin-left: 300px; min-height: 100vh; }
+  .content { max-width: 850px; margin: 0 auto; padding: 48px 48px 120px; }
+
+  /* Theme Header */
+  .theme-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+  .theme-header .overline { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .theme-header h2 { font-size: 28px; font-weight: 700; line-height: 1.25; margin-bottom: 12px; }
+  .theme-header .description { color: var(--text-muted); font-size: 15px; max-width: 600px; line-height: 1.7; }
+
+  /* Lesson */
+  .lesson { margin-bottom: 56px; }
+  .lesson-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; scroll-margin-top: 24px; }
+  .lesson-subtitle { font-size: 13px; color: var(--text-faint); margin-bottom: 24px; }
+
+  /* Sections */
+  .section { margin-bottom: 32px; }
+  .section h4 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border-subtle); }
+  .section p { margin-bottom: 12px; color: var(--text); line-height: 1.85; max-width: 72ch; }
+  .section p.muted { color: var(--text-muted); }
+  .section ul, .section ol { margin: 8px 0 16px 20px; color: var(--text); }
+  .section li { margin-bottom: 6px; line-height: 1.75; }
+  .section li::marker { color: var(--text-faint); }
+
+  /* Code */
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; overflow-x: auto; margin: 12px 0 16px; font-size: 13px; line-height: 1.6; }
+  code { font-family: 'IBM Plex Mono', 'Fira Code', monospace; font-size: 0.88em; }
+  :not(pre) > code { background: var(--surface-raised); border: 1px solid var(--border-subtle); padding: 1px 6px; border-radius: 4px; color: var(--accent-text); }
+
+  /* Cards */
+  .card { border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; margin: 16px 0; background: var(--surface); }
+  .card.tip { border-left: 3px solid var(--green); }
+  .card.warning { border-left: 3px solid var(--yellow); }
+  .card.info { border-left: 3px solid var(--blue); }
+  .card .card-label { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 8px; }
+  .card.tip .card-label { color: var(--green); }
+  .card.warning .card-label { color: var(--yellow); }
+  .card.info .card-label { color: var(--blue); }
+  .card p { margin-bottom: 8px; }
+  .card p:last-child { margin-bottom: 0; }
+
+  /* Images / Figures */
+  .fig { margin: 20px 0; text-align: center; }
+  .fig img { max-width: 100%; border-radius: var(--radius); border: 1px solid var(--border); background: #fff; padding: 12px; cursor: zoom-in; transition: filter 0.15s; }
+  .fig img:hover { filter: brightness(1.08); }
+  .fig figcaption { font-size: 12px; color: var(--text-faint); margin-top: 8px; font-style: italic; }
+
+  /* Table */
+  .table-wrap { overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: var(--radius); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: var(--surface-raised); font-weight: 600; font-size: 11.5px; letter-spacing: 0.03em; text-transform: uppercase; color: var(--text-muted); text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border-subtle); vertical-align: top; line-height: 1.55; }
+  tr:last-child td { border-bottom: none; }
+
+  /* KV */
+  .kv { display: grid; grid-template-columns: 200px 1fr; gap: 0; margin: 12px 0 16px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .kv dt, .kv dd { padding: 8px 14px; border-bottom: 1px solid var(--border-subtle); }
+  .kv dt { background: var(--surface); font-weight: 600; font-size: 13px; color: var(--text-muted); }
+  .kv dd { font-size: 13.5px; }
+  .kv dt:last-of-type, .kv dd:last-of-type { border-bottom: none; }
+
+  /* Details */
+  details { margin: 12px 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  summary { padding: 12px 16px; background: var(--surface); cursor: pointer; font-weight: 600; font-size: 13.5px; color: var(--text-muted); list-style: none; display: flex; align-items: center; gap: 8px; }
+  summary::before { content: '▸'; font-size: 11px; transition: transform 0.2s; }
+  details[open] summary::before { transform: rotate(90deg); }
+  summary::-webkit-details-marker { display: none; }
+  details .details-body { padding: 16px 20px; border-top: 1px solid var(--border-subtle); }
+
+  .lesson-sep { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+  /* Search */
+  .search-box { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .search-box input { width: 100%; padding: 7px 10px; font-size: 13px; font-family: inherit; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); outline: none; transition: border-color 0.15s; }
+  .search-box input::placeholder { color: var(--text-faint); }
+  .search-box input:focus { border-color: var(--accent); }
+
+  .menu-toggle { display: none; position: fixed; top: 14px; left: 14px; z-index: 200; background: var(--surface); border: 1px solid var(--border); color: var(--text); width: 40px; height: 40px; border-radius: 8px; font-size: 18px; cursor: pointer; align-items: center; justify-content: center; }
+
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; }
+    .content { padding: 48px 20px 100px; }
+    .menu-toggle { display: flex; }
+    .kv { grid-template-columns: 1fr; }
+    .kv dt { border-bottom: none; padding-bottom: 2px; }
+    .fig img { padding: 8px; }
+  }
+
+  /* Light mode */
+  body.light {
+    --bg: #f8f9fb;
+    --surface: #ffffff;
+    --surface-raised: #f0f2f5;
+    --border: #d8dce2;
+    --border-subtle: #e4e7ec;
+    --text: #1a1d23;
+    --text-muted: #5a6170;
+    --text-faint: #8891a0;
+    --accent: #e0501e;
+    --accent-soft: rgba(224,80,30,0.08);
+    --accent-text: #c94418;
+    --green: #1a8a3e;
+    --green-soft: rgba(26,138,62,0.08);
+    --blue: #2563eb;
+    --blue-soft: rgba(37,99,235,0.08);
+    --purple: #7c3aed;
+    --purple-soft: rgba(124,58,237,0.08);
+    --yellow: #b45309;
+    --yellow-soft: rgba(180,83,9,0.08);
+    --code-bg: #f4f5f7;
+  }
+  body.light .fig img { border-color: var(--border); background: #fff; }
+  body.light pre { background: var(--code-bg); }
+  body.light .sidebar { box-shadow: 2px 0 8px rgba(0,0,0,0.05); }
+
+  /* Theme toggle button */
+  .theme-toggle {
+    position: fixed; bottom: 20px; right: 20px; z-index: 200;
+    background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    width: 44px; height: 44px; border-radius: 50%; font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15); transition: all 0.2s;
+  }
+  .theme-toggle:hover { transform: scale(1.1); }
+
+  /* Progress checkbox */
+  .lesson-check { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+  .lesson-check input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+  .lesson-check label { font-size: 12px; color: var(--text-faint); cursor: pointer; user-select: none; }
+  .lesson-check input:checked + label { color: var(--green); }
+
+  /* Key takeaways box */
+  .takeaways {
+    background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: var(--radius-lg); padding: 20px 24px; margin: 28px 0 0;
+  }
+  .takeaways .takeaways-title { font-size: 13px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+  .takeaways ul { margin: 0 0 0 16px; }
+  .takeaways li { font-size: 14px; margin-bottom: 6px; line-height: 1.6; color: var(--text); }
+
+  /* ── Interactive Stepper ── */
+  .stepper { margin: 20px 0; position: relative; }
+  .stepper::before { content: ''; position: absolute; left: 23px; top: 24px; bottom: 24px; width: 2px; background: var(--border); }
+  .step { position: relative; padding-left: 60px; margin-bottom: 0; }
+  .step .step-num {
+    position: absolute; left: 4px; top: 0; width: 40px; height: 40px; border-radius: 50%;
+    background: var(--surface-raised); border: 2px solid var(--border); color: var(--text-muted);
+    font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+    z-index: 1; transition: all 0.25s; cursor: pointer;
+  }
+  .step.active .step-num, .step:hover .step-num { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .step .step-header { padding: 8px 0; cursor: pointer; user-select: none; }
+  .step .step-title { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.3; }
+  .step .step-sub { font-size: 12px; color: var(--text-faint); font-family: 'IBM Plex Mono', monospace; }
+  .step .step-body {
+    max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease, opacity 0.25s ease;
+    opacity: 0; border: 1px solid transparent; border-radius: var(--radius); margin-bottom: 8px;
+  }
+  .step.active .step-body { max-height: 900px; opacity: 1; border-color: var(--accent); background: var(--surface); padding: 16px 18px; margin-bottom: 16px; }
+  .step .step-body p { margin-bottom: 10px; font-size: 14px; }
+  .step .step-body pre { margin: 10px 0 4px; font-size: 12.5px; border-color: var(--border-subtle); }
+  .step .step-toggle { position: absolute; right: 8px; top: 12px; font-size: 10px; color: var(--text-faint); transition: transform 0.25s; }
+  .step.active .step-toggle { transform: rotate(180deg); color: var(--accent); }
+
+  .stepper-result { margin: 12px 0 20px; padding: 16px 20px; border: 2px solid var(--accent); border-radius: var(--radius-lg); background: var(--accent-soft); }
+  .stepper-result .result-label { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+
+  /* ── Lightbox / Image Modal ── */
+  .lightbox {
+    display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); cursor: zoom-out;
+    align-items: center; justify-content: center; padding: 24px; opacity: 0; transition: opacity 0.2s ease;
+  }
+  .lightbox.open { display: flex; opacity: 1; }
+  .lightbox img {
+    max-width: 95vw; max-height: 92vh; border-radius: 8px; box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    object-fit: contain; background: #fff; padding: 8px; cursor: default; animation: lbIn 0.2s ease;
+  }
+  @keyframes lbIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .lightbox .lb-close {
+    position: fixed; top: 16px; right: 20px; width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,0.15); border: none; color: #fff; font-size: 22px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: background 0.15s; z-index: 10000;
+  }
+  .lightbox .lb-close:hover { background: rgba(255,255,255,0.3); }
+  .lightbox .lb-caption {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.8);
+    font-size: 13px; max-width: 80vw; text-align: center; background: rgba(0,0,0,0.5); padding: 6px 16px; border-radius: 6px;
+  }
+
+  .ch-link { display:block; padding:5px 8px; font-size:12.5px; color:var(--text-muted); text-decoration:none; border-radius:4px; transition:all 0.15s; line-height:1.5; }
+  .ch-link:hover { color:var(--text); background:var(--surface-raised); }
+
+  /* Quiz */
+  .quiz-q { margin-bottom: 32px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+  .quiz-q p.q-text { font-weight: 600; margin-bottom: 14px; line-height: 1.6; }
+  .quiz-q .q-num { font-size: 12px; color: var(--accent); font-weight: 700; margin-bottom: 6px; }
+  .quiz-opt { display: block; width: 100%; padding: 10px 14px; margin: 6px 0; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 14px; line-height: 1.5; text-align: left; transition: all 0.15s; background: var(--bg); color: var(--text); font-family: inherit; }
+  .quiz-opt:hover:not(.disabled) { border-color: var(--accent); }
+  .quiz-opt.disabled { cursor: default; }
+  .quiz-opt.correct { border-color: var(--green); background: var(--green-soft); color: var(--green); font-weight: 600; }
+  .quiz-opt.wrong { border-color: #f85149; background: rgba(248,81,73,0.1); color: #f85149; font-weight: 600; }
+  .quiz-explain { display: none; margin-top: 12px; padding: 12px 16px; background: var(--surface-raised); border-radius: 8px; font-size: 13px; line-height: 1.6; color: var(--text-muted); }
+  .quiz-explain.show { display: block; }
+  .quiz-score { padding: 20px; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-top: 20px; display: none; }
+  .quiz-score .score-num { font-size: 36px; font-weight: 700; color: var(--accent); }
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Menu">☰</button>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <a href="index.html" style="display:flex;align-items:center;gap:6px;color:var(--text-muted);text-decoration:none;font-size:13px;margin-bottom:12px;">← Todos os capítulos</a>
+    <div class="logo">Capítulo 6</div>
+    <h1 style="font-size:15px;">Databricks Data Privacy</h1>
+  </div>
+  <div class="search-box">
+    <input type="text" placeholder="Buscar neste capítulo…" id="search" oninput="filterNav(this.value)">
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-title">Lições</div>
+    <div class="nav-theme open">
+      <div class="nav-lessons" style="display:block;padding-left:8px;">
+        <a href="#t6-uc-views">Unity Catalog: Views &amp; Access Control</a>
+        <a href="#t6-row-col-governance">Row Filters, Column Masks &amp; Governance</a>
+        <a href="#t6-pii-security">PII: Pseudonymization &amp; Anonymization</a>
+        <a href="#t6-cdf-propagation">Change Data Feed &amp; Propagação de Deletes</a>
+        <a href="#t6-cdf-lab">Lab: Propagando Alterações com CDF</a>
+        <a href="#quiz-tema-6">📝 Quiz</a>
+      </div>
+    </div>
+  </div>
+  <div class="nav-section" style="border-top:1px solid var(--border);margin-top:12px;padding-top:16px;">
+    <div class="nav-section-title">Outros Capítulos</div>
+    <div style="padding:0 8px;">
+      <a href="capitulo-1.html" class="ch-link" style="">1. Data Ingestion</a>
+      <a href="capitulo-2.html" class="ch-link" style="">2. Lakeflow Jobs</a>
+      <a href="capitulo-3.html" class="ch-link" style="">3. Declarative Pipelines</a>
+      <a href="capitulo-4.html" class="ch-link" style="">4. DevOps Essentials</a>
+      <a href="capitulo-5.html" class="ch-link" style="">5. Advanced SDP Techniques</a>
+      <a href="capitulo-6.html" class="ch-link" style="font-weight:700;color:var(--accent);">6. Data Privacy</a>
+    </div>
+  </div>
+</nav>
+
+<main class="main">
+<div class="content">
+<div class="theme-header" id="theme-data-privacy">
+  <div class="overline">Capítulo 6 — Data Engineer Learning Plan</div>
+  <h2>Databricks Data Privacy</h2>
+  <p class="description">Governança e proteção de dados sensíveis no Unity Catalog: views, dynamic views, row filters e column masks, tagging e linhagem. Técnicas de PII data security — Pseudonimização (hashing, tokenização) e Anonimização (binning) — com Spark Declarative Pipelines. Change Data Feed (CDF) para rastrear e propagar alterações, incluindo exclusões exigidas por GDPR e CCPA.</p>
+</div>
+
+
+<article class="lesson" id="t6-uc-views">
+  <h3 class="lesson-title">Protegendo Dados no Unity Catalog: Views e Controle de Acesso</h3>
+  <p class="lesson-subtitle">Lição 1 de 5 · Views, Dynamic Views e o modelo de privilégios do Unity Catalog</p>
+  <div class="lesson-check"><input type="checkbox" id="check-t6-uc-views" onchange="saveProgress('check-t6-uc-views', this.checked)"><label for="check-t6-uc-views">Marcar como estudado</label></div>
+
+  <div class="section">
+    <h4>A. Data Privacy como pilar de governança</h4>
+    <p>Data Privacy no Databricks combina arquitetura <strong>Delta Lake</strong>, isolamento de dados e os recursos de governança do <strong>Unity Catalog</strong> para proteger dados sensíveis e manter conformidade com regulamentações como <strong>GDPR</strong> (Europa) e <strong>CCPA</strong> (Califórnia). Todo objeto protegido no Unity Catalog segue um <strong>namespace de três níveis</strong>: <code>catalog.schema.object</code>. Privilégios são avaliados de forma hierárquica ao longo dessa cadeia.</p>
+    <p class="muted">Por padrão, apenas o <strong>proprietário</strong> de um objeto (e admins do metastore) pode acessá-lo assim que criado — todo o resto precisa de privilégios explícitos ou herdados.</p>
+  </div>
+
+  <div class="section">
+    <h4>B. Views como camada de segurança por indireção</h4>
+    <p>Uma <strong>view</strong> processa e expõe dados de uma tabela fonte sem exigir que o usuário tenha acesso direto à tabela. Isso acontece porque, ao consultar uma view, o Unity Catalog usa os privilégios do <strong>proprietário da view</strong> sobre a tabela fonte — não os privilégios de quem executa a query.</p>
+    <pre><code>CREATE OR REPLACE VIEW customers_gold_view AS
+SELECT
+  customer_id,
+  state,
+  avg(units_purchased) as average_units_purchased,
+  loyalty_segment
+FROM customers_silver
+GROUP BY customer_id, state, loyalty_segment;</code></pre>
+    <p>Se outra pessoa tentasse consultar <code>customers_silver</code> diretamente (sem privilégios explícitos), a query falharia. Mas consultando a <strong>view</strong>, funciona — porque o proprietário da view tem acesso à tabela fonte por propriedade (<em>ownership chaining</em>).</p>
+  </div>
+
+  <div class="section">
+    <h4>C. Privilégios herdados vs. privilégios explícitos</h4>
+    <p>O Unity Catalog suporta dois padrões para conceder acesso a dados. Use <code>GRANT</code> e <code>REVOKE</code> para gerenciá-los, e <code>SHOW GRANTS ON securable_object</code> para auditar.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Aspecto</th><th>Privilégios Herdados</th><th>Privilégios Explícitos</th></tr></thead>
+      <tbody>
+        <tr><td>Setup</td><td>1 <code>GRANT</code> no nível do Catálogo</td><td>1 <code>GRANT</code> por schema/objeto</td></tr>
+        <tr><td>Escopo</td><td>Todos objetos <strong>atuais e futuros</strong> no catálogo</td><td>Apenas os objetos especificados</td></tr>
+        <tr><td>Risco</td><td>Alto — fácil conceder acesso ao objeto errado</td><td>Baixo — acesso granular e intencional</td></tr>
+        <tr><td>Esforço operacional</td><td>Baixo</td><td>Alto — escala mal com muitas tabelas/views</td></tr>
+      </tbody>
+    </table></div>
+    <pre><code>-- Herdado: acesso amplo, no nível do catálogo
+GRANT USE CATALOG, USE SCHEMA, SELECT ON CATALOG my_catalog TO `account users`;
+
+-- Explícito: acesso granular, objeto por objeto
+GRANT USE SCHEMA ON SCHEMA my_catalog.pii_data TO `account users`;
+GRANT SELECT ON VIEW my_catalog.pii_data.customers_gold_view TO `account users`;
+
+-- Revogar acesso
+REVOKE SELECT ON VIEW pii_data.customers_gold_view FROM `account users`;</code></pre>
+    <div class="card warning">
+      <div class="card-label">Cuidado</div>
+      <p>Um <code>GRANT</code> no nível do catálogo se estende automaticamente a <strong>schemas e tabelas futuros</strong>. É conveniente para acesso em massa, mas aumenta o risco de expor dados que ainda serão criados.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h4>D. Dynamic Views — controle de acesso condicional</h4>
+    <p>Dynamic views são views padrão estendidas com funções que avaliam <strong>quem está executando a query</strong>, permitindo ocultar parcialmente colunas ou omitir linhas de forma condicional.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Função</th><th>Retorna</th></tr></thead>
+      <tbody>
+        <tr><td><code>current_user()</code></td><td>Email do usuário que consulta a view</td></tr>
+        <tr><td><code>is_account_group_member('group')</code></td><td><code>TRUE</code> se o usuário pertence ao grupo da conta especificado</td></tr>
+        <tr><td><code>is_member('group')</code></td><td><code>TRUE</code> se pertence ao grupo local do workspace (⚠️ desaconselhado em produção — cria dependência de workspace)</td></tr>
+      </tbody>
+    </table></div>
+    <pre><code>CREATE OR REPLACE VIEW customers_gold_dynamic_view AS
+SELECT
+  CASE WHEN                                  -- Redige customer_id se não for Supervisor
+    is_account_group_member('supervisors') THEN customer_id
+    ELSE 9999999
+  END AS customer_id,
+  state,
+  avg(units_purchased) as average_units_purchased,
+  loyalty_segment
+FROM customers_silver
+WHERE
+  CASE WHEN                                  -- Oculta linhas de alta fidelidade se não for Supervisor
+    is_account_group_member('supervisors') THEN TRUE
+    ELSE loyalty_segment &lt; 3
+  END
+GROUP BY customer_id, state, loyalty_segment;</code></pre>
+    <p>Redações de coluna usam <code>CASE WHEN</code> no <code>SELECT</code>; filtragem de linhas usa a mesma lógica condicional em uma cláusula <code>WHERE</code>. Como proprietário, você não precisa de privilégios adicionais — mas ao consultar a própria view como um usuário comum, os dados aparecem ocultados exatamente como definido.</p>
+  </div>
+
+  <div class="section">
+    <h4>E. Conclusão</h4>
+    <p>Views protegem tabelas por indireção via <em>ownership chaining</em>. Privilégios herdados (catalog-level) são convenientes mas arriscados; privilégios explícitos são seguros mas trabalhosos. Dynamic views usam <code>is_account_group_member()</code> com <code>CASE WHEN</code> para redigir colunas e filtrar linhas condicionalmente por usuário.</p>
+  </div>
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways</div>
+    <ul>
+      <li>Namespace de <strong>três níveis</strong>: <code>catalog.schema.object</code> — privilégios avaliados hierarquicamente</li>
+      <li>Views dão acesso indireto via <strong>ownership chaining</strong> — proprietário da view precisa de acesso à tabela fonte, não o consumidor</li>
+      <li><strong>Herdado</strong> (catalog-level) = conveniente, mas arriscado. <strong>Explícito</strong> (schema/objeto) = seguro, mas trabalhoso</li>
+      <li><strong>Dynamic Views</strong> usam <code>is_account_group_member()</code> em <code>CASE WHEN</code> para redigir colunas e filtrar linhas por usuário</li>
+    </ul>
+  </div>
+</article>
+<hr class="lesson-sep">
+
+
+<article class="lesson" id="t6-row-col-governance">
+  <h3 class="lesson-title">Row Filters, Column Masks e Governança de Dados</h3>
+  <p class="lesson-subtitle">Lição 2 de 5 · UDFs de segurança, tagging, descobrimento e linhagem</p>
+  <div class="lesson-check"><input type="checkbox" id="check-t6-row-col-governance" onchange="saveProgress('check-t6-row-col-governance', this.checked)"><label for="check-t6-row-col-governance">Marcar como estudado</label></div>
+
+  <div class="section">
+    <h4>A. Row Filters &amp; Column Masks — a alternativa moderna às Dynamic Views</h4>
+    <p>Introduzidos em 2024, Row Filters e Column Masks aplicam a mesma lógica condicional de segurança <strong>diretamente na tabela original</strong> — sem precisar criar um objeto adicional (a view). Os usuários continuam consultando a tabela pelo nome original.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Aspecto</th><th>Dynamic Views</th><th>Row Filters &amp; Column Masks</th></tr></thead>
+      <tbody>
+        <tr><td>Objeto extra?</td><td>Sim — cria uma nova view</td><td>Não — aplicado direto na tabela</td></tr>
+        <tr><td>Nome referenciado</td><td>Usuários usam o nome da view</td><td>Usuários usam o nome original da tabela</td></tr>
+        <tr><td>Implementação</td><td><code>CASE WHEN</code> no <code>SELECT</code>/<code>WHERE</code> da view</td><td>UDF SQL + <code>ALTER TABLE ... SET ROW FILTER</code> / <code>SET MASK</code></td></tr>
+        <tr><td>Quando usar</td><td>Aplicar transformação a tabelas somente leitura, nomes diferentes ok</td><td>Preservar o nome/tabela original para os usuários</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="section">
+    <h4>B. Criando um Row Filter</h4>
+    <p>Um <strong>filtro de linha</strong> é implementado como uma UDF SQL (ou UDF Python/Scala encapsulada em SQL) e aplicado à tabela com <code>ALTER TABLE</code>. Cada tabela pode ter apenas um filtro de linha, que aceita zero ou mais colunas como parâmetro.</p>
+    <div class="stepper">
+      <div class="step active">
+        <div class="step-num">1</div>
+        <div class="step-header">
+          <div class="step-title">Criar a UDF de filtro <span class="step-toggle">▼</span></div>
+          <div class="step-sub">CREATE FUNCTION</div>
+        </div>
+        <div class="step-body"><p>A UDF usa <code>is_account_group_member()</code> para decidir se o usuário vê todas as linhas ou apenas um subconjunto.</p><pre><code>CREATE OR REPLACE FUNCTION loyalty_row_filter(loyalty_segment STRING)
+RETURNS BOOLEAN
+RETURN IF(is_account_group_member('supervisors'), true, loyalty_segment &lt; 3);</code></pre></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-header">
+          <div class="step-title">Aplicar o filtro à tabela <span class="step-toggle">▼</span></div>
+          <div class="step-sub">ALTER TABLE ... SET ROW FILTER</div>
+        </div>
+        <div class="step-body"><p>A função é vinculada a uma coluna específica da tabela.</p><pre><code>ALTER TABLE customers_silver_with_row_filter_and_column_masks
+SET ROW FILTER loyalty_row_filter ON (loyalty_segment);</code></pre></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-header">
+          <div class="step-title">Criar a UDF de máscara <span class="step-toggle">▼</span></div>
+          <div class="step-sub">CREATE FUNCTION</div>
+        </div>
+        <div class="step-body"><p>A <strong>máscara de coluna</strong> substitui o valor real por um valor mascarado, avaliada em tempo de execução da query.</p><pre><code>CREATE OR REPLACE FUNCTION redact_customer_id(customer_id BIGINT)
+RETURN CASE WHEN is_account_group_member('supervisors')
+  THEN customer_id
+  ELSE 9999999
+END;</code></pre></div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-header">
+          <div class="step-title">Aplicar a máscara à coluna <span class="step-toggle">▼</span></div>
+          <div class="step-sub">ALTER TABLE ... SET MASK</div>
+        </div>
+        <div class="step-body"><p>A máscara é vinculada com <code>ALTER COLUMN ... SET MASK</code>.</p><pre><code>ALTER TABLE customers_silver_with_row_filter_and_column_masks
+  ALTER COLUMN customer_id
+  SET MASK redact_customer_id;</code></pre></div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-header">
+          <div class="step-title">Verificar via Information Schema <span class="step-toggle">▼</span></div>
+          <div class="step-sub">INFORMATION_SCHEMA.ROW_FILTERS / COLUMN_MASKS</div>
+        </div>
+        <div class="step-body"><p>Confirme que o filtro/máscara foi aplicado consultando as tabelas de sistema.</p><pre><code>SELECT * FROM information_schema.row_filters
+WHERE table_name = 'customers_silver_with_row_filter_and_column_masks';
+
+SELECT * FROM information_schema.column_masks
+WHERE table_name = 'customers_silver_with_row_filter_and_column_masks';</code></pre></div>
+      </div>
+    </div>
+    <div class="card info">
+      <div class="card-label">Resultado</div>
+      <p>Consultando a tabela, um usuário fora do grupo <code>supervisors</code> vê <code>customer_id = 9999999</code> em todas as linhas e apenas linhas com <code>loyalty_segment &lt; 3</code> — exatamente o mesmo resultado que a Dynamic View da lição anterior produzia, mas sem precisar de um objeto separado.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h4>C. Tagging — organização e categorização</h4>
+    <p>Tags são pares key-value opcionais aplicáveis a catálogos, schemas, tabelas, colunas, volumes, views, modelos e mais. Até <strong>20 tags por objeto</strong>, key até 255 caracteres e valor até 1000 caracteres.</p>
+    <pre><code>-- Tag na tabela
+ALTER TABLE customers_silver
+SET TAGS ('quality'='silver', 'domain'='customer');
+
+-- Tag em uma coluna específica
+ALTER TABLE customers_silver
+  ALTER COLUMN customer_id SET TAGS ("compliance" = "GDPR");</code></pre>
+    <p>Tags também podem ser gerenciadas pela interface do Catalog Explorer, sem código.</p>
+  </div>
+
+  <div class="section">
+    <h4>D. Descobrimento de Dados</h4>
+    <p>Tags simplificam a descoberta de ativos de dados em toda a organização, de duas formas:</p>
+    <dl class="kv">
+      <dt>Search Bar</dt>
+      <dd>Sintaxe <code>tag:value</code> na barra de busca do workspace (ex: <code>domain:customer</code>). Quanto mais tags, mais refinados os resultados.</dd>
+      <dt>Queries via Information Schema</dt>
+      <dd><code>INFORMATION_SCHEMA.CATALOG_TAGS</code>, <code>SCHEMA_TAGS</code>, <code>TABLE_TAGS</code>, <code>COLUMN_TAGS</code>, <code>VOLUME_TAGS</code> — recuperam tags programaticamente.</dd>
+    </dl>
+  </div>
+
+  <div class="section">
+    <h4>E. Linhagem e Documentação Gerada por IA</h4>
+    <p><strong>Linhagem (Lineage)</strong> é um pilar fundamental de qualquer solução de governança. No Catalog Explorer, a tab Lineage mostra <strong>Upstream</strong> (objetos que originaram este objeto — rastreia a fonte) e <strong>Downstream</strong> (objetos que consomem este objeto — útil para análise de impacto), além de um gráfico visual de relacionamentos.</p>
+    <p><strong>Documentação Gerada por IA</strong> (DatabricksIQ) gera automaticamente descrições para tabelas, colunas, schemas e outros objetos com base no schema e nomenclatura — reduzindo esforço manual de documentação. Requer privilégio de <strong>proprietário</strong> ou <code>MODIFY</code> para editar/salvar.</p>
+  </div>
+
+  <div class="section">
+    <h4>F. Insights</h4>
+    <p>A tab <strong>Insights</strong> no Catalog Explorer reporta, dos últimos 30 dias: queries e notebooks mais frequentes, dashboards mais usados, usuários frequentes e outras tabelas comumente unidas via join. Requer <code>SELECT</code> na tabela + <code>USE SCHEMA</code>/<code>USE CATALOG</code> nos objetos pai. Útil também para identificar tabelas não utilizadas, candidatas a limpeza.</p>
+  </div>
+
+  <div class="section">
+    <h4>G. Conclusão</h4>
+    <p>Row Filters e Column Masks aplicam a mesma lógica de segurança condicional das Dynamic Views, mas direto na tabela original, sem objeto adicional. Tags organizam e viabilizam descoberta de dados. Linhagem rastreia fluxo upstream/downstream. Documentação por IA e Insights completam a governança do Unity Catalog.</p>
+  </div>
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways</div>
+    <ul>
+      <li><strong>Row Filter</strong>: UDF + <code>ALTER TABLE ... SET ROW FILTER fn ON (coluna)</code> — filtra linhas na tabela original</li>
+      <li><strong>Column Mask</strong>: UDF + <code>ALTER TABLE ... ALTER COLUMN ... SET MASK fn</code> — mascara valores em tempo de query</li>
+      <li><strong>Tags</strong>: até 20 por objeto, viabilizam busca (<code>tag:value</code>) e <code>INFORMATION_SCHEMA.*_TAGS</code></li>
+      <li><strong>Lineage</strong>: Upstream = origem dos dados. Downstream = análise de impacto</li>
+    </ul>
+  </div>
+</article>
+<hr class="lesson-sep">
+
+
+<article class="lesson" id="t6-pii-security">
+  <h3 class="lesson-title">PII Data Security: Pseudonimização e Anonimização</h3>
+  <p class="lesson-subtitle">Lição 3 de 5 · Hashing, tokenização e anonimização por binning com Spark Declarative Pipelines</p>
+  <div class="lesson-check"><input type="checkbox" id="check-t6-pii-security" onchange="saveProgress('check-t6-pii-security', this.checked)"><label for="check-t6-pii-security">Marcar como estudado</label></div>
+
+  <div class="section">
+    <h4>A. Pseudonimização vs. Anonimização</h4>
+    <p>São as duas principais estratégias de desidentificação para proteger dados de <strong>PII (Personally Identifiable Information)</strong>. Ambas costumam ser combinadas em cenários reais.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Aspecto</th><th>Pseudonimização</th><th>Anonimização</th></tr></thead>
+      <tbody>
+        <tr><td>Reversibilidade</td><td>Reversível (com a chave/hash/tabela)</td><td>Irreversível</td></tr>
+        <tr><td>Escopo</td><td>Nível de registro — ex: datasets para Machine Learning</td><td>Dataset inteiro (tabela/schema/catálogo) — ex: Business Intelligence</td></tr>
+        <tr><td>Status sob GDPR</td><td>Ainda é considerado dado pessoal</td><td>Deixa de ser considerado dado pessoal</td></tr>
+        <tr><td>Técnicas principais</td><td>Hashing, Tokenização</td><td>Supressão, Generalização (binning)</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="section">
+    <h4>B. Pseudonimização — Hashing com Salt</h4>
+    <p>Aplica SHA (ou outro hash) a todos os dados de PII, adicionando uma string aleatória ("salt") antes do hashing para dificultar ataques de dicionário. Databricks Secrets podem ofuscar o valor do salt em produção.</p>
+    <pre><code>salt = "BEANS"
+
+def salted_hash(id):
+    return F.sha2(F.concat(id, F.lit(salt)), 256)
+
+@dp.table
+def user_lookup_hashed():
+    return (dp.read_stream("registered_users")
+            .select(
+                salted_hash(F.col("user_id")).alias("alt_id"),
+                "device_id", "mac_address"))</code></pre>
+    <div class="card warning">
+      <div class="card-label">Nota</div>
+      <p>Teoricamente é possível reverter o pseudo-ID ao <code>user_id</code> original se a função de hash e o salt forem conhecidos — por isso um pseudônimo <strong>ainda é considerado dado pessoal</strong> pelo GDPR. A coluna original deve ser removida após o processamento em produção.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h4>C. Pseudonimização — Tokenização</h4>
+    <p>Converte o valor de PII em uma chave aleatória (token), armazenando o relacionamento original ↔ token em uma tabela de lookup segura e isolada.</p>
+    <pre><code>@dp.table
+def registered_users_tokens():
+    return (dp.readStream("registered_users")
+            .select("user_id")
+            .distinct()
+            .withColumn("token", F.expr("uuid()")))
+
+@dp.table
+def user_lookup_tokenized():
+    return (dp.read_stream("registered_users")
+            .join(dp.read("registered_users_tokens"), "user_id", "left")
+            .drop("user_id")
+            .withColumnRenamed("token", "alt_id"))</code></pre>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Aspecto</th><th>Hashing</th><th>Tokenização</th></tr></thead>
+      <tbody>
+        <tr><td>Armazenamento</td><td>Leve aumento no tamanho dos dados</td><td>Dados desidentificados em menos bytes</td></tr>
+        <tr><td>Performance</td><td>Algumas operações menos eficientes</td><td>Escrita lenta, <strong>leitura rápida</strong></td></tr>
+        <tr><td>Dependência</td><td>Função + salt (não requer tabela extra)</td><td>Requer tabela de lookup segura e isolada</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="section">
+    <h4>D. Anonimização — Generalização por Binning</h4>
+    <p>A <strong>generalização</strong> substitui um valor preciso (ex: idade exata) por uma faixa/categoria mais ampla, tornando reidentificação impossível. Diferente da pseudonimização, não há chave de reversão.</p>
+    <pre><code>def age_bins(dob_col):
+    age_col = F.floor(F.months_between(F.current_date(), dob_col) / 12).alias("age")
+    return (
+        F.when((age_col &lt; 18), "under 18")
+        .when((age_col &gt;= 18) &amp; (age_col &lt; 25), "18-25")
+        .when((age_col &gt;= 25) &amp; (age_col &lt; 35), "25-35")
+        # ... demais faixas
+        .otherwise("invalid age")
+        .alias("age")
+    )
+
+@dp.table
+def user_age_bins():
+    return (dp.read("users_bronze")
+            .select("user_id", age_bins(F.col("dob")), "gender", "city", "state"))</code></pre>
+    <p>O resultado: em vez de expor a data de nascimento exata, a tabela <code>user_age_bins</code> expõe apenas a <strong>faixa etária</strong> (ex: "25-35") — suficiente para analytics agregada, sem expor PII individual.</p>
+  </div>
+
+  <div class="section">
+    <h4>E. O pipeline completo com Spark Declarative Pipelines</h4>
+    <p>Na prática, essas técnicas são orquestradas em um único Spark Declarative Pipeline com dois fluxos paralelos:</p>
+    <dl class="kv">
+      <dt>Fluxo de Pseudonimização</dt>
+      <dd><code>registered_users</code> (Auto Loader) → <code>user_lookup_hashed</code> (salted hash) <strong>e</strong> <code>registered_users_tokens</code> + <code>user_lookup_tokenized</code> (tokenização)</dd>
+      <dt>Fluxo de Anonimização</dt>
+      <dd><code>user_events_raw</code> (join com <code>date_lookup</code>) → <code>users_bronze</code> → <code>user_age_bins</code> (binning por idade)</dd>
+    </dl>
+    <p>O pipeline pode ser gerado e iniciado programaticamente via SDK (classe utilitária que abstrai chamadas REST API), com <code>configuration</code> centralizando os caminhos de origem — o mesmo padrão de parametrização visto no Capítulo 3.</p>
+  </div>
+
+  <div class="section">
+    <h4>F. Conclusão</h4>
+    <p>Pseudonimização (hashing, tokenização) protege dados a nível de registro e é reversível — ainda é PII sob GDPR. Anonimização (binning) protege o dataset inteiro e é irreversível. Ambas são orquestradas como Spark Declarative Pipelines, reutilizando os conceitos de Streaming Tables e Materialized Views do Capítulo 3.</p>
+  </div>
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways</div>
+    <ul>
+      <li><strong>Pseudonimização</strong> = reversível, nível de registro, ainda é PII sob GDPR. <strong>Anonimização</strong> = irreversível, dataset inteiro</li>
+      <li><strong>Hashing com salt</strong>: <code>sha2(concat(id, salt), 256)</code> — leve overhead, algumas operações menos eficientes</li>
+      <li><strong>Tokenização</strong>: <code>uuid()</code> + tabela de lookup — escrita lenta, leitura rápida</li>
+      <li><strong>Binning/Generalização</strong>: substitui valor exato por faixa (ex: idade → "25-35")</li>
+    </ul>
+  </div>
+</article>
+<hr class="lesson-sep">
+
+
+<article class="lesson" id="t6-cdf-propagation">
+  <h3 class="lesson-title">Change Data Feed: Propagando Alterações e Exclusões</h3>
+  <p class="lesson-subtitle">Lição 4 de 5 · CDF, table_changes e direito ao esquecimento (GDPR/CCPA)</p>
+  <div class="lesson-check"><input type="checkbox" id="check-t6-cdf-propagation" onchange="saveProgress('check-t6-cdf-propagation', this.checked)"><label for="check-t6-cdf-propagation">Marcar como estudado</label></div>
+
+  <div class="section">
+    <h4>A. O que é Change Data Feed (CDF)</h4>
+    <p><strong>Change Data Feed</strong> rastreia alterações em nível de linha entre versões de uma tabela Delta. Quando habilitado, registra eventos de alteração para tudo que é escrito — incluindo metadados indicando se a linha foi inserida, atualizada ou excluída.</p>
+    <pre><code>-- Habilitar globalmente para novas tabelas
+spark.conf.set("spark.databricks.delta.properties.defaults.enableChangeDataFeed", True)
+
+-- Habilitar em uma tabela existente
+ALTER TABLE silver_users
+SET TBLPROPERTIES (delta.enableChangeDataFeed = true);</code></pre>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Coluna de metadata</th><th>Tipo</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td><code>_change_type</code></td><td>String</td><td><code>insert</code>, <code>delete</code>, <code>update_preimage</code>, <code>update_postimage</code></td></tr>
+        <tr><td><code>_commit_version</code></td><td>Long</td><td>Versão da tabela que contém a alteração</td></tr>
+        <tr><td><code>_commit_timestamp</code></td><td>Timestamp</td><td>Momento em que o commit foi criado</td></tr>
+      </tbody>
+    </table></div>
+    <p><code>update_preimage</code> = valor da linha <strong>antes</strong> da atualização. <code>update_postimage</code> = valor <strong>depois</strong>. Toda linha atualizada gera as duas entradas.</p>
+  </div>
+
+  <div class="section">
+    <h4>B. Lendo o CDF — duas abordagens</h4>
+    <dl class="kv">
+      <dt>PySpark — readChangeData</dt>
+      <dd><pre style="margin:0;"><code>cdf_df = (spark.read.format("delta")
+    .option("readChangeData", True)
+    .option("startingVersion", 2)
+    .table("silver_users"))</code></pre></dd>
+      <dt>SQL — table_changes()</dt>
+      <dd><pre style="margin:0;"><code>SELECT * FROM table_changes("silver_users", 2)  -- (table, start [, end])
+WHERE _change_type = "insert"</code></pre></dd>
+    </dl>
+    <p>Ambas as opções aceitam <code>startingVersion</code>/<code>startingTimestamp</code> como ponto de partida na história da tabela, além de um fim opcional.</p>
+  </div>
+
+  <div class="section">
+    <h4>C. Upsert incremental com foreachBatch + MERGE INTO</h4>
+    <p>Para transmitir alterações do bronze para o silver, uma função customizada usa <code>foreachBatch</code> para rodar um <code>MERGE INTO</code> a cada micro-lote — o padrão idêntico ao <code>AUTO CDC INTO</code> do Capítulo 3, mas escrito manualmente.</p>
+    <pre><code>def upsert_to_delta(microBatchDF, batchId):
+    microBatchDF.createOrReplaceTempView("updates")
+    microBatchDF._jdf.sparkSession().sql("""
+        MERGE INTO silver_users s
+        USING updates u
+        ON s.mrn = u.mrn
+        WHEN MATCHED AND (s.dob &lt;&gt; u.dob OR s.city &lt;&gt; u.city /* ... */)
+            THEN UPDATE SET *
+        WHEN NOT MATCHED
+            THEN INSERT *
+    """)
+
+(spark.readStream.table("bronze_users")
+      .writeStream
+      .foreachBatch(upsert_to_delta)
+      .trigger(processingTime='3 seconds')
+      .start())</code></pre>
+  </div>
+
+  <div class="section">
+    <h4>D. Propagando exclusões — Direito ao Esquecimento (GDPR/CCPA)</h4>
+    <p>Solicitações de exclusão ("direito ao esquecimento") costumam ter <strong>SLAs regulatórios</strong> e, por isso, são frequentemente processadas em um pipeline separado do ETL principal — rastreadas por uma tabela dedicada com prazo e status.</p>
+    <pre><code>-- Tabela de acompanhamento com deadline e status
+requests_df = (spark.readStream.table("user_delete_requests")
+    .select("mrn", "request_date",
+        F.date_add("request_date", 30).alias("deadline"),
+        F.lit("requested").alias("status")))
+
+-- Confirmar exclusão na tabela silver
+DELETE FROM silver_users WHERE mrn IN (SELECT mrn FROM delete_requests);
+
+-- Propagar via CDF para tabelas downstream (gold) + atualizar status
+def process_deletes(microBatchDF, batchId):
+    microBatchDF.createOrReplaceTempView("deletes")
+    microBatchDF._jdf.sparkSession().sql("""
+        MERGE INTO gold_users u USING deletes d
+        ON u.mrn = d.mrn WHEN MATCHED THEN DELETE
+    """)
+    microBatchDF._jdf.sparkSession().sql("""
+        MERGE INTO delete_requests dr USING deletes d
+        ON d.mrn = dr.mrn WHEN MATCHED THEN UPDATE SET status = "deleted"
+    """)</code></pre>
+    <p>A chave natural (ex: <code>mrn</code>) rastreada pelo CDF permite propagar a mesma exclusão para <strong>múltiplas tabelas downstream</strong> em uma única operação incremental — vez de recomputar tudo.</p>
+    <div class="card warning">
+      <div class="card-label">Exclusão não é imediatamente total</div>
+      <p>Devido a como história de versões e CDF funcionam no Delta Lake, os valores excluídos continuam presentes em <strong>versões anteriores</strong> da tabela (<code>SELECT ... VERSION AS OF 0</code> ainda os retorna). Para expurgar definitivamente arquivos de dados antigos, é necessário rodar <code>VACUUM</code> após o período de retenção do histórico.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h4>E. Conclusão</h4>
+    <p>CDF rastreia inserts/updates/deletes por versão via <code>_change_type</code>, <code>_commit_version</code>, <code>_commit_timestamp</code>. <code>readChangeData</code> (PySpark) e <code>table_changes()</code> (SQL) leem essas alterações. Exclusões de compliance (GDPR/CCPA) são melhor tratadas em pipeline separado, propagadas via CDF + MERGE, mas só são totalmente purgadas com <code>VACUUM</code>.</p>
+  </div>
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways</div>
+    <ul>
+      <li>CDF: <code>_change_type</code> (insert/delete/update_preimage/update_postimage), <code>_commit_version</code>, <code>_commit_timestamp</code></li>
+      <li>Leitura: <code>option("readChangeData", True)</code> (PySpark) ou <code>table_changes(table, start[, end])</code> (SQL)</li>
+      <li>Exclusões de compliance (GDPR/CCPA) → tabela de tracking com deadline/status, processada separadamente do ETL principal</li>
+      <li><strong>Deletes não são totais</strong> até rodar <code>VACUUM</code> — versões antigas ainda contêm os dados</li>
+    </ul>
+  </div>
+</article>
+<hr class="lesson-sep">
+
+
+<article class="lesson" id="t6-cdf-lab">
+  <h3 class="lesson-title">Lab: Propagando Alterações com CDF</h3>
+  <p class="lesson-subtitle">Lição 5 de 5 · Hands-on: habilitar CDF, ler mudanças e propagar deletes em múltiplas tabelas</p>
+  <div class="lesson-check"><input type="checkbox" id="check-t6-cdf-lab" onchange="saveProgress('check-t6-cdf-lab', this.checked)"><label for="check-t6-cdf-lab">Marcar como estudado</label></div>
+
+  <div class="section">
+    <h4>A. Objetivo do laboratório</h4>
+    <p>A tabela <code>user_lookup</code> vincula informações de identificação entre pipelines diferentes — é o ponto central a partir do qual mudanças devem ser propagadas. O laboratório usa CDF para excluir um usuário de <code>user_lookup</code> e propagar essa exclusão, via <code>alt_id</code>/<code>user_id</code>, para as tabelas downstream <code>users</code> e <code>users_bin</code>.</p>
+  </div>
+
+  <div class="section">
+    <h4>B. Passo a passo</h4>
+    <div class="stepper">
+      <div class="step active">
+        <div class="step-num">1</div>
+        <div class="step-header">
+          <div class="step-title">Habilitar CDF na tabela user_lookup <span class="step-toggle">▼</span></div>
+          <div class="step-sub">ALTER TABLE ... SET TBLPROPERTIES</div>
+        </div>
+        <div class="step-body"><pre><code>ALTER TABLE user_lookup
+SET TBLPROPERTIES (delta.enableChangeDataFeed = True);</code></pre></div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-header">
+          <div class="step-title">Confirmar CDF habilitado <span class="step-toggle">▼</span></div>
+          <div class="step-sub">DESCRIBE TABLE EXTENDED</div>
+        </div>
+        <div class="step-body"><p>Verifique a linha <em>Table Properties</em> nos resultados para confirmar <code>delta.enableChangeDataFeed=true</code>. Isso também gera a versão 1 na história da tabela.</p><pre><code>DESCRIBE TABLE EXTENDED user_lookup;
+DESCRIBE HISTORY user_lookup;  -- versão 1, operation = SET TBLPROPERTIES</code></pre></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-header">
+          <div class="step-title">Excluir um registro <span class="step-toggle">▼</span></div>
+          <div class="step-sub">DECLARE VARIABLE + DELETE</div>
+        </div>
+        <div class="step-body"><p>Escolha um <code>user_id</code> e salve-o em uma variável de sessão para reutilizar nos próximos passos.</p><pre><code>DECLARE OR REPLACE VARIABLE user_id INT DEFAULT 11745;
+
+DELETE FROM user_lookup
+WHERE user_id = session.user_id;
+-- confirma: tabela cai de 100 para 99 linhas
+-- DESCRIBE HISTORY user_lookup → versão 2, operation = DELETE</code></pre></div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-header">
+          <div class="step-title">Ler o CDF gerado pela exclusão <span class="step-toggle">▼</span></div>
+          <div class="step-sub">table_changes() / readChangeData</div>
+        </div>
+        <div class="step-body"><p>A partir da versão 1 (quando o CDF foi habilitado), apenas a linha excluída aparece como mudança.</p><pre><code>-- SQL
+SELECT * FROM table_changes("user_lookup", 1);
+
+-- Python (opcional)
+user_lookup_df = (spark.read.format("delta")
+    .option("readChangeData", True)
+    .option("startingVersion", 1)
+    .table("user_lookup"))
+display(user_lookup_df)</code></pre></div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-header">
+          <div class="step-title">Isolar apenas as exclusões <span class="step-toggle">▼</span></div>
+          <div class="step-sub">CREATE OR REPLACE TEMPORARY VIEW</div>
+        </div>
+        <div class="step-body"><p>Crie uma view temporária filtrando apenas linhas com <code>_change_type = 'delete'</code>, a partir da versão 2 (a versão do DELETE).</p><pre><code>CREATE OR REPLACE TEMPORARY VIEW user_lookup_deletes_vw AS
+SELECT * FROM table_changes('user_lookup', 2)
+WHERE _change_type = 'delete';</code></pre></div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-header">
+          <div class="step-title">Propagar via MERGE INTO <span class="step-toggle">▼</span></div>
+          <div class="step-sub">MERGE ... WHEN MATCHED THEN DELETE</div>
+        </div>
+        <div class="step-body"><p>Aplique a mesma exclusão nas duas tabelas downstream, usando as chaves correspondentes de cada uma.</p><pre><code>MERGE INTO users u
+USING user_lookup_deletes_vw ul
+ON u.alt_id = ul.alt_id
+WHEN MATCHED THEN DELETE;
+
+MERGE INTO users_bin ub
+USING user_lookup_deletes_vw ul
+ON ub.user_id = ul.user_id
+WHEN MATCHED THEN DELETE;</code></pre></div>
+      </div>
+    </div>
+    <div class="stepper-result">
+      <div class="result-label">Resultado</div>
+      <p style="margin:0;font-size:14px;">Uma única exclusão em <code>user_lookup</code> se propaga, via CDF + <code>MERGE INTO</code>, para <strong>todas as tabelas downstream</strong> que compartilham a chave — sem reprocessar o dataset inteiro.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h4>C. Validação</h4>
+    <p>Cada operação de <code>MERGE</code> deve reportar <code>num_affected_rows</code> e <code>num_deleted_rows</code> iguais a <strong>1</strong>. Uma query final filtrando o <code>user_id</code> excluído em <code>users_bin</code> deve retornar zero linhas, confirmando a propagação completa.</p>
+  </div>
+
+  <div class="section">
+    <h4>D. Conclusão</h4>
+    <p>Este laboratório aplica de ponta a ponta o fluxo da lição anterior: habilitar CDF → identificar a mudança pela versão → isolar deletes com <code>table_changes</code> → propagar com <code>MERGE INTO</code>. O mesmo padrão se estende para qualquer número de tabelas downstream que compartilhem a chave de origem.</p>
+  </div>
+  <div class="takeaways">
+    <div class="takeaways-title">Key Takeaways</div>
+    <ul>
+      <li>Habilitar CDF em uma tabela específica: <code>ALTER TABLE ... SET TBLPROPERTIES (delta.enableChangeDataFeed = True)</code></li>
+      <li><code>table_changes(table, start)</code> isola exatamente as linhas alteradas a partir de uma versão</li>
+      <li>Uma view temporária filtrando <code>_change_type = 'delete'</code> vira a fonte de um <code>MERGE INTO ... WHEN MATCHED THEN DELETE</code></li>
+      <li>O mesmo padrão de propagação escala para N tabelas downstream compartilhando a mesma chave</li>
+    </ul>
+  </div>
+</article>
+<hr class="lesson-sep">
+
+
+<article class="lesson" id="quiz-tema-6">
+  <h3 class="lesson-title">📝 Quiz — Databricks Data Privacy</h3>
+  <p class="lesson-subtitle">Teste seus conhecimentos antes de avançar</p>
+  <div class="lesson-check"><input type="checkbox" id="check-quiz-tema-6" onchange="saveProgress('check-quiz-tema-6', this.checked)"><label for="check-quiz-tema-6">Marcar como estudado</label></div>
+
+  <div class="section" id="quiz6-container">
+
+    <div class="quiz-q" data-correct="c">
+      <div class="q-num">Questão 1 de 8</div>
+      <p class="q-text">Por que um usuário sem privilégios diretos na tabela fonte consegue consultar uma view criada sobre ela com sucesso?</p>
+      <button class="quiz-opt" data-val="a" onclick="checkQuiz(this)">Porque views no Unity Catalog nunca exigem privilégios</button>
+      <button class="quiz-opt" data-val="b" onclick="checkQuiz(this)">Porque a view copia fisicamente os dados da tabela fonte</button>
+      <button class="quiz-opt" data-val="c" onclick="checkQuiz(this)">Porque o Unity Catalog usa os privilégios do proprietário da view sobre a tabela fonte (ownership chaining)</button>
+      <button class="quiz-opt" data-val="d" onclick="checkQuiz(this)">Porque toda view é automaticamente pública</button>
+      <div class="quiz-explain">✅ Esse comportamento é chamado <strong>ownership chaining</strong>: ao consultar uma view, o Unity Catalog verifica os privilégios do <strong>proprietário da view</strong> sobre os objetos que ela referencia — não os privilégios de quem executa a query.</div>
+    </div>
+
+    <div class="quiz-q" data-correct="b">
+      <div class="q-num">Questão 2 de 8</div>
+      <p class="q-text">Qual a principal desvantagem de conceder privilégios herdados no nível do catálogo (ex: GRANT SELECT ON CATALOG)?</p>
+      <button class="quiz-opt" data-val="a" onclick="checkQuiz(this)">É impossível revogar depois</button>
+      <button class="quiz-opt" data-val="b" onclick="checkQuiz(this)">O privilégio se estende a todos os objetos atuais E futuros do catálogo, aumentando o risco de exposição acidental</button>
+      <button class="quiz-opt" data-val="c" onclick="checkQuiz(this)">Só funciona com Dynamic Views</button>
+      <button class="quiz-opt" data-val="d" onclick="checkQuiz(this)">Não é suportado no Databricks Free Edition</button>
+      <div class="quiz-explain">✅ Um GRANT no nível do catálogo aplica-se a <strong>todos os schemas/tabelas atuais e futuros</strong> — muito conveniente, mas fácil de conceder acesso ao objeto errado sem perceber.</div>
+    </div>
+
+    <div class="quiz-q" data-correct="a">
+      <div class="q-num">Questão 3 de 8</div>
+      <p class="q-text">Qual função é usada em Dynamic Views e Row Filters/Column Masks para verificar se o usuário pertence a um grupo da conta?</p>
+      <button class="quiz-opt" data-val="a" onclick="checkQuiz(this)">is_account_group_member()</button>
+      <button class="quiz-opt" data-val="b" onclick="checkQuiz(this)">current_user()</button>
+      <button class="quiz-opt" data-val="c" onclick="checkQuiz(this)">is_member()</button>
+      <button class="quiz-opt" data-val="d" onclick="checkQuiz(this)">check_group()</button>
+      <div class="quiz-explain">✅ <code>is_account_group_member('group')</code> retorna <code>TRUE</code>/<code>FALSE</code> baseado em grupos da conta. <code>is_member()</code> existe mas é desaconselhado em produção por depender de grupos locais do workspace.</div>
+    </div>
+
+    <div class="quiz-q" data-correct="d">
+      <div class="q-num">Questão 4 de 8</div>
+      <p class="q-text">Qual a principal diferença entre Row Filters/Column Masks e Dynamic Views?</p>
+      <button class="quiz-opt" data-val="a" onclick="checkQuiz(this)">Row Filters não suportam UDFs</button>
+      <button class="quiz-opt" data-val="b" onclick="checkQuiz(this)">Dynamic Views são mais rápidas</button>
+      <button class="quiz-opt" data-val="c" onclick="checkQuiz(this)">Row Filters só funcionam em Streaming Tables</button>
+      <button class="quiz-opt" data-val="d" onclick="checkQuiz(this)">Row Filters/Column Masks aplicam a segurança direto na tabela original, sem criar um objeto (view) adicional</button>
+      <div class="quiz-explain">✅ Row Filters e Column Masks (2024+) aplicam a mesma lógica condicional das Dynamic Views, mas diretamente na tabela — os usuários continuam consultando pelo nome original, sem precisar de uma view intermediária.</div>
+    </div>
+
+    <div class="quiz-q" data-correct="b">
+      <div class="q-num">Questão 5 de 8</div>
+      <p class="q-text">Por que um pseudônimo (ex: gerado por hashing) ainda é considerado dado pessoal sob o GDPR, ao contrário de um dado anonimizado?</p>
+      <button class="quiz-opt" data-val="a" onclick="checkQuiz(this)">Porque hashing é mais lento que tokenização</button>
+      <button class="quiz-opt" data-val="b" onclick="checkQuiz(this)">Porque a pseudonimização é teoricamente reversível se a função e o salt/chave forem conhecidos</button>
+      <button class="quiz-opt" data-val="c" onclick="checkQuiz(this)">Porque pseudônimos sempre incluem o CPF</button>
+      <button class="quiz-opt" data-val="d" onclick="checkQuiz(this)">Porque o GDPR não reconhece hashing como técnica válida</button>
+      <div class="quiz-explain">✅ Pseudonimização é <strong>reversível</strong> — quem conhece a chave/hash/salt pode reidentificar o titular. Por isso o GDPR ainda trata pseudônimos como dado pessoal. Anonimização é irreversível e não tem mais essa restrição.</div>
+    </div>
+
+    <div class="quiz-q" data-correct="c">
+      <div class="q-num">Questão 6 de 8</div>
+      <p class="q-text">Na anonimização por binning (ex: agrupar idade em faixas como "25-35"), qual técnica está sendo aplicada?</p>
+      <button class="quiz-opt" data-val="a" onclick="checkQuiz(this)">Tokenização</button>
+      <button class="quiz-opt" data-val="b" onclick="checkQuiz(this)">Hashing com salt</button>
+      <button class="quiz-opt" data-val="c" onclick="checkQuiz(this)">Generalização</button>
+      <button class="quiz-opt" data-val="d" onclick="checkQuiz(this)">Ownership chaining</button>
+      <div class="quiz-explain">✅ Binning é uma forma de <strong>generalização</strong>: substitui um valor preciso (idade exata) por uma categoria mais ampla, uma das duas técnicas principais de anonimização (a outra é supressão).</div>
+    </div>
+
+    <div class="quiz-q" data-correct="d">
+      <div class="q-num">Questão 7 de 8</div>
+      <p class="q-text">Ao ler o Change Data Feed de uma tabela, o que representa uma linha com _change_type = "update_preimage"?</p>
+      <button class="quiz-opt" data-val="a" onclick="checkQuiz(this)">Uma linha recém-inserida</button>
+      <button class="quiz-opt" data-val="b" onclick="checkQuiz(this)">O valor da linha após a atualização</button>
+      <button class="quiz-opt" data-val="c" onclick="checkQuiz(this)">Uma linha excluída</button>
+      <button class="quiz-opt" data-val="d" onclick="checkQuiz(this)">O valor da linha antes de ser atualizada</button>
+      <div class="quiz-explain">✅ <code>update_preimage</code> = valor <strong>antes</strong> da atualização. <code>update_postimage</code> = valor <strong>depois</strong>. Toda linha atualizada gera as duas entradas no CDF.</div>
+    </div>
+
+    <div class="quiz-q" data-correct="a">
+      <div class="q-num">Questão 8 de 8</div>
+      <p class="q-text">Uma empresa exclui um registro de um usuário via DELETE em compliance com uma solicitação de GDPR. Por que os dados ainda podem ser recuperados consultando uma versão anterior da tabela Delta (VERSION AS OF)?</p>
+      <button class="quiz-opt" data-val="a" onclick="checkQuiz(this)">Porque o histórico de versões do Delta Lake preserva arquivos de dados antigos até que VACUUM os remova</button>
+      <button class="quiz-opt" data-val="b" onclick="checkQuiz(this)">Porque DELETE no Delta Lake nunca remove dados de fato</button>
+      <button class="quiz-opt" data-val="c" onclick="checkQuiz(this)">Porque CDF precisa estar desabilitado para o DELETE funcionar</button>
+      <button class="quiz-opt" data-val="d" onclick="checkQuiz(this)">Isso é um bug e não deveria acontecer</button>
+      <div class="quiz-explain">✅ Delta Lake reescreve arquivos de dados em vez de apagá-los in-place, e mantém versões antigas para time travel. Para cumprir totalmente uma solicitação de exclusão, é necessário rodar <code>VACUUM</code> após o período de retenção configurado.</div>
+    </div>
+
+    <div class="quiz-score" id="score-t6">
+      <div class="score-num" id="score-t6-num">0/8</div>
+      <p style="color:var(--text-muted);margin-top:8px;">Revise as explicações das questões que errou.</p>
+    </div>
+  </div>
+</article>
+
+</div>
+</main>
+
+<!-- Lightbox Modal -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightbox(event)" aria-label="Fechar">✕</button>
+  <img id="lb-img" src="" alt="">
+  <div class="lb-caption" id="lb-caption"></div>
+</div>
+<script>
+function toggleTheme(btn) { btn.closest('.nav-theme').classList.toggle('open'); }
+function filterNav(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('.nav-lessons a').forEach(a => {
+    a.style.display = a.textContent.toLowerCase().includes(q) || q === '' ? '' : 'none';
+  });
+  if (q) document.querySelectorAll('.nav-theme').forEach(t => t.classList.add('open'));
+}
+document.querySelectorAll('.nav-lessons a').forEach(a => {
+  a.addEventListener('click', () => {
+    if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
+  });
+});
+// Active link highlight on scroll
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.nav-lessons a').forEach(a => a.classList.remove('active'));
+      const link = document.querySelector('.nav-lessons a[href="#' + e.target.id + '"]');
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+document.querySelectorAll('.lesson').forEach(l => observer.observe(l));
+</script>
+<script>
+// Light/dark mode
+function toggleMode() {
+  document.body.classList.toggle('light');
+  const isLight = document.body.classList.contains('light');
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  document.querySelector('.theme-toggle').textContent = isLight ? '🌙' : '☀️';
+}
+// Restore saved theme
+if (localStorage.getItem('theme') === 'light') {
+  document.body.classList.add('light');
+  document.querySelector('.theme-toggle').textContent = '🌙';
+}
+
+// Progress checkboxes
+function saveProgress(id, checked) {
+  const progress = JSON.parse(localStorage.getItem('study-progress') || '{}');
+  progress[id] = checked;
+  localStorage.setItem('study-progress', JSON.stringify(progress));
+  updateProgressBar();
+}
+function updateProgressBar() {
+  const progress = JSON.parse(localStorage.getItem('study-progress') || '{}');
+  const total = document.querySelectorAll('.lesson-check input').length;
+  const done = Object.values(progress).filter(v => v).length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  const fill = document.querySelector('.progress-bar .fill');
+  const label = document.querySelector('.progress-bar .prog-label');
+  if (fill) fill.style.width = pct + '%';
+  if (label) label.textContent = done + '/' + total + ' lições';
+}
+// Restore checkboxes on load
+document.addEventListener('DOMContentLoaded', function() {
+  const progress = JSON.parse(localStorage.getItem('study-progress') || '{}');
+  for (const [id, checked] of Object.entries(progress)) {
+    const cb = document.getElementById(id);
+    if (cb) cb.checked = checked;
+  }
+  updateProgressBar();
+});
+</script>
+<script>
+function checkQuiz(btn) {
+  const q = btn.closest('.quiz-q');
+  if (q.classList.contains('answered')) return;
+  q.classList.add('answered');
+
+  const correct = q.dataset.correct;
+  const selected = btn.dataset.val;
+
+  q.querySelectorAll('.quiz-opt').forEach(o => {
+    o.classList.add('disabled');
+    if (o.dataset.val === correct) o.classList.add('correct');
+    else if (o === btn && selected !== correct) o.classList.add('wrong');
+  });
+
+  q.querySelector('.quiz-explain').classList.add('show');
+
+  const container = q.closest('.section');
+  const allQs = container.querySelectorAll('.quiz-q');
+  const answeredQs = container.querySelectorAll('.quiz-q.answered');
+
+  if (allQs.length === answeredQs.length) {
+    let score = 0;
+    answeredQs.forEach(aq => {
+      const hasWrong = aq.querySelector('.quiz-opt.wrong');
+      if (!hasWrong) score++;
+    });
+
+    const scoreBox = container.querySelector('.quiz-score');
+    const scoreNum = scoreBox.querySelector('.score-num');
+    scoreNum.textContent = score + '/' + allQs.length;
+    scoreBox.style.display = 'block';
+
+    if (score === allQs.length) {
+      scoreNum.style.color = 'var(--green)';
+    } else if (score >= allQs.length * 0.7) {
+      scoreNum.style.color = 'var(--accent)';
+    } else {
+      scoreNum.style.color = '#f85149';
+    }
+  }
+}
+</script>
+<script>
+document.addEventListener('click', function(e) {
+  const header = e.target.closest('.step-header') || e.target.closest('.step-num');
+  if (!header) return;
+  const step = header.closest('.step');
+  if (!step) return;
+
+  const wasActive = step.classList.contains('active');
+  const stepper = step.closest('.stepper');
+  stepper.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  if (!wasActive) step.classList.add('active');
+});
+</script>
+<script>
+function openLightbox(src, caption) {
+  const lb = document.getElementById('lightbox');
+  const img = document.getElementById('lb-img');
+  const cap = document.getElementById('lb-caption');
+  img.src = src;
+  cap.textContent = caption || '';
+  cap.style.display = caption ? '' : 'none';
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox(e) {
+  if (e && e.target.id === 'lb-img') return;
+  const lb = document.getElementById('lightbox');
+  lb.classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeLightbox(e);
+});
+document.querySelectorAll('.fig img').forEach(function(img) {
+  img.addEventListener('click', function() {
+    var caption = '';
+    var fig = img.closest('figure');
+    if (fig) {
+      var cap = fig.querySelector('figcaption');
+      if (cap) caption = cap.textContent;
+    }
+    openLightbox(img.src, caption);
+  });
+});
+</script>
+<button class="theme-toggle" onclick="toggleMode()">☀️</button>
+</body>
+</html>
