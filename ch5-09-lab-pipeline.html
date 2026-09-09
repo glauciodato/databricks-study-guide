@@ -21,16 +21,16 @@
 </div>
 </section>
 <section class="notebook-cell">
-<h1>Lab - Building Multi-Source E-commerce Pipeline with Spark Declarative Pipelines</h1>
+<h1>Lab - Construindo um Pipeline de E-commerce Multi-Source com Spark Declarative Pipelines</h1>
 </section>
 <section class="notebook-cell">
 <h2>Cenário do Laboratório</h2>
-<p>You are a data engineer working for an e-commerce company that receives orders from two channels: their website and mobile app. These channels store data in different formats and may have some similarities and differences in how they capture order information. Your role is to build a streaming data pipeline using Spark Declarative Pipelines that can process data from these different channels and generate weekly revenue reports for business stakeholders.</p>
-<p>This lab will demonstrate advanced techniques including multi-flow ingestion, stream-static joins, data quality expectations, and materialized views for analytics.</p>
+<p>Você é um engenheiro de dados trabalhando para uma empresa de e-commerce que recebe pedidos de dois canais: seu site e o aplicativo mobile. Esses canais armazenam dados em formatos diferentes e podem ter algumas semelhanças e diferenças na forma como capturam informações de pedidos. Seu papel é construir um pipeline de dados de streaming usando Spark Declarative Pipelines que possa processar dados desses diferentes canais e gerar relatórios semanais de receita para os stakeholders de negócio.</p>
+<p>Este lab demonstrará técnicas avançadas, incluindo ingestão multi-flow, joins entre stream e static, data quality expectations e materialized views para analytics.</p>
 </section>
 <section class="notebook-cell">
 <h2>A. Configuração do Ambiente</h2>
-<p>Follow the cells below to set up your workspace for the lab.</p>
+<p>Siga as células abaixo para configurar seu workspace para o lab.</p>
 <div style="
   border-left: 4px solid #1976d2;
   background: #e3f2fd;
@@ -87,19 +87,19 @@
 </div>
 </section>
 <section class="notebook-cell">
-<h3>A1. Configure Your Catalog and Schema</h3>
-<p>Run the cell below to initialize your environment. This setup step does the following:
-    - <strong>Assumes you have permission to create a catalog</strong> when running outside of a Databricks provided Vocareum workspace
-    - Creates three schemas in your specified catalog:
+<h3>A1. Configure Seu Catálogo e Schema</h3>
+<p>Execute a célula abaixo para inicializar seu ambiente. Este passo de configuração faz o seguinte:
+    - <strong>Assume que você tem permissão para criar um catálogo</strong> quando executado fora de um workspace Vocareum fornecido pela Databricks
+    - Cria três schemas no catálogo especificado:
         - <strong>lab_1_bronze</strong>
         - <strong>lab_2_silver</strong>
         - <strong>lab_3_gold</strong>
-    - Creates <code>ops</code> and <code>source</code> volumes in your <strong>YOUR_LABUSER_CATALOG.lab_1_bronze</strong> schema, and adds sample files to your volumes.
-    - Verifies your selected compute environment</p>
-<pre><code>This ensures that all schemas, tables and objects are created in your catalog.
+    - Cria os volumes <code>ops</code> e <code>source</code> no seu schema <strong>YOUR_LABUSER_CATALOG.lab_1_bronze</strong>, e adiciona arquivos de exemplo aos seus volumes.
+    - Verifica o ambiente de compute selecionado</p>
+<pre><code>Isso garante que todos os schemas, tabelas e objetos sejam criados no seu catálogo.
 </code></pre>
 <blockquote>
-<p><strong>Important:</strong> You must have permission to create catalogs in your own non-Vocareum workspace. If you do not have the required permissions, this step will fail. Review the note below before continuing.</p>
+<p><strong>Importante:</strong> Você deve ter permissão para criar catálogos no seu próprio workspace fora do Vocareum. Se você não tiver as permissões necessárias, este passo falhará. Revise a nota abaixo antes de continuar.</p>
 </blockquote>
 </section>
 <section class="notebook-cell">
@@ -112,41 +112,41 @@
 ">
 
   <strong style="display:block; color:#e65100; margin-bottom:6px; font-size: 1.1em;">
-    Troubleshooting Configuração - Missing Create Catalog Permissions
+    Troubleshooting Configuração - Faltam Permissões para Criar Catálogo
   </strong>
 <details>
   <div style="color:#333;">
 
-If you do not have permission to create a new catalog but already have one available, you can explicitly specify an existing catalog by using the `catalog_forced` argument in the `build_user_catalog_name` function.
+Se você não tiver permissão para criar um novo catálogo, mas já tiver um disponível, você pode especificar explicitamente um catálogo existente usando o argumento `catalog_forced` na função `build_user_catalog_name`.
 
-This function is defined in the notebook: `./Includes/Classroom-Configuração-multiplex`
+Essa função é definida no notebook: `./Includes/Classroom-Setup-multiplex`
 
   </div>
 </details>
 </div>
 </section>
 <section class="notebook-cell">
-<h3>A2. Verify Volume Path Configuration</h3>
-<p>Run the cell below to view the value of the <code>my_vol_path</code> variable.</p>
-<p>Confirm that the value references your <strong>your-catalog.lab_1_bronze</strong> path. This will be used to dynamically reference your source volumes throughout this lab.</p>
+<h3>A2. Verifique a Configuração do Caminho do Volume</h3>
+<p>Execute a célula abaixo para ver o valor da variável <code>my_vol_path</code>.</p>
+<p>Confirme que o valor referencia seu caminho <strong>your-catalog.lab_1_bronze</strong>. Isso será usado para referenciar dinamicamente seus volumes de origem ao longo deste lab.</p>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>print(my_vol_path)</code></pre></div></section>
 <section class="notebook-cell">
-<h2>B. Explore Source Data Characteristics</h2>
-<p>Before building our pipeline, let's understand the structure and characteristics of our source data. This e-commerce company receives orders from two different channels, each with its own data format and schema variations.</p>
+<h2>B. Explore as Características dos Dados de Origem</h2>
+<p>Antes de construir nosso pipeline, vamos entender a estrutura e as características dos nossos dados de origem. Essa empresa de e-commerce recebe pedidos de dois canais diferentes, cada um com seu próprio formato de dados e variações de schema.</p>
 </section>
 <section class="notebook-cell">
-<h3>B1. Understanding Data File Structure</h3>
-<p>Our pipeline will process data from multiple sources, each stored in different volumes with specific formats and purposes:</p>
+<h3>B1. Entendendo a Estrutura dos Arquivos de Dados</h3>
+<p>Nosso pipeline processará dados de múltiplas fontes, cada uma armazenada em volumes diferentes com formatos e propósitos específicos:</p>
 </section>
 <section class="notebook-cell">
 <table>
 <thead>
 <tr>
-<th>File</th>
-<th>Destination Volume</th>
-<th>Format</th>
-<th>Purpose</th>
+<th>Arquivo</th>
+<th>Volume de Destino</th>
+<th>Formato</th>
+<th>Propósito</th>
 </tr>
 </thead>
 <tbody>
@@ -154,130 +154,130 @@ This function is defined in the notebook: `./Includes/Classroom-Configuração-m
 <td><code>web_orders_1.csv</code></td>
 <td>web_orders</td>
 <td>CSV</td>
-<td>Web channel orders</td>
+<td>Pedidos do canal web</td>
 </tr>
 <tr>
 <td><code>app_orders_1.json</code></td>
 <td>app_orders</td>
 <td>JSON</td>
-<td>Mobile app orders</td>
+<td>Pedidos do aplicativo mobile</td>
 </tr>
 <tr>
 <td><code>product_catalog.csv</code></td>
 <td>ops</td>
 <td>CSV</td>
-<td>Static product reference data</td>
+<td>Dados de referência estáticos de produtos</td>
 </tr>
 </tbody>
 </table>
 </section>
 <section class="notebook-cell">
-<h3>B2. Listing Data in Destination Volumes</h3>
-<p>Let's examine the files available in each volume to understand our data sources.</p>
+<h3>B2. Listando Dados nos Volumes de Destino</h3>
+<p>Vamos examinar os arquivos disponíveis em cada volume para entender nossas fontes de dados.</p>
 </section>
 <section class="notebook-cell">
-<h4>1. Operations Volume</h4>
-<p>The operations volume contains static reference data like product catalogs.</p>
+<h4>1. Volume de Operações</h4>
+<p>O volume de operações contém dados de referência estáticos, como catálogos de produtos.</p>
 </section>
-<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># List files in ops volume
+<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># Lista os arquivos no volume ops
 display(spark.sql(f"LIST '{my_vol_path}/ops'"))</code></pre></div></section>
 <section class="notebook-cell">
-<h4>2. Web Orders Volume</h4>
-<p>The web orders volume contains CSV files with order data from the company's website.</p>
+<h4>2. Volume de Pedidos Web</h4>
+<p>O volume de pedidos web contém arquivos CSV com dados de pedidos vindos do site da empresa.</p>
 </section>
-<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># List files in web_orders volume
+<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># Lista os arquivos no volume web_orders
 display(spark.sql(f"LIST '{my_vol_path}/web_orders'"))</code></pre></div></section>
 <section class="notebook-cell">
-<h4>3. App Orders Volume</h4>
-<p>The app orders volume contains JSON files with order data from the mobile application.</p>
+<h4>3. Volume de Pedidos do App</h4>
+<p>O volume de pedidos do app contém arquivos JSON com dados de pedidos vindos do aplicativo mobile.</p>
 </section>
-<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># List files in app_orders volume
+<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># Lista os arquivos no volume app_orders
 display(spark.sql(f"LIST '{my_vol_path}/app_orders'"))</code></pre></div></section>
 <section class="notebook-cell">
-<h3>B3. Analyzing Data Structure and Content</h3>
-<p>Now let's examine the actual data structure and content from each source to understand schema differences and commonalities.</p>
+<h3>B3. Analisando a Estrutura e o Conteúdo dos Dados</h3>
+<p>Agora vamos examinar a estrutura e o conteúdo reais dos dados de cada fonte, para entender diferenças e semelhanças de schema.</p>
 </section>
 <section class="notebook-cell">
-<h4>1. Analyzing Operations Data</h4>
-<p>The operations volume contains product catalog information that will be used for enriching order data.</p>
+<h4>1. Analisando os Dados de Operações</h4>
+<p>O volume de operações contém informações de catálogo de produtos que serão usadas para enriquecer os dados de pedidos.</p>
 </section>
 <section class="notebook-cell">
-<h4>2. Analyzing Web Orders Data</h4>
-<p>Web orders are stored in CSV format and contain web-specific metadata like browser and session information.</p>
+<h4>2. Analisando os Dados de Pedidos Web</h4>
+<p>Os pedidos web são armazenados em formato CSV e contêm metadados específicos do canal web, como informações de navegador e sessão.</p>
 </section>
 <section class="notebook-cell">
-<h4>3. Analyzing App Orders Data</h4>
-<p>App orders are stored in JSON format and contain app-specific metadata like app version and device model.</p>
+<h4>3. Analisando os Dados de Pedidos do App</h4>
+<p>Os pedidos do app são armazenados em formato JSON e contêm metadados específicos do app, como versão do aplicativo e modelo do dispositivo.</p>
 </section>
 <section class="notebook-cell">
-<h4>Checkpoint - Data Exploration</h4>
-<p>Confirm the following data counts:
-- Web orders: Rows loaded from <code>web_orders_1.csv</code>
-- App orders: Rows loaded from <code>app_orders_1.json</code>
-- Product catalog: 50 products</p>
-<p><strong>TROUBLESHOOTING:</strong> If any file shows 0 rows, verify <code>my_vol_path</code> is correct and all files were uploaded successfully.</p>
+<h4>Checkpoint - Exploração de Dados</h4>
+<p>Confirme as seguintes contagens de dados:
+- Pedidos web: linhas carregadas de <code>web_orders_1.csv</code>
+- Pedidos do app: linhas carregadas de <code>app_orders_1.json</code>
+- Catálogo de produtos: 50 produtos</p>
+<p><strong>TROUBLESHOOTING:</strong> Se algum arquivo mostrar 0 linhas, verifique se <code>my_vol_path</code> está correto e se todos os arquivos foram carregados com sucesso.</p>
 </section>
 <section class="notebook-cell">
-<h2>C. Create the Spark Declarative Pipeline</h2>
-<p>Now we'll create our Spark Declarative Pipeline using the Apache Spark™ Pipelines Editor to process data from multiple sources.</p>
+<h2>C. Crie o Spark Declarative Pipeline</h2>
+<p>Agora vamos criar nosso Spark Declarative Pipeline usando o Apache Spark™ Pipelines Editor para processar dados de múltiplas fontes.</p>
 </section>
 <section class="notebook-cell">
-<h3>C1. Enable the Apache Spark™ Pipelines Editor</h3>
-<p>Complete the following steps to confirm or enable the <strong>Apache Spark™ Pipelines Editor</strong>:</p>
+<h3>C1. Habilite o Apache Spark™ Pipelines Editor</h3>
+<p>Complete os passos a seguir para confirmar ou habilitar o <strong>Apache Spark™ Pipelines Editor</strong>:</p>
 <ol>
 <li>
-<p>In the top-right corner of the workspace, select your <strong>account icon</strong> <img alt="Account Icon" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/account_icon.png" /> (<em>Your icon letter will differ</em>).  </p>
+<p>No canto superior direito do workspace, selecione seu <strong>ícone de conta</strong> <img alt="Account Icon" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/account_icon.png" /> (<em>A letra do seu ícone será diferente</em>).  </p>
 </li>
 <li>
-<p>Right-click <strong>Settings</strong> and choose <strong>Open link in new tab</strong>.  </p>
+<p>Clique com o botão direito em <strong>Settings</strong> e escolha <strong>Open link in new tab</strong>.  </p>
 </li>
 <li>
-<p>In the left sidebar, select <strong>Developer</strong> under <strong>User</strong>.  </p>
+<p>Na barra lateral esquerda, selecione <strong>Developer</strong> em <strong>User</strong>.  </p>
 </li>
 <li>
-<p>In the <strong>Experimental features</strong> section, locate <strong>Apache Spark™ Pipelines Editor</strong> and toggle it <strong>on</strong>.</p>
+<p>Na seção <strong>Experimental features</strong>, localize <strong>Apache Spark™ Pipelines Editor</strong> e ative-o.</p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h3>C2. Create a Apache Spark™ Spark Declarative Pipeline</h3>
-<p>Complete the following steps to create your Spark Declarative Pipeline using the Apache Spark™ Pipelines Editor:</p>
+<h3>C2. Crie um Apache Spark™ Spark Declarative Pipeline</h3>
+<p>Complete os passos a seguir para criar seu Spark Declarative Pipeline usando o Apache Spark™ Pipelines Editor:</p>
 <ol>
 <li>
-<p>In the main navigation pane, right-click <strong>Jobs &amp; Pipelines</strong> and select <strong>Open link in New Tab</strong>.  </p>
+<p>No painel de navegação principal, clique com o botão direito em <strong>Jobs &amp; Pipelines</strong> e selecione <strong>Open link in New Tab</strong>.  </p>
 </li>
 <li>
-<p>In the new tab, select <strong>Create → ETL Pipeline</strong>.  </p>
+<p>Na nova aba, selecione <strong>Create → ETL Pipeline</strong>.  </p>
 </li>
 </ol>
-<p><strong>NOTE:</strong> If prompted to <strong>Try the new Apache Spark™ Pipelines Editor</strong>, choose <strong>Enable Apache Spark™ Pipelines Editor</strong>. This appears only if you did not complete the previous step.  </p>
+<p><strong>NOTA:</strong> Se solicitado a <strong>Try the new Apache Spark™ Pipelines Editor</strong>, escolha <strong>Enable Apache Spark™ Pipelines Editor</strong>. Isso só aparece se você não completou o passo anterior.  </p>
 <ol>
-<li>Configure the pipeline settings:</li>
+<li>Configure as definições do pipeline:</li>
 <li><strong>Pipeline Name</strong>: <code>lab_ecommerce_yourname</code></li>
 <li><strong>Default Catalog</strong>: <code>YOUR_LABUSER_CATALOG</code></li>
 <li>
 <p><strong>Default Schema</strong>: <code>lab_1_bronze</code><br />
-<strong>NOTE:</strong> Clear the selected schema using the cross icon to view all schemas.</p>
+<strong>NOTA:</strong> Limpe o schema selecionado usando o ícone de x para visualizar todos os schemas.</p>
 </li>
 <li>
-<p><strong>Rename pipeline components</strong>:</p>
+<p><strong>Renomeie os componentes do pipeline</strong>:</p>
 </li>
-<li>Rename the <strong>transformations</strong> folder to <code>ecommerce_pipeline</code></li>
+<li>Renomeie a pasta <strong>transformations</strong> para <code>ecommerce_pipeline</code></li>
 <li>
-<p>Rename <strong>my_transformation.py</strong> file to <code>bronze_ingestion.sql</code></p>
+<p>Renomeie o arquivo <strong>my_transformation.py</strong> para <code>bronze_ingestion.sql</code></p>
 </li>
 <li>
-<p>Leave the <strong>Apache Spark™ Pipelines Editor</strong> page open for the next steps.</p>
+<p>Deixe a página do <strong>Apache Spark™ Pipelines Editor</strong> aberta para os próximos passos.</p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h3>C3. Configure Pipeline Parameters</h3>
-<p>Pipeline parameters allow us to dynamically reference our source volumes across different environments.</p>
+<h3>C3. Configure os Parâmetros do Pipeline</h3>
+<p>Os parâmetros do pipeline nos permitem referenciar dinamicamente nossos volumes de origem em diferentes ambientes.</p>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>Run the cell below to retrieve the key-value pairs needed to set your pipeline configuration parameters for the source volumes.</li>
+<li>Execute a célula abaixo para obter os pares chave-valor necessários para definir os parâmetros de configuração do seu pipeline para os volumes de origem.</li>
 </ol>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>config_parameters = [
@@ -286,108 +286,108 @@ display(spark.sql(f"LIST '{my_vol_path}/app_orders'"))</code></pre></div></secti
     ("product_catalog_source", f"{my_vol_path}/ops"),
 ]
 print("=" * 65)
-print("  Add these as Configuration Parameters in your Pipeline:")
+print("  Adicione estes como Configuration Parameters no seu Pipeline:")
 print("=" * 65)
 for key, value in config_parameters:
-    print(f"  Key  : {key}")
-    print(f"  Value: {value}")
+    print(f"  Chave : {key}")
+    print(f"  Valor: {value}")
     print()</code></pre></div></section>
 <section class="notebook-cell">
 <ol>
-<li>Copy the paths above and add each one as a configuration parameter in your <strong>Spark Declarative Pipeline</strong>.</li>
+<li>Copie os caminhos acima e adicione cada um como um parâmetro de configuração no seu <strong>Spark Declarative Pipeline</strong>.</li>
 </ol>
-<p>This will allow your pipeline to reference each volume through parameters.</p>
+<p>Isso permitirá que seu pipeline referencie cada volume através de parâmetros.</p>
 <ol>
 <li>
-<p>Select <strong>Settings</strong> in your pipeline tab  </p>
+<p>Selecione <strong>Settings</strong> na aba do seu pipeline  </p>
 </li>
 <li>
-<p>Under <strong>Configuration</strong>, select <strong>Add configuration</strong></p>
+<p>Em <strong>Configuration</strong>, selecione <strong>Add configuration</strong></p>
 </li>
 <li>
-<p>For each <strong>Key</strong>, enter the key name shown above  </p>
+<p>Para cada <strong>Key</strong>, insira o nome da chave mostrado acima  </p>
 </li>
 <li>
-<p>For each <strong>Value</strong>, enter the corresponding volume path  </p>
+<p>Para cada <strong>Value</strong>, insira o caminho de volume correspondente  </p>
 </li>
 <li>
-<p>Select <strong>Save</strong></p>
+<p>Selecione <strong>Save</strong></p>
 </li>
 </ol>
-<p><strong>NOTE:</strong> For more details on configuration parameters, see the Databricks documentation: <a href="https://docs.databricks.com/aws/en/ldp/parameters">Use parameters with Apache Spark™ Declarative Pipelines</a></p>
+<p><strong>NOTA:</strong> Para mais detalhes sobre parâmetros de configuração, consulte a documentação da Databricks: <a href="https://docs.databricks.com/aws/en/ldp/parameters">Use parameters with Apache Spark™ Declarative Pipelines</a></p>
 </section>
 <section class="notebook-cell">
-<h2>D. Bronze Layer — Multi-Flow Ingestion</h2>
-<p>We have orders data coming from two sources: <strong>web and app</strong>. The Bronze layer will use multi-flow ingestion to combine data from both sources into a unified table.</p>
-<p>To build the Bronze layer, follow these three steps:
-1. Create a Bronze table that can accept data from both sources.
-2. Create a flow for web orders data.
-3. Create a flow for app orders data.</p>
+<h2>D. Camada Bronze — Ingestão Multi-Flow</h2>
+<p>Temos dados de pedidos vindos de duas fontes: <strong>web e app</strong>. A camada Bronze usará ingestão multi-flow para combinar dados de ambas as fontes em uma tabela unificada.</p>
+<p>Para construir a camada Bronze, siga estes três passos:
+1. Crie uma tabela Bronze que possa aceitar dados de ambas as fontes.
+2. Crie um flow para os dados de pedidos web.
+3. Crie um flow para os dados de pedidos do app.</p>
 </section>
 <section class="notebook-cell">
-<h3>D1. Understand the Multi-Flow Design</h3>
-<p>Both channels share core order columns but differ in channel-specific metadata:</p>
+<h3>D1. Entenda o Design Multi-Flow</h3>
+<p>Ambos os canais compartilham colunas principais de pedido, mas diferem em metadados específicos de canal:</p>
 <table>
 <thead>
 <tr>
-<th>Column</th>
+<th>Coluna</th>
 <th>Web CSV</th>
 <th>App JSON</th>
-<th>Bronze Handling</th>
+<th>Tratamento no Bronze</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><strong>order_id</strong>, <strong>customer_id</strong>, <strong>sku</strong></td>
-<td>Yes</td>
-<td>Yes</td>
-<td>Both flows</td>
+<td>Sim</td>
+<td>Sim</td>
+<td>Ambos os flows</td>
 </tr>
 <tr>
 <td><strong>discount_code</strong></td>
-<td>Yes</td>
-<td>Yes</td>
-<td>Schema hint applied</td>
+<td>Sim</td>
+<td>Sim</td>
+<td>Schema hint aplicado</td>
 </tr>
 <tr>
 <td><strong>browser</strong>, <strong>session_id</strong></td>
-<td>Yes</td>
-<td>No</td>
-<td>Web-only; NULL for app</td>
+<td>Sim</td>
+<td>Não</td>
+<td>Somente web; NULL para app</td>
 </tr>
 <tr>
 <td><strong>app_version</strong>, <strong>device_model</strong></td>
-<td>No</td>
-<td>Yes</td>
-<td>App-only; NULL for web</td>
+<td>Não</td>
+<td>Sim</td>
+<td>Somente app; NULL para web</td>
 </tr>
 </tbody>
 </table>
 </section>
 <section class="notebook-cell">
-<h3>D2. Creating Bronze Table</h3>
-<p>Create a <strong>Bronze</strong> streaming table that acts as a single raw landing table for both web and app orders using <code>CREATE OR REPLACE STREAMING TABLE</code>.</p>
-<p><strong>Requirements:</strong>
-- Create the table in the <strong>lab_1_bronze</strong> schema and name the table <strong>combined_orders_raw</strong>.<br />
-- Include:
-  - All common columns.
-  - Source‑specific columns.<br />
-  - Future‑facing columns that may not exist yet in current files (<code>discount_code</code>).<br />
-- Add metadata columns:
-  - <strong>source_file</strong> (file path or logical source name)<br />
+<h3>D2. Criando a Tabela Bronze</h3>
+<p>Crie uma streaming table <strong>Bronze</strong> que funcione como uma única tabela bruta de landing tanto para pedidos web quanto do app, usando <code>CREATE OR REPLACE STREAMING TABLE</code>.</p>
+<p><strong>Requisitos:</strong>
+- Crie a tabela no schema <strong>lab_1_bronze</strong> e nomeie a tabela como <strong>combined_orders_raw</strong>.<br />
+- Inclua:
+  - Todas as colunas comuns.
+  - Colunas específicas de cada fonte.<br />
+  - Colunas voltadas para o futuro que podem ainda não existir nos arquivos atuais (<code>discount_code</code>).<br />
+- Adicione colunas de metadata:
+  - <strong>source_file</strong> (caminho do arquivo ou nome lógico da fonte)<br />
   - <strong>file_mod_time</strong> (<code>TIMESTAMP</code>)<br />
   - <strong>ingestion_time</strong> (<code>TIMESTAMP</code>)<br />
-- Use <code>STRING</code> for all business columns, and <code>TIMESTAMP</code> only for the time metadata columns. <br />
-- In <code>TBLPROPERTIES</code>, set <code>pipelines.reset.allowed = false</code>.  </p>
-<p><strong>To Do:</strong>
-Using these requirements, write the full <code>CREATE OR REPLACE STREAMING TABLE</code> statement, including all columns, data types, <code>COMMENT</code>, and <code>TBLPROPERTIES</code>.</p>
+- Use <code>STRING</code> para todas as colunas de negócio, e <code>TIMESTAMP</code> apenas para as colunas de metadata de tempo. <br />
+- Em <code>TBLPROPERTIES</code>, defina <code>pipelines.reset.allowed = false</code>.  </p>
+<p><strong>Para Fazer:</strong>
+Usando esses requisitos, escreva a instrução completa <code>CREATE OR REPLACE STREAMING TABLE</code>, incluindo todas as colunas, tipos de dados, <code>COMMENT</code> e <code>TBLPROPERTIES</code>.</p>
 </section>
-<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>## Create the Bronze streaming table for combined orders
-## Use the requirements specified above
+<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>## Cria a streaming table Bronze para os pedidos combinados
+## Use os requisitos especificados acima
 %sql
 &lt;FILL_IN&gt;</code></pre></div></section>
 <section class="notebook-cell">
-<h5>CÓDIGO RESPOSTA - Bronze Table Structure</h5>
+<h5>CÓDIGO RESPOSTA - Estrutura da Tabela Bronze</h5>
 <details>
   <summary>EXPANDIR PARA CÓDIGO DA SOLUÇÃO</summary>
 
@@ -396,8 +396,8 @@ Using these requirements, write the full <code>CREATE OR REPLACE STREAMING TABLE
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
 ----------------------------------------------------------------
--- STEP 1: Define the unified Bronze streaming table
--- All business columns stored as STRING for schema flexibility.
+-- PASSO 1: Define a streaming table Bronze unificada
+-- Todas as colunas de negócio armazenadas como STRING para flexibilidade de schema.
 -- ----------------------------------------------------------------
 CREATE OR REPLACE STREAMING TABLE lab_1_bronze.combined_orders_raw
 (
@@ -428,7 +428,7 @@ CREATE OR REPLACE STREAMING TABLE lab_1_bronze.combined_orders_raw
   file_mod_time     TIMESTAMP,
   ingestion_time    TIMESTAMP
 )
-COMMENT "Unified Bronze streaming table - web and app orders combined via multi-flow ingestion."
+COMMENT "Streaming table Bronze unificada - pedidos web e app combinados via ingestão multi-flow."
 TBLPROPERTIES (
   'pipelines.reset.allowed' = false
 );
@@ -476,25 +476,25 @@ function fallbackCopy(text) {
 </details>
 </section>
 <section class="notebook-cell">
-<h3>D3. Creating Flows for Each Source</h3>
-<p>Now that our Bronze table is ready, we will create two flows: one for app orders and another for web orders. Each flow will ingest data into our streaming Bronze table.</p>
+<h3>D3. Criando Flows para Cada Fonte</h3>
+<p>Agora que nossa tabela Bronze está pronta, vamos criar dois flows: um para pedidos do app e outro para pedidos web. Cada flow ingerirá dados na nossa streaming table Bronze.</p>
 </section>
 <section class="notebook-cell">
-<h4>1. App Orders Flow</h4>
-<p>Now, we are going to create a flow for ingesting App Orders:
-- Create a flow to ingest <strong>JSON</strong> app orders using <code>read_files</code>.
-- Cast all business fields to <code>STRING</code> for schema flexibility.
-- Add metadata columns (<code>source_file</code>, <code>file_mod_time</code>) and <code>ingestion_time</code>.
-- Insert data into the unified Bronze table using <code>INSERT INTO ... BY NAME</code> to align columns by name.</p>
+<h4>1. Flow de Pedidos do App</h4>
+<p>Agora, vamos criar um flow para ingerir os Pedidos do App:
+- Crie um flow para ingerir pedidos do app em <strong>JSON</strong> usando <code>read_files</code>.
+- Converta todos os campos de negócio para <code>STRING</code> para flexibilidade de schema.
+- Adicione colunas de metadata (<code>source_file</code>, <code>file_mod_time</code>) e <code>ingestion_time</code>.
+- Insira os dados na tabela Bronze unificada usando <code>INSERT INTO ... BY NAME</code> para alinhar as colunas pelo nome.</p>
 </section>
 <section class="notebook-cell">
 <p><button onclick="copyBlock()">Copiar para área de transferência</button></p>
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
 -- ----------------------------------------------------------------
--- STEP 2: App Orders Flow
--- Reads JSON files from the app_orders volume.
--- Web-specific columns set to NULL.
+-- PASSO 2: Flow de Pedidos do App
+-- Lê arquivos JSON do volume app_orders.
+-- Colunas específicas de web ficam como NULL.
 -- ----------------------------------------------------------------
 CREATE FLOW app_orders_flow
 AS INSERT INTO lab_1_bronze.combined_orders_raw BY NAME
@@ -572,25 +572,25 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<h4>2. Web Orders Flow</h4>
-<p>Create a <strong>flow</strong> for web orders that writes into the unified <strong>lab_1_bronze.combined_orders_raw</strong> table using <code>CREATE FLOW</code> command.</p>
-<p><strong>Requirements:</strong>
-- Read all the columns from the web orders source using <code>read_files()</code>
-- Select and cast all business columns to <code>STRING</code> for schema flexibility.<br />
-- Populate the metadata columns to track lineage:<br />
-  - <strong>source_file</strong> from <code>_metadata.file_name</code><br />
-  - <strong>file_mod_time</strong> from <code>_metadata.file_modification_time</code><br />
-  - <strong>ingestion_time</strong> using <code>current_timestamp()</code> 
-- Use <code>schemaHints =&gt; 'discount_code STRING'</code> in <code>read_files()</code> so that the <strong>discount_code</strong> column is detected even if it is missing in some CSV files. <br />
-- Use <code>AS INSERT INTO lab_1_bronze.combined_orders_raw BY NAME</code> so columns align by name with the Bronze table schema.</p>
-<p><strong>To Do:</strong></p>
-<p>Using these requirements, write the full flow for web orders yourself.</p>
+<h4>2. Flow de Pedidos Web</h4>
+<p>Crie um <strong>flow</strong> para pedidos web que escreve na tabela unificada <strong>lab_1_bronze.combined_orders_raw</strong>, usando o comando <code>CREATE FLOW</code>.</p>
+<p><strong>Requisitos:</strong>
+- Leia todas as colunas da fonte de pedidos web usando <code>read_files()</code>
+- Selecione e converta todas as colunas de negócio para <code>STRING</code> para flexibilidade de schema.<br />
+- Popule as colunas de metadata para rastrear lineage:<br />
+  - <strong>source_file</strong> a partir de <code>_metadata.file_name</code><br />
+  - <strong>file_mod_time</strong> a partir de <code>_metadata.file_modification_time</code><br />
+  - <strong>ingestion_time</strong> usando <code>current_timestamp()</code> 
+- Use <code>schemaHints =&gt; 'discount_code STRING'</code> em <code>read_files()</code> para que a coluna <strong>discount_code</strong> seja detectada mesmo que esteja ausente em alguns arquivos CSV. <br />
+- Use <code>AS INSERT INTO lab_1_bronze.combined_orders_raw BY NAME</code> para que as colunas se alinhem pelo nome com o schema da tabela Bronze.</p>
+<p><strong>Para Fazer:</strong></p>
+<p>Usando esses requisitos, escreva você mesmo o flow completo para pedidos web.</p>
 </section>
-<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>## Create the web orders flow
-## Follow the requirements specified above
+<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>## Cria o flow de pedidos web
+## Siga os requisitos especificados acima
 ## &lt;FILL_IN&gt;</code></pre></div></section>
 <section class="notebook-cell">
-<h5>CÓDIGO RESPOSTA - Web Orders Flow</h5>
+<h5>CÓDIGO RESPOSTA - Flow de Pedidos Web</h5>
 <details>
   <summary>EXPANDIR PARA CÓDIGO DA SOLUÇÃO</summary>
 
@@ -599,9 +599,9 @@ function fallbackCopy(text) {
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
 -- ----------------------------------------------------------------
--- STEP 3: Web Orders Flow
--- Reads CSV files from the web_orders volume.
--- App-specific columns set to NULL.
+-- PASSO 3: Flow de Pedidos Web
+-- Lê arquivos CSV do volume web_orders.
+-- Colunas específicas de app ficam como NULL.
 -- ----------------------------------------------------------------
 CREATE FLOW web_orders_flow
 AS INSERT INTO lab_1_bronze.combined_orders_raw BY NAME
@@ -677,63 +677,63 @@ function fallbackCopy(text) {
 </details>
 </section>
 <section class="notebook-cell">
-<h3>D4. Run and Explore the Pipeline</h3>
+<h3>D4. Execute e Explore o Pipeline</h3>
 <ol>
 <li>
-<p>Run the Spark Declarative Pipeline and confirm that it completes successfully.</p>
+<p>Execute o Spark Declarative Pipeline e confirme que ele conclui com sucesso.</p>
 </li>
 <li>
-<p>In the Apache Spark™ Pipelines Editor, explore your pipeline run:</p>
+<p>No Apache Spark™ Pipelines Editor, explore a execução do seu pipeline:</p>
 </li>
-<li>Confirm that <strong>200</strong> rows were ingested into the <strong>combined_orders_raw</strong> table from both source volumes.</li>
-<li>Select the <strong>combined_orders_raw</strong> table and open the <strong>Data</strong> tab to preview all ingested business event records.</li>
-<li>Observe that web-specific columns like <strong>browser</strong> and <strong>session_id</strong> are populated only for web source records, while app-specific columns like <strong>device_model</strong> and <strong>app_version</strong> are populated only for app source records (and are NULL for web records).</li>
+<li>Confirme que <strong>200</strong> linhas foram ingeridas na tabela <strong>combined_orders_raw</strong> a partir de ambos os volumes de origem.</li>
+<li>Selecione a tabela <strong>combined_orders_raw</strong> e abra a aba <strong>Data</strong> para fazer um preview de todos os registros de eventos de negócio ingeridos.</li>
+<li>Observe que colunas específicas de web, como <strong>browser</strong> e <strong>session_id</strong>, são populadas apenas para registros de origem web, enquanto colunas específicas de app, como <strong>device_model</strong> e <strong>app_version</strong>, são populadas apenas para registros de origem app (e ficam NULL para registros web).</li>
 </ol>
-<p><strong>TROUBLESHOOTING:</strong> If your pipeline does not run successfully, make sure your volumes are created and your configuration parameters are set correctly.</p>
+<p><strong>TROUBLESHOOTING:</strong> Se seu pipeline não executar com sucesso, verifique se seus volumes foram criados e se seus parâmetros de configuração estão definidos corretamente.</p>
 </section>
 <section class="notebook-cell">
-<h3>D5. Confirming Ingestion of Records</h3>
-<p>Let's verify that our multi-flow ingestion is working correctly by examining the ingested data.</p>
+<h3>D5. Confirmando a Ingestão dos Registros</h3>
+<p>Vamos verificar se nossa ingestão multi-flow está funcionando corretamente, examinando os dados ingeridos.</p>
 </section>
 <section class="notebook-cell">
-<h4>Checkpoint - Bronze Layer</h4>
+<h4>Checkpoint - Camada Bronze</h4>
 <table>
 <thead>
 <tr>
-<th>Source</th>
-<th>Expected</th>
-<th>Notes</th>
+<th>Fonte</th>
+<th>Esperado</th>
+<th>Notas</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>web_orders_1.csv</code></td>
-<td>Web rows ingested</td>
-<td><strong>browser</strong> and <strong>session_id</strong> populated</td>
+<td>Linhas web ingeridas</td>
+<td><strong>browser</strong> e <strong>session_id</strong> populados</td>
 </tr>
 <tr>
 <td><code>app_orders_1.json</code></td>
-<td>App rows ingested</td>
-<td><strong>app_version</strong> and <strong>device_model</strong> populated</td>
+<td>Linhas do app ingeridas</td>
+<td><strong>app_version</strong> e <strong>device_model</strong> populados</td>
 </tr>
 </tbody>
 </table>
-<p><strong>TROUBLESHOOTING:</strong> If one flow shows 0 rows, check that the pipeline configuration parameter points to the correct volume path.</p>
+<p><strong>TROUBLESHOOTING:</strong> Se algum flow mostrar 0 linhas, verifique se o parâmetro de configuração do pipeline aponta para o caminho de volume correto.</p>
 </section>
 <section class="notebook-cell">
-<h2>E. Silver Layer — Expectations and Stream-Static Join</h2>
-<p>The Silver layer will clean and validate our data using expectations, then enrich it with product catalog information through a stream-static join.</p>
+<h2>E. Camada Silver — Expectations e Stream-Static Join</h2>
+<p>A camada Silver limpará e validará nossos dados usando expectations, e depois os enriquecerá com informações do catálogo de produtos através de um stream-static join.</p>
 </section>
 <section class="notebook-cell">
-<h3>E1. Understand the Data Quality Expectations</h3>
-<p>Data quality expectations ensure that only valid data flows through our pipeline. Here are the constraints we'll implement:</p>
+<h3>E1. Entenda as Data Quality Expectations</h3>
+<p>Data quality expectations garantem que apenas dados válidos fluam pelo nosso pipeline. Aqui estão as constraints que vamos implementar:</p>
 <table>
 <thead>
 <tr>
-<th>Constraint Name</th>
+<th>Nome da Constraint</th>
 <th>Expectation</th>
-<th>Action</th>
-<th>Why</th>
+<th>Ação</th>
+<th>Motivo</th>
 </tr>
 </thead>
 <tbody>
@@ -741,72 +741,72 @@ function fallbackCopy(text) {
 <td><code>valid_order_id</code></td>
 <td><code>order_id IS NOT NULL</code></td>
 <td><strong>FAIL UPDATE</strong></td>
-<td>Primary key — NULL breaks all downstream joins</td>
+<td>Chave primária — NULL quebra todos os joins posteriores</td>
 </tr>
 <tr>
 <td><code>valid_sku</code></td>
 <td><code>sku IS NOT NULL</code></td>
 <td><strong>DROP ROW</strong></td>
-<td>No product reference = unusable for analytics</td>
+<td>Sem referência de produto = inutilizável para analytics</td>
 </tr>
 <tr>
 <td><code>positive_quantity</code></td>
 <td><code>quantity &gt;= 1</code></td>
 <td><strong>DROP ROW</strong></td>
-<td>Quantity of zero or less is not a valid sale</td>
+<td>Quantidade zero ou negativa não é uma venda válida</td>
 </tr>
 <tr>
 <td><code>positive_unit_price</code></td>
 <td><code>unit_price &gt; 0</code></td>
-<td><strong>WARN</strong> (default)</td>
-<td>Flags pricing anomalies without blocking the pipeline</td>
+<td><strong>WARN</strong> (padrão)</td>
+<td>Sinaliza anomalias de preço sem bloquear o pipeline</td>
 </tr>
 <tr>
 <td><code>valid_total_amount</code></td>
 <td><code>total_amount &gt;= 0</code></td>
-<td><strong>WARN</strong> (default)</td>
-<td>Flags negative totals for review</td>
+<td><strong>WARN</strong> (padrão)</td>
+<td>Sinaliza totais negativos para revisão</td>
 </tr>
 </tbody>
 </table>
 </section>
 <section class="notebook-cell">
-<h3>E2. Create the Silver SQL File</h3>
+<h3>E2. Crie o Arquivo SQL do Silver</h3>
 <ol>
 <li>
-<p>On your <strong>ecommerce_pipeline</strong> folder select the kebab menu and select <strong>Create File</strong></p>
+<p>Na sua pasta <strong>ecommerce_pipeline</strong>, selecione o menu kebab e selecione <strong>Create File</strong></p>
 </li>
 <li>
-<p>Select the language as <strong>SQL</strong></p>
+<p>Selecione a linguagem como <strong>SQL</strong></p>
 </li>
 <li>
-<p>Name the file <code>silver_transformation.sql</code></p>
+<p>Nomeie o arquivo como <code>silver_transformation.sql</code></p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h3>E3. Create the Silver Table</h3>
-<p><strong>Instructions:</strong>
-- Create a Silver streaming table named <strong>orders_clean</strong> in the <strong>lab_2_silver</strong> schema.
-- Use <code>CREATE OR REFRESH STREAMING TABLE</code> and select from <code>STREAM lab_1_bronze.combined_orders_raw</code>.
-- Add data quality constraints using <code>CONSTRAINT</code> and <code>EXPECT</code> for key columns.
-- Use <code>CLUSTER BY AUTO</code> for automatic clustering.
-- Cast raw fields to correct types with <code>TRY_CAST</code>.
-- Add a table comment describing the table.</p>
-<p><strong>Requirements:</strong>
-- <strong>Table:</strong> <strong>orders_clean</strong>
-- <strong>Columns:</strong> Cast fields like <strong>order_date</strong> (<code>TIMESTAMP</code>), <strong>quantity</strong> (<code>INT</code>), <strong>unit_price</strong>, <strong>discount_amount</strong>, <strong>total_amount</strong> (<code>DOUBLE</code>), <strong>ship_date</strong> (<code>DATE</code>).
+<h3>E3. Crie a Tabela Silver</h3>
+<p><strong>Instruções:</strong>
+- Crie uma streaming table Silver chamada <strong>orders_clean</strong> no schema <strong>lab_2_silver</strong>.
+- Use <code>CREATE OR REFRESH STREAMING TABLE</code> e selecione a partir de <code>STREAM lab_1_bronze.combined_orders_raw</code>.
+- Adicione constraints de qualidade de dados usando <code>CONSTRAINT</code> e <code>EXPECT</code> para as colunas-chave.
+- Use <code>CLUSTER BY AUTO</code> para clustering automático.
+- Converta os campos brutos para os tipos corretos com <code>TRY_CAST</code>.
+- Adicione um comentário na tabela descrevendo-a.</p>
+<p><strong>Requisitos:</strong>
+- <strong>Tabela:</strong> <strong>orders_clean</strong>
+- <strong>Colunas:</strong> converta campos como <strong>order_date</strong> (<code>TIMESTAMP</code>), <strong>quantity</strong> (<code>INT</code>), <strong>unit_price</strong>, <strong>discount_amount</strong>, <strong>total_amount</strong> (<code>DOUBLE</code>), <strong>ship_date</strong> (<code>DATE</code>).
 - <strong>Constraints:</strong>
   - <code>valid_order_id</code>: <strong>order_id</strong> IS NOT NULL, <code>ON VIOLATION FAIL UPDATE</code>
   - <code>valid_sku</code>: <strong>sku</strong> IS NOT NULL, <code>ON VIOLATION DROP ROW</code>
   - <code>positive_quantity</code>: <strong>quantity</strong> &gt;= 1, <code>ON VIOLATION DROP ROW</code>
   - <code>positive_unit_price</code>: <strong>unit_price</strong> &gt; 0 (WARN)
   - <code>valid_total_amount</code>: <strong>total_amount</strong> &gt;= 0 (WARN)</p>
-<p><strong>To Do:</strong>
-Using these requirements, write the full code for the Silver table.</p>
+<p><strong>Para Fazer:</strong>
+Usando esses requisitos, escreva o código completo para a tabela Silver.</p>
 </section>
 <section class="notebook-cell">
-<h5>CÓDIGO RESPOSTA - Silver Table With Expectations and Liquid Clustering Enabled</h5>
+<h5>CÓDIGO RESPOSTA - Tabela Silver com Expectations e Liquid Clustering Habilitados</h5>
 <details>
   <summary>EXPANDIR PARA CÓDIGO DA SOLUÇÃO</summary>
 
@@ -815,34 +815,34 @@ Using these requirements, write the full code for the Silver table.</p>
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
 -- ----------------------------------------------------------------
--- STEP 1: Silver clean orders
+-- PASSO 1: Pedidos limpos Silver
 -- ----------------------------------------------------------------
 CREATE OR REFRESH STREAMING TABLE lab_2_silver.orders_clean
 (
-  -- FAIL: order_id is the primary key
+  -- FAIL: order_id é a chave primária
   CONSTRAINT valid_order_id
     EXPECT (order_id IS NOT NULL)
     ON VIOLATION FAIL UPDATE,
 
-  -- DROP: rows without a SKU are unusable for analytics
+  -- DROP: linhas sem SKU são inutilizáveis para analytics
   CONSTRAINT valid_sku
     EXPECT (sku IS NOT NULL)
     ON VIOLATION DROP ROW,
 
-  -- DROP: quantity less than 1 is not a valid sale
+  -- DROP: quantidade menor que 1 não é uma venda válida
   CONSTRAINT positive_quantity
     EXPECT (quantity >= 1)
     ON VIOLATION DROP ROW,
 
-  -- WARN: flags pricing anomalies; row passes through
+  -- WARN: sinaliza anomalias de preço; a linha passa
   CONSTRAINT positive_unit_price
     EXPECT (unit_price > 0),
 
-  -- WARN: flags negative totals; row passes through
+  -- WARN: sinaliza totais negativos; a linha passa
   CONSTRAINT valid_total_amount
     EXPECT (total_amount >= 0)
 )
-COMMENT "Silver clean orders - type-cast, quality-validated, liquid-clustered."
+COMMENT "Pedidos limpos Silver - convertidos de tipo, validados por qualidade, com liquid clustering."
 CLUSTER BY AUTO
 AS
 SELECT
@@ -916,21 +916,21 @@ function fallbackCopy(text) {
 </details>
 </section>
 <section class="notebook-cell">
-<h3>E4. Ingesting Product Catalog</h3>
-<p>Create a <strong>materialized view</strong> in the Silver layer to hold the static product catalog reference.</p>
-<p><strong>Requirements:</strong></p>
+<h3>E4. Ingerindo o Catálogo de Produtos</h3>
+<p>Crie uma <strong>materialized view</strong> na camada Silver para armazenar a referência estática do catálogo de produtos.</p>
+<p><strong>Requisitos:</strong></p>
 <ul>
-<li>Name the view as <strong>lab_2_silver.product_catalog_ref</strong>.   </li>
-<li>Read the <code>product_catalog.csv</code> file using <code>read_files</code> with:</li>
+<li>Nomeie a view como <strong>lab_2_silver.product_catalog_ref</strong>.   </li>
+<li>Leia o arquivo <code>product_catalog.csv</code> usando <code>read_files</code> com:</li>
 <li><code>format =&gt; 'csv'</code>  </li>
 <li><code>header =&gt; true</code>  </li>
-<li>Select and type-cast columns:</li>
+<li>Selecione e converta o tipo das colunas:</li>
 <li><strong>sku</strong>  </li>
 <li><strong>brand</strong>  </li>
-<li><strong>category</strong> as <strong>catalog_category</strong>  </li>
-<li><strong>list_price</strong> cast to <code>DOUBLE</code> as <strong>list_price</strong>  </li>
-<li><strong>is_active</strong> cast to <code>BOOLEAN</code> as <strong>is_active</strong>  </li>
-<li>Add a table comment indicating it is a product catalog reference with brand, category, and list price per SKU.</li>
+<li><strong>category</strong> como <strong>catalog_category</strong>  </li>
+<li><strong>list_price</strong> convertido para <code>DOUBLE</code> como <strong>list_price</strong>  </li>
+<li><strong>is_active</strong> convertido para <code>BOOLEAN</code> como <strong>is_active</strong>  </li>
+<li>Adicione um comentário na tabela indicando que é uma referência de catálogo de produtos com marca, categoria e preço de lista por SKU.</li>
 </ul>
 <p><strong>To Do:</strong>
 Using these requirements, write the full statement/code for the view.</p>
@@ -1006,16 +1006,16 @@ function fallbackCopy(text) {
 </details>
 </section>
 <section class="notebook-cell">
-<h3>E5. Join Orders Clean Table with Product Catalog</h3>
-<p>We will enrich the <strong>orders_clean</strong> table with product catalog attributes using a stream-static join.</p>
-<p><strong>Key Features:</strong>
-- Use a stream-static <strong>LEFT JOIN</strong> to retain all orders, even if the <strong>SKU</strong> is missing in the catalog.
-- Add product attributes from the catalog:
+<h3>E5. Faça o Join da Tabela Orders Clean com o Catálogo de Produtos</h3>
+<p>Vamos enriquecer a tabela <strong>orders_clean</strong> com atributos do catálogo de produtos usando um stream-static join.</p>
+<p><strong>Principais Características:</strong>
+- Use um <strong>LEFT JOIN</strong> stream-static para manter todos os pedidos, mesmo que o <strong>SKU</strong> esteja ausente no catálogo.
+- Adicione atributos de produto do catálogo:
   - <strong>brand</strong>
   - <strong>catalog_category</strong>
   - <strong>list_price</strong>
-  - <strong>is_active</strong> (as <strong>sku_is_active</strong>)
-- Calculate <strong>price_vs_catalog</strong> as the difference between the order's <strong>unit_price</strong> and the catalog's <strong>list_price</strong>.</p>
+  - <strong>is_active</strong> (como <strong>sku_is_active</strong>)
+- Calcule <strong>price_vs_catalog</strong> como a diferença entre o <strong>unit_price</strong> do pedido e o <strong>list_price</strong> do catálogo.</p>
 </section>
 <section class="notebook-cell">
 <p><button onclick="copyBlock()">Copiar para área de transferência</button></p>
@@ -1100,115 +1100,115 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<h3>E6. Run and Explore the Pipeline</h3>
+<h3>E6. Execute e Explore o Pipeline</h3>
 <ol>
 <li>
-<p>Run the Spark Declarative Pipeline and confirm it completes successfully.</p>
+<p>Execute o Spark Declarative Pipeline e confirme que ele conclui com sucesso.</p>
 </li>
 <li>
-<p>In the Apache Spark™ Pipelines Editor, review your pipeline run:</p>
+<p>No Apache Spark™ Pipelines Editor, revise a execução do seu pipeline:</p>
 </li>
 <li>
-<p>Confirm that <strong>0</strong> new records were ingested into <strong>combined_orders_raw</strong>.</p>
+<p>Confirme que <strong>0</strong> novos registros foram ingeridos em <strong>combined_orders_raw</strong>.</p>
 </li>
 <li>
-<p><strong>orders_clean</strong> should show <strong>192</strong> records, with 2 expectations met and 3 unmet.</p>
+<p><strong>orders_clean</strong> deve mostrar <strong>192</strong> registros, com 2 expectations atendidas e 3 não atendidas.</p>
 </li>
 <li>
-<p>Hover over <strong>orders_clean</strong> in the pipeline graph to see <strong>8</strong> records dropped and <strong>8</strong> records with warnings. Click on "Expectations" for details:</p>
+<p>Passe o mouse sobre <strong>orders_clean</strong> no grafo do pipeline para ver <strong>8</strong> registros descartados e <strong>8</strong> registros com avisos. Clique em "Expectations" para detalhes:</p>
 <ul>
-<li><strong>8</strong> records dropped due to the <code>positive_quantity</code> constraint.</li>
-<li><strong>10</strong> records triggered warnings for the <code>positive_unit_price</code> constraint.</li>
-<li><strong>2</strong> records failed both constraints, so the graph shows <strong>8</strong> failed for <code>positive_unit_price</code>, but actually <strong>10</strong> failed.</li>
+<li><strong>8</strong> registros descartados devido à constraint <code>positive_quantity</code>.</li>
+<li><strong>10</strong> registros dispararam avisos para a constraint <code>positive_unit_price</code>.</li>
+<li><strong>2</strong> registros falharam em ambas as constraints, então o grafo mostra <strong>8</strong> falhas para <code>positive_unit_price</code>, mas na verdade <strong>10</strong> falharam.</li>
 </ul>
 </li>
 <li>
-<p><strong>product_catalog_ref</strong> should have <strong>50</strong> records.</p>
+<p><strong>product_catalog_ref</strong> deve ter <strong>50</strong> registros.</p>
 </li>
 <li>
-<p><strong>orders_enriched</strong> should have joined columns from <strong>product_catalog_ref</strong> and also show <strong>192</strong> records.</p>
+<p><strong>orders_enriched</strong> deve ter as colunas unidas de <strong>product_catalog_ref</strong> e também mostrar <strong>192</strong> registros.</p>
 </li>
 </ol>
-<p><strong>TROUBLESHOOTING:</strong> If your pipeline does not run successfully, check that your volumes and configuration parameters are set correctly.</p>
-<h4>Checkpoint - Silver Layer</h4>
+<p><strong>TROUBLESHOOTING:</strong> Se seu pipeline não executar com sucesso, verifique se seus volumes e parâmetros de configuração estão definidos corretamente.</p>
+<h4>Checkpoint - Camada Silver</h4>
 <p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/lab/lab_checkpoint_1.png" alt="Silver Layer Checkpoint" width="1200"></p>
 </section>
 <section class="notebook-cell">
-<h3>E7. Confirming Transformation of Records</h3>
-<p>Let's verify that our Silver layer transformations are working correctly.</p>
+<h3>E7. Confirmando a Transformação dos Registros</h3>
+<p>Vamos verificar se as transformações da nossa camada Silver estão funcionando corretamente.</p>
 </section>
 <section class="notebook-cell">
-<h4>Checkpoint — Silver Layer</h4>
+<h4>Checkpoint — Camada Silver</h4>
 <table>
 <thead>
 <tr>
-<th>Check</th>
-<th>Expected</th>
+<th>Checagem</th>
+<th>Esperado</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><strong>orders_clean</strong></td>
-<td>Bronze rows minus any DROP violations</td>
+<td>Linhas do Bronze menos quaisquer violações de DROP</td>
 </tr>
 <tr>
 <td><strong>orders_enriched</strong></td>
-<td>Equal to orders_clean — LEFT JOIN retains all rows</td>
+<td>Igual a orders_clean — LEFT JOIN mantém todas as linhas</td>
 </tr>
 <tr>
-<td><strong>Expectations tab (pipeline UI)</strong></td>
-<td>5 constraints shown</td>
+<td><strong>Aba Expectations (UI do pipeline)</strong></td>
+<td>5 constraints exibidas</td>
 </tr>
 <tr>
-<td><strong>Enrichment</strong></td>
-<td>brand, catalog_category, list_price populated for known SKUs</td>
+<td><strong>Enriquecimento</strong></td>
+<td>brand, catalog_category, list_price populados para SKUs conhecidos</td>
 </tr>
 </tbody>
 </table>
 </section>
 <section class="notebook-cell">
-<h2>F. Gold Layer — Business Analytics Materialized Views</h2>
-<p>The Gold layer provides business-ready analytics tables optimized for reporting and dashboards.</p>
+<h2>F. Camada Gold — Materialized Views de Analytics de Negócio</h2>
+<p>A camada Gold fornece tabelas de analytics prontas para negócio, otimizadas para relatórios e dashboards.</p>
 </section>
 <section class="notebook-cell">
-<h3>F1. Create the Gold Analytics SQL File</h3>
+<h3>F1. Crie o Arquivo SQL de Analytics do Gold</h3>
 <ol>
 <li>
-<p>On your <strong>ecommerce_pipeline</strong> folder select the kebab menu and select <strong>Create File</strong></p>
+<p>Na sua pasta <strong>ecommerce_pipeline</strong>, selecione o menu kebab e selecione <strong>Create File</strong></p>
 </li>
 <li>
-<p>Select the language as <strong>SQL</strong></p>
+<p>Selecione a linguagem como <strong>SQL</strong></p>
 </li>
 <li>
-<p>Name the file <code>gold_analytics.sql</code></p>
+<p>Nomeie o arquivo como <code>gold_analytics.sql</code></p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h3>F2. Daily Revenue by Category Gold View</h3>
-<p>Create a <strong>Gold-layer materialized view</strong> named <strong>weekly_revenue_by_category</strong> that provides a daily revenue snapshot by category for business stakeholders.</p>
-<p><strong>Requirements:</strong>
-- Aggregate sales at the daily level across key business dimensions: date, product category, brand, sales channel, and region.</p>
+<h3>F2. View Gold de Receita Diária por Categoria</h3>
+<p>Crie uma <strong>materialized view da camada Gold</strong> chamada <strong>weekly_revenue_by_category</strong>, que fornece um snapshot diário de receita por categoria para os stakeholders de negócio.</p>
+<p><strong>Requisitos:</strong>
+- Agregue as vendas em nível diário entre as dimensões de negócio principais: data, categoria de produto, marca, canal de vendas e região.</p>
 <ul>
-<li>Expose core commercial KPIs:</li>
-<li><strong>total_orders</strong>: Count of unique orders per group</li>
-<li><strong>units_sold</strong>: Total quantity sold</li>
-<li><strong>gross_revenue</strong>: Sum of total_amount</li>
-<li><strong>total_discounts</strong>: Sum of discount_amount</li>
-<li><strong>net_revenue</strong>: Gross revenue minus total discounts</li>
-<li><strong>avg_order_value</strong>: Average order value per group</li>
-<li><strong>discounted_orders</strong>: Count of orders with a discount code</li>
-<li><strong>last_refreshed</strong>: Timestamp of materialized view refresh (<code>current_timestamp()</code>)</li>
+<li>Exponha KPIs comerciais essenciais:</li>
+<li><strong>total_orders</strong>: contagem de pedidos únicos por grupo</li>
+<li><strong>units_sold</strong>: quantidade total vendida</li>
+<li><strong>gross_revenue</strong>: soma de total_amount</li>
+<li><strong>total_discounts</strong>: soma de discount_amount</li>
+<li><strong>net_revenue</strong>: receita bruta menos descontos totais</li>
+<li><strong>avg_order_value</strong>: valor médio de pedido por grupo</li>
+<li><strong>discounted_orders</strong>: contagem de pedidos com código de desconto</li>
+<li><strong>last_refreshed</strong>: timestamp da atualização da materialized view (<code>current_timestamp()</code>)</li>
 </ul>
-<p><strong>To Do:</strong>
-Using these requirements, write the full code for the Gold analytics view.</p>
+<p><strong>Para Fazer:</strong>
+Usando esses requisitos, escreva o código completo para a view de analytics Gold.</p>
 </section>
-<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>## Create the Gold layer analytics materialized view
-## Follow the requirements specified above
+<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>## Cria a materialized view de analytics da camada Gold
+## Siga os requisitos especificados acima
 %sql
 &lt;FILL_IN&gt;</code></pre></div></section>
 <section class="notebook-cell">
-<h5>CÓDIGO RESPOSTA - Gold Analytics View</h5>
+<h5>CÓDIGO RESPOSTA - View de Analytics Gold</h5>
 <details>
   <summary>EXPANDIR PARA CÓDIGO DA SOLUÇÃO</summary>
 
@@ -1217,11 +1217,11 @@ Using these requirements, write the full code for the Gold analytics view.</p>
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
 -- ----------------------------------------------------------------
--- GOLD VIEW: Daily Revenue by Category
--- Audience: Executive dashboards, category managers
+-- VIEW GOLD: Receita Diária por Categoria
+-- Público: dashboards executivos, gerentes de categoria
 -- ----------------------------------------------------------------
 CREATE OR REPLACE MATERIALIZED VIEW lab_3_gold.weekly_revenue_by_category
-COMMENT "Gold MV: Daily gross revenue, units, and order count by category and channel."
+COMMENT "Gold MV: receita bruta diária, unidades e contagem de pedidos por categoria e canal."
 AS
 SELECT
     order_date,
@@ -1286,87 +1286,87 @@ function fallbackCopy(text) {
 </details>
 </section>
 <section class="notebook-cell">
-<h3>F3. Run the Full Pipeline and Validate Gold Layer</h3>
+<h3>F3. Execute o Pipeline Completo e Valide a Camada Gold</h3>
 <ol>
-<li>Run the Spark Declarative Pipeline and confirm it completes successfully.</li>
+<li>Execute o Spark Declarative Pipeline e confirme que ele conclui com sucesso.</li>
 <li>
-<p>In the Apache Spark™ Pipelines Editor, review your pipeline run:</p>
+<p>No Apache Spark™ Pipelines Editor, revise a execução do seu pipeline:</p>
 </li>
 <li>
-<p>Confirm that <strong>0</strong> new records were ingested into any tables of Bronze and Silver layers.</p>
+<p>Confirme que <strong>0</strong> novos registros foram ingeridos em qualquer tabela das camadas Bronze e Silver.</p>
 </li>
-<li>Materialized view <strong>weekly_revenue_by_category</strong> should have <strong>192</strong> records</li>
+<li>A materialized view <strong>weekly_revenue_by_category</strong> deve ter <strong>192</strong> registros</li>
 </ol>
-<h4>Checkpoint - Gold Layer</h4>
+<h4>Checkpoint - Camada Gold</h4>
 <p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/lab/lab_checkpoint_2.png" alt="Gold Layer Checkpoint" width="1200"></p>
 </section>
 <section class="notebook-cell">
-<h2>G. Incremental Processing</h2>
-<p>Now we'll simulate incremental data processing by landing additional files and observing how our pipeline handles new data.</p>
+<h2>G. Processamento Incremental</h2>
+<p>Agora vamos simular processamento incremental de dados, adicionando arquivos adicionais e observando como nosso pipeline lida com novos dados.</p>
 </section>
 <section class="notebook-cell">
-<h3>G1. Land Additional Files</h3>
-<p>Run the function below to automatically land new files into the source locations for both web and app orders.</p>
+<h3>G1. Adicione Arquivos Adicionais</h3>
+<p>Execute a função abaixo para adicionar automaticamente novos arquivos nos locais de origem, tanto para pedidos web quanto do app.</p>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>copy_second_file()</code></pre></div></section>
 <section class="notebook-cell">
-<h3>G2. Listing Available Files</h3>
-<p>Let's verify that the new files have been added to our source volumes.</p>
+<h3>G2. Listando os Arquivos Disponíveis</h3>
+<p>Vamos verificar se os novos arquivos foram adicionados aos nossos volumes de origem.</p>
 </section>
-<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># List files in web_orders volume
+<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># Lista os arquivos no volume web_orders
 display(spark.sql(f"LIST '{my_vol_path}/web_orders'"))</code></pre></div></section>
-<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># List files in app_orders volume
+<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># Lista os arquivos no volume app_orders
 display(spark.sql(f"LIST '{my_vol_path}/app_orders'"))</code></pre></div></section>
 <section class="notebook-cell">
-<h3>G3. Run and Explore the Pipeline</h3>
+<h3>G3. Execute e Explore o Pipeline</h3>
 <ol>
 <li>
-<p>Run the Spark Declarative Pipeline and confirm it completes successfully.</p>
+<p>Execute o Spark Declarative Pipeline e confirme que ele conclui com sucesso.</p>
 </li>
 <li>
-<p>In the Apache Spark™ Pipelines Editor, review your pipeline run:</p>
+<p>No Apache Spark™ Pipelines Editor, revise a execução do seu pipeline:</p>
 </li>
 <li>
-<p>Confirm that <strong>200</strong> new records were ingested into <strong>combined_orders_raw</strong>.</p>
+<p>Confirme que <strong>200</strong> novos registros foram ingeridos em <strong>combined_orders_raw</strong>.</p>
 </li>
 <li>
-<p><strong>orders_clean</strong> should have <strong>191</strong> records, with 3 expectations met and 2 unmet.</p>
+<p><strong>orders_clean</strong> deve ter <strong>191</strong> registros, com 3 expectations atendidas e 2 não atendidas.</p>
 </li>
 <li>
-<p>Hover over <strong>orders_clean</strong> in the pipeline graph to see <strong>9</strong> records dropped and <strong>7</strong> records with warnings. Click on "Expectations" for details:</p>
+<p>Passe o mouse sobre <strong>orders_clean</strong> no grafo do pipeline para ver <strong>9</strong> registros descartados e <strong>7</strong> registros com avisos. Clique em "Expectations" para detalhes:</p>
 <ul>
-<li>A total of <strong>9</strong> records were dropped: <strong>8</strong> due to the <code>positive_quantity</code> constraint and <strong>1</strong> due to the <code>valid_sku</code> constraint.</li>
-<li><strong>7</strong> records triggered warnings for the <code>positive_unit_price</code> constraint.</li>
+<li>Um total de <strong>9</strong> registros foram descartados: <strong>8</strong> devido à constraint <code>positive_quantity</code> e <strong>1</strong> devido à constraint <code>valid_sku</code>.</li>
+<li><strong>7</strong> registros dispararam avisos para a constraint <code>positive_unit_price</code>.</li>
 </ul>
 </li>
 <li>
-<p><strong>product_catalog_ref</strong> should have <strong>50</strong> records.</p>
+<p><strong>product_catalog_ref</strong> deve ter <strong>50</strong> registros.</p>
 </li>
 <li>
-<p><strong>orders_enriched</strong> should have joined columns from <strong>product_catalog_ref</strong> and also show <strong>191</strong> records.</p>
+<p><strong>orders_enriched</strong> deve ter as colunas unidas de <strong>product_catalog_ref</strong> e também mostrar <strong>191</strong> registros.</p>
 </li>
 <li>
-<p><strong>weekly_revenue_by_category</strong> should now show a total of <strong>380</strong> records.</p>
+<p><strong>weekly_revenue_by_category</strong> agora deve mostrar um total de <strong>380</strong> registros.</p>
 </li>
 </ol>
-<h4>Checkpoint - Incremental Processing</h4>
+<h4>Checkpoint - Processamento Incremental</h4>
 <p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/lab/lab_checkpoint_3.png" alt="Incremental Processing Checkpoint" width="1200"></p>
 </section>
 <section class="notebook-cell">
-<h3>G4. Validating the Pipeline</h3>
-<p>Let's validate that our incremental processing is working correctly by examining the data at each layer.</p>
+<h3>G4. Validando o Pipeline</h3>
+<p>Vamos validar se nosso processamento incremental está funcionando corretamente, examinando os dados em cada camada.</p>
 </section>
 <section class="notebook-cell">
-<h4>1. Verify Bronze Cumulative Totals</h4>
-<p>After both runs, the Bronze layer should contain all records from Run 1 and Run 2 combined.</p>
+<h4>1. Verifique os Totais Cumulativos do Bronze</h4>
+<p>Após ambas as execuções, a camada Bronze deve conter todos os registros da Execução 1 e da Execução 2 combinados.</p>
 </section>
 <section class="notebook-cell">
-<h4>2. Verify Data Quality Impact</h4>
-<p>In the first run, <strong>8</strong> records failed. In the second run, <strong>9</strong> records failed. The difference between Bronze and Silver layers is the total dropped records: <code>8 + 9 = 17</code>.</p>
+<h4>2. Verifique o Impacto na Qualidade de Dados</h4>
+<p>Na primeira execução, <strong>8</strong> registros falharam. Na segunda execução, <strong>9</strong> registros falharam. A diferença entre as camadas Bronze e Silver é o total de registros descartados: <code>8 + 9 = 17</code>.</p>
 </section>
 <section class="notebook-cell">
-<h4>3. Data Quality Pass Rate Analysis</h4>
-<p>Calculate the overall data quality pass rate from Bronze raw to Silver clean.</p>
+<h4>3. Análise da Taxa de Aprovação de Qualidade de Dados</h4>
+<p>Calcule a taxa geral de aprovação de qualidade de dados do Bronze bruto para o Silver limpo.</p>
 </section>
 <section class="notebook-cell">
 <p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
