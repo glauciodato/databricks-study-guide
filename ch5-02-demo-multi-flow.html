@@ -21,41 +21,41 @@
 </div>
 </section>
 <section class="notebook-cell">
-<h1>Demo - Multi Flow SDP with Liquid Clustering and Data Quality</h1>
+<h1>Demo - Multi Flow SDP com Liquid Clustering e Data Quality</h1>
 </section>
 <section class="notebook-cell">
 <h2>Visão Geral</h2>
-<p>This demonstration showcases how to build a robust incremental data pipeline using Apache Spark™ Declarative Pipelines (SDP) to consolidate data from multiple subsidiaries (data sources) into a single target streaming table. </p>
-<p>You'll work with three fictional company subsidiaries: Bright Home, Lumina Sports, and Northstar Outfitters, each producing transaction data in different formats (<code>CSV</code> and <code>JSON</code>). The demo illustrates how to overcome common pipeline challenges including multiple flows into a single table, schema mismatches, data quality issues, and performance optimization requirements.</p>
-<p>Through hands-on implementation, you'll create a complete medallion architecture pipeline that incrementally ingests multiple data sources into a single bronze table using flows, applies data quality constraints and transformations in the silver layer with liquid clustering optimization, and creates business intelligence materialized views in the gold layer. </p>
+<p>Esta demonstração mostra como construir um pipeline de dados incremental robusto usando Apache Spark™ Declarative Pipelines (SDP) para consolidar dados de múltiplas subsidiárias (fontes de dados) em uma única target streaming table.</p>
+<p>Você trabalhará com três subsidiárias fictícias de uma empresa: Bright Home, Lumina Sports e Northstar Outfitters, cada uma produzindo dados de transação em formatos diferentes (<code>CSV</code> e <code>JSON</code>). A demo ilustra como superar desafios comuns de pipeline, incluindo múltiplos flows escrevendo em uma única tabela, incompatibilidades de schema, problemas de qualidade de dados e requisitos de otimização de performance.</p>
+<p>Através de implementação prática, você criará um pipeline completo de arquitetura medallion que ingere incrementalmente múltiplas fontes de dados em uma única tabela bronze usando flows, aplica constraints de qualidade de dados e transformações na camada silver com otimização via liquid clustering, e cria materialized views de business intelligence na camada gold.</p>
 <h2>Objetivos de Aprendizado</h2>
-<p>By the end of this demonstration, you will be able to:
-- <strong>Ingest multiple data sources into one bronze table</strong> using Spark Declarative Pipelines having different file formats like CSV and JSON.</p>
+<p>Ao final desta demonstração, você será capaz de:
+- <strong>Ingerir múltiplas fontes de dados em uma tabela bronze</strong> usando Spark Declarative Pipelines com diferentes formatos de arquivo, como CSV e JSON.</p>
 <ul>
 <li>
-<p><strong>Standardize schemas in the bronze layer</strong> and map correct data types in silver layer to resolve differences across source systems.</p>
+<p><strong>Padronizar schemas na camada bronze</strong> e mapear os tipos de dados corretos na camada silver para resolver diferenças entre sistemas de origem.</p>
 </li>
 <li>
-<p><strong>Add data quality checks and enable liquid clustering</strong> in the silver tables to enforce basic rules and improve query performance.</p>
+<p><strong>Adicionar checagens de qualidade de dados e habilitar liquid clustering</strong> nas tabelas silver para aplicar regras básicas e melhorar a performance de queries.</p>
 </li>
 <li>
-<p><strong>Build incremental materialized views</strong> in the gold layer that refresh automatically and provide ready-to-use analytics.</p>
+<p><strong>Construir materialized views incrementais</strong> na camada gold que atualizam automaticamente e fornecem analytics prontos para uso.</p>
 </li>
 <li>
-<p><strong>Run and monitor the full pipeline run</strong> across bronze, silver, and gold, including incremental loads and data lineage tracking.</p>
+<p><strong>Executar e monitorar a execução completa do pipeline</strong> em bronze, silver e gold, incluindo cargas incrementais e rastreamento de data lineage.</p>
 </li>
 </ul>
 </section>
 <section class="notebook-cell">
 <h3>Multi Flow Pipeline Demonstration Visão Geral</h3>
-<p>In this demonstration, you'll build a Apache Spark™ Declarative Pipeline that performs the full medallion flow from raw ingestion of multiple raw data sources to curated analytics</p>
+<p>Nesta demonstração, você construirá um Apache Spark™ Declarative Pipeline que executa o fluxo medallion completo, desde a ingestão bruta de múltiplas fontes de dados até analytics curados</p>
 <ol>
-<li><strong>Use multiple flows (3)</strong> to incrementally ingest files from three cloud storage locations and write into a single bronze table. <ul>
-<li>Each volume is a daily orders drop for a specific subsidiary that the company owns. We want all this data ingested into a single table for overall analysis.</li>
+<li><strong>Usar múltiplos flows (3)</strong> para ingerir incrementalmente arquivos de três locais de cloud storage e escrever em uma única tabela bronze. <ul>
+<li>Cada volume é uma remessa diária de pedidos de uma subsidiária específica que a empresa possui. Queremos que todos esses dados sejam ingeridos em uma única tabela para análise geral.</li>
 </ul>
 </li>
-<li><strong>Define and build the silver table</strong> with a clean schema, apply basic data quality constraints, and <strong>enable liquid clustering</strong> for query performance as the data continues to grow.</li>
-<li><strong>Create gold materialized views</strong> that automatically refresh and provide ready-to-use analytics.</li>
+<li><strong>Definir e construir a tabela silver</strong> com um schema limpo, aplicar constraints básicas de qualidade de dados e <strong>habilitar liquid clustering</strong> para performance de queries à medida que os dados continuam crescendo.</li>
+<li><strong>Criar materialized views gold</strong> que atualizam automaticamente e fornecem analytics prontos para uso.</li>
 </ol>
 <p><img alt="Multi Flow Pipeline Visão Geral" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/multi_flow/multi_flow_demo_pipeline_overview.png" /></p>
 </section>
@@ -197,27 +197,27 @@ The catalog name is derived from your Databricks username and follows this patte
 ## NOTE: If you are using Vocareum, use the value 'dbacademy_retail' catalog below
 your_marketplace_share_catalog_name = 'dbacademy_retail'</code></pre></div></section>
 <section class="notebook-cell">
-<h3>A2. Configure Your Catalog and Schema</h3>
+<h3>A2. Configure Seu Catálogo e Schema</h3>
 <ol>
 <li>
-<p>Run the cell below to initialize your environment. </p>
-<p>This setup step does the following:</p>
+<p>Execute a célula abaixo para inicializar seu ambiente. </p>
+<p>Este passo de configuração faz o seguinte:</p>
 <ul>
-<li><strong>Assumes you have permission to create a catalog</strong> when running outside of a Databricks provided Vocareum workspace</li>
-<li>Create three schemas in your specified catalog:  <ul>
+<li><strong>Assume que você tem permissão para criar um catálogo</strong> quando executado fora de um workspace Vocareum fornecido pela Databricks</li>
+<li>Cria três schemas no catálogo especificado:  <ul>
 <li><strong>multi_flow_1_bronze</strong></li>
 <li><strong>multi_flow_2_silver</strong></li>
 <li><strong>multi_flow_3_gold</strong>  </li>
 </ul>
 </li>
-<li>Creates a three volumes in your <strong>YOUR_LABUSER_CATALOG.multi_flow_1_bronze</strong> schema and adds a single JSON file in each volume.</li>
-<li>Checks your specified Serverless compute version</li>
+<li>Cria três volumes no seu schema <strong>YOUR_LABUSER_CATALOG.multi_flow_1_bronze</strong> e adiciona um único arquivo JSON em cada volume.</li>
+<li>Verifica a versão de compute Serverless especificada</li>
 </ul>
 </li>
 </ol>
-<p>This ensures that all schemas, tables and objects are created in your catalog.</p>
+<p>Isso garante que todos os schemas, tabelas e objetos sejam criados no seu catálogo.</p>
 <blockquote>
-<p><strong>Important:</strong> You must have permission to create catalogs in your own non Vocareum workspace. If you do not have the required permissions, this step will fail. Review the note below before continuing.</p>
+<p><strong>Importante:</strong> Você deve ter permissão para criar catálogos no seu próprio workspace fora do Vocareum. Se você não tiver as permissões necessárias, este passo falhará. Revise a nota abaixo antes de continuar.</p>
 </blockquote>
 </section>
 <section class="notebook-cell">
@@ -245,44 +245,44 @@ This function is defined in the notebook: `./Includes/Classroom-Configuração-m
 </section>
 <section class="notebook-cell">
 <ol>
-<li>Run the cell below to view the value of the <code>my_vol_path</code> variable.</li>
+<li>Execute a célula abaixo para ver o valor da variável <code>my_vol_path</code>.</li>
 </ol>
-<p>Confirm that the value references your <strong>your-catalog.multi_flow_1_bronze</strong> path. This will be used to dynamically reference your source volumes throughout this demonstration.</p>
+<p>Confirme que o valor referencia seu caminho <strong>your-catalog.multi_flow_1_bronze</strong>. Isso será usado para referenciar dinamicamente seus volumes de origem ao longo desta demonstração.</p>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>print(my_vol_path)</code></pre></div></section>
 <section class="notebook-cell">
-<h2>B. Explore the Source Volumes for Ingesting Multiple Flows into a Single Target</h2>
-<p>Before building multiple flows that write to a single target streaming table, start by exploring the raw source data stored in in the three volumes.  </p>
-<p>Each <strong>volume</strong> represents a <strong>separate sales system</strong> for a different subsidiary within our fictional company:</p>
+<h2>B. Explore os Volumes de Origem para Ingerir Múltiplos Flows em um Único Target</h2>
+<p>Antes de construir múltiplos flows que escrevem em uma única target streaming table, comece explorando os dados brutos de origem armazenados nos três volumes.</p>
+<p>Cada <strong>volume</strong> representa um <strong>sistema de vendas separado</strong> de uma subsidiária diferente dentro da nossa empresa fictícia:</p>
 <ul>
-<li><strong>B1.</strong> Bright Home Orders volume (<code>CSV</code> files)  </li>
-<li><strong>B2.</strong> Lumina Sports Orders volume (<code>CSV</code> files)  </li>
-<li><strong>B3.</strong> Northstar Outfitters Orders volume (<code>JSON</code> files)</li>
+<li><strong>B1.</strong> Volume Bright Home Orders (arquivos <code>CSV</code>)  </li>
+<li><strong>B2.</strong> Volume Lumina Sports Orders (arquivos <code>CSV</code>)  </li>
+<li><strong>B3.</strong> Volume Northstar Outfitters Orders (arquivos <code>JSON</code>)</li>
 </ul>
 </section>
 <section class="notebook-cell">
-<h3>B1. Bright Home Orders Volume</h3>
+<h3>B1. Volume Bright Home Orders</h3>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>View the files in the <strong>multi_flow_1_bronze.bright_home_orders</strong> volume.</li>
+<li>Visualize os arquivos no volume <strong>multi_flow_1_bronze.bright_home_orders</strong>.</li>
 </ol>
-<p>Notice that only one <code>CSV</code> file currently exists in this volume for the sales on <strong>2025-11-01</strong>.</p>
+<p>Note que atualmente existe apenas um arquivo <code>CSV</code> neste volume, referente às vendas de <strong>2025-11-01</strong>.</p>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>spark.sql(f"LIST '{my_vol_path}/bright_home_orders'").display()</code></pre></div></section>
 <section class="notebook-cell">
 <ol>
-<li>Explore the raw data for <strong>bright_home_orders</strong>. The cell below performs the following:</li>
+<li>Explore os dados brutos de <strong>bright_home_orders</strong>. A célula abaixo executa o seguinte:</li>
 </ol>
-<p>a. Counts the number of records in the file within the volume.<br />
-   b. Describes the default ingestion data types for each column of the <code>CSV</code> file.<br />
-   c. Previews the data.  </p>
-<p>In the output, notice the following:
-- <strong>157</strong> rows are present in this file.<br />
-- The schema is inferred and returns a variety of data types.<br />
-- This is simple sales order data from the company's <strong>Bright Home</strong> subsidiary.</p>
+<p>a. Conta o número de registros no arquivo dentro do volume.<br />
+   b. Descreve os tipos de dados padrão de ingestão para cada coluna do arquivo <code>CSV</code>.<br />
+   c. Faz um preview dos dados.  </p>
+<p>Na saída, observe o seguinte:
+- <strong>157</strong> linhas estão presentes neste arquivo.<br />
+- O schema é inferido e retorna uma variedade de tipos de dados.<br />
+- Estes são dados simples de pedidos de venda da subsidiária <strong>Bright Home</strong> da empresa.</p>
 </section>
-<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># a. Row count
+<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># a. Contagem de linhas
 df_count = spark.sql(f"""
     SELECT count(*) AS TotalRows
     FROM read_files('{my_vol_path}/bright_home_orders')
@@ -294,7 +294,7 @@ df_schema = spark.sql(f"""
     FROM read_files('{my_vol_path}/bright_home_orders')
 """)
 display(df_schema)
-# c. Preview rows
+# c. Preview das linhas
 df_preview = spark.sql(f"""
     SELECT *
     FROM read_files('{my_vol_path}/bright_home_orders')
@@ -302,28 +302,28 @@ df_preview = spark.sql(f"""
 """)
 display(df_preview)</code></pre></div></section>
 <section class="notebook-cell">
-<h3>B2. Lumina Sports Orders Volume</h3>
+<h3>B2. Volume Lumina Sports Orders</h3>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>View the files in the <strong>multi_flow_1_bronze.lumina_sports_orders</strong> volume.</li>
+<li>Visualize os arquivos no volume <strong>multi_flow_1_bronze.lumina_sports_orders</strong>.</li>
 </ol>
-<p>Notice that only one <code>CSV</code> file currently exists in this volume for the sales on <strong>2025-11-01</strong>.</p>
+<p>Note que atualmente existe apenas um arquivo <code>CSV</code> neste volume, referente às vendas de <strong>2025-11-01</strong>.</p>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>spark.sql(f"LIST '{my_vol_path}/lumina_sports_orders'").display()</code></pre></div></section>
 <section class="notebook-cell">
 <ol>
-<li>Explore the raw data for <strong>Lumina Sports</strong>. The cell below performs the following:</li>
+<li>Explore os dados brutos de <strong>Lumina Sports</strong>. A célula abaixo executa o seguinte:</li>
 </ol>
-<p>a. Counts the number of records in the file within the volume.<br />
-   b. Describes the default ingestion data types for each column of the <code>CSV</code> file.<br />
-   c. Previews the data.  </p>
-<p>In the output, notice the following:
-- <strong>110</strong> rows are present in this file.<br />
-- The schema is inferred and returns a variety of data types.<br />
-- This is simple sales order data from the company's <strong>Lumina Sports</strong> subsidiary.</p>
+<p>a. Conta o número de registros no arquivo dentro do volume.<br />
+   b. Descreve os tipos de dados padrão de ingestão para cada coluna do arquivo <code>CSV</code>.<br />
+   c. Faz um preview dos dados.  </p>
+<p>Na saída, observe o seguinte:
+- <strong>110</strong> linhas estão presentes neste arquivo.<br />
+- O schema é inferido e retorna uma variedade de tipos de dados.<br />
+- Estes são dados simples de pedidos de venda da subsidiária <strong>Lumina Sports</strong> da empresa.</p>
 </section>
-<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># a. Row count
+<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># a. Contagem de linhas
 df_count = spark.sql(f"""
     SELECT count(*) AS TotalRows
     FROM read_files('{my_vol_path}/lumina_sports_orders')
@@ -335,7 +335,7 @@ df_schema = spark.sql(f"""
     FROM read_files('{my_vol_path}/lumina_sports_orders')
 """)
 display(df_schema)
-# c. Full preview
+# c. Preview completo
 df_preview = spark.sql(f"""
     SELECT *
     FROM read_files('{my_vol_path}/lumina_sports_orders')
@@ -343,28 +343,28 @@ df_preview = spark.sql(f"""
 """)
 display(df_preview)</code></pre></div></section>
 <section class="notebook-cell">
-<h3>B3. Northstar Outfitters Orders Volume</h3>
+<h3>B3. Volume Northstar Outfitters Orders</h3>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>View the files in the <strong>multi_flow_1_bronze.northstar_outfitters_orders</strong> volume.</li>
+<li>Visualize os arquivos no volume <strong>multi_flow_1_bronze.northstar_outfitters_orders</strong>.</li>
 </ol>
-<p>Notice that only one <code>JSON</code> file currently exists in this volume for the sales on <strong>2025-11-01</strong>.</p>
+<p>Note que atualmente existe apenas um arquivo <code>JSON</code> neste volume, referente às vendas de <strong>2025-11-01</strong>.</p>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>spark.sql(f"LIST '{my_vol_path}/northstar_outfitters_orders'").display()</code></pre></div></section>
 <section class="notebook-cell">
 <ol>
-<li>Explore the raw data for <strong>Northstar Outfitters</strong>. The cell below performs the following:</li>
+<li>Explore os dados brutos de <strong>Northstar Outfitters</strong>. A célula abaixo executa o seguinte:</li>
 </ol>
-<p>a. Counts the number of records in the file within the volume.<br />
-   b. Describes the default ingestion data types for each column of the <code>JSON</code> file.<br />
-   c. Previews the data.  </p>
-<p>In the output, notice the following:
-- <strong>182</strong> rows are present in this file.<br />
-- The schema is inferred and returns a variety of data types.<br />
-- This is simple sales order data from the company's <strong>Northstar Outfitters</strong> subsidiary.</p>
+<p>a. Conta o número de registros no arquivo dentro do volume.<br />
+   b. Descreve os tipos de dados padrão de ingestão para cada coluna do arquivo <code>JSON</code>.<br />
+   c. Faz um preview dos dados.  </p>
+<p>Na saída, observe o seguinte:
+- <strong>182</strong> linhas estão presentes neste arquivo.<br />
+- O schema é inferido e retorna uma variedade de tipos de dados.<br />
+- Estes são dados simples de pedidos de venda da subsidiária <strong>Northstar Outfitters</strong> da empresa.</p>
 </section>
-<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># a. Row count
+<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">SQL</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># a. Contagem de linhas
 df_count = spark.sql(f"""
     SELECT count(*) AS TotalRows
     FROM read_files('{my_vol_path}/northstar_outfitters_orders')
@@ -376,7 +376,7 @@ df_schema = spark.sql(f"""
     FROM read_files('{my_vol_path}/northstar_outfitters_orders')
 """)
 display(df_schema)
-# c. Full preview
+# c. Preview completo
 df_preview = spark.sql(f"""
     SELECT *
     FROM read_files('{my_vol_path}/northstar_outfitters_orders')
@@ -384,10 +384,10 @@ df_preview = spark.sql(f"""
 """)
 display(df_preview)</code></pre></div></section>
 <section class="notebook-cell">
-<h3>B4. Raw Data Exploration Summary</h3>
-<p>Below is a quick overview of what we discovered after examining the raw source volumes. </p>
-<h4>Raw Cloud Storage Visão Geral</h4>
-<p>Each source volume contains one file with a small number of sales for our demonstration.</p>
+<h3>B4. Resumo da Exploração dos Dados Brutos</h3>
+<p>Abaixo está um resumo rápido do que descobrimos após examinar os volumes de origem brutos. </p>
+<h4>Visão Geral do Cloud Storage Bruto</h4>
+<p>Cada volume de origem contém um arquivo com um pequeno número de vendas para nossa demonstração.</p>
 <table>
 <thead>
 <tr>
@@ -423,11 +423,11 @@ display(df_preview)</code></pre></div></section>
 </tbody>
 </table>
 <p><br></p>
-<h4>Schema Differences Comparison and Issues</h4>
+<h4>Comparação e Problemas de Diferenças de Schema</h4>
 <ul>
-<li>Each raw data source uses its own structure (<code>CSV</code> or <code>JSON</code>).  </li>
-<li>When ingesting <code>CSV</code>, the inferred column types often differ from <code>JSON</code>.  </li>
-<li>Since each format infers schemas independently, combining these three flows into a single target table will introduce <strong>schema mismatches that lead to ingestion conflicts</strong>.</li>
+<li>Cada fonte de dados bruta usa sua própria estrutura (<code>CSV</code> ou <code>JSON</code>).  </li>
+<li>Ao ingerir <code>CSV</code>, os tipos de coluna inferidos frequentemente diferem dos do <code>JSON</code>.  </li>
+<li>Como cada formato infere schemas de forma independente, combinar esses três flows em uma única target table introduzirá <strong>incompatibilidades de schema que levam a conflitos de ingestão</strong>.</li>
 </ul>
 <table>
 <thead>
@@ -544,81 +544,81 @@ display(df_preview)</code></pre></div></section>
 </tbody>
 </table>
 <p><br></p>
-<h4>Goal: Ingest All Raw Source Files Into One Bronze Streaming Table</h4>
-<p>To successfully combine all three sources into a single bronze streaming table, we will need to standardize the schema. </p>
-<p>To do this, we will <strong>ingest every column as a <code>STRING</code></strong> into the bronze table.</p>
-<p>This avoids data type conflicts between <code>CSV</code> and <code>JSON</code> files, since each format infers types differently. Normalizing everything to <code>STRING</code> keeps the bronze layer predictable, prevents ingestion failures, and lets us apply the correct data types later in the silver layer.</p>
+<h4>Objetivo: Ingerir Todos os Arquivos de Origem Brutos em uma Única Tabela Bronze Streaming</h4>
+<p>Para combinar com sucesso as três fontes em uma única bronze streaming table, precisaremos padronizar o schema. </p>
+<p>Para isso, vamos <strong>ingerir todas as colunas como <code>STRING</code></strong> na tabela bronze.</p>
+<p>Isso evita conflitos de tipos de dados entre arquivos <code>CSV</code> e <code>JSON</code>, já que cada formato infere tipos de forma diferente. Normalizar tudo para <code>STRING</code> mantém a camada bronze previsível, evita falhas de ingestão e nos permite aplicar os tipos de dados corretos posteriormente na camada silver.</p>
 </section>
 <section class="notebook-cell">
-<h2>C. Create the Spark Declarative Pipeline</h2>
+<h2>C. Criar o Spark Declarative Pipeline</h2>
 </section>
 <section class="notebook-cell">
-<h3>C1. Enable the Lakeflow Pipelines Editor</h3>
-<p>Complete the following steps to confirm or enable the <strong>Lakeflow Pipelines Editor</strong>:</p>
+<h3>C1. Habilite o Lakeflow Pipelines Editor</h3>
+<p>Complete os passos a seguir para confirmar ou habilitar o <strong>Lakeflow Pipelines Editor</strong>:</p>
 <ol>
 <li>
-<p>In the top-right corner of the workspace, select your <strong>account icon</strong> <img alt="Account Icon" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/account_icon.png" /> (<em>Your icon letter will differ</em>).  </p>
+<p>No canto superior direito do workspace, selecione seu <strong>ícone de conta</strong> <img alt="Account Icon" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/account_icon.png" /> (<em>A letra do seu ícone será diferente</em>).  </p>
 </li>
 <li>
-<p>Right-click <strong>Settings</strong> and choose <strong>Open link in new tab</strong>.  </p>
+<p>Clique com o botão direito em <strong>Settings</strong> e escolha <strong>Open link in new tab</strong>.  </p>
 </li>
 <li>
-<p>In the left sidebar, select <strong>Developer</strong> under <strong>User</strong>.  </p>
+<p>Na barra lateral esquerda, selecione <strong>Developer</strong> em <strong>User</strong>.  </p>
 </li>
 <li>
-<p>In the <strong>Experimental features</strong> section, locate <strong>Lakeflow Pipelines Editor</strong> and toggle it <strong>on</strong>.</p>
+<p>Na seção <strong>Experimental features</strong>, localize <strong>Lakeflow Pipelines Editor</strong> e ative-o.</p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h3>C2. Create a Apache Spark™ Declarative Pipeline using the Lakeflow Pipelines Editor</h3>
-<p>Complete the following steps to create your Spark Declarative Pipeline:</p>
+<h3>C2. Crie um Apache Spark™ Declarative Pipeline usando o Lakeflow Pipelines Editor</h3>
+<p>Complete os passos a seguir para criar seu Spark Declarative Pipeline:</p>
 <ol>
 <li>
-<p>In the main navigation pane, right-click <strong>Jobs &amp; Pipelines</strong> and select <strong>Open link in New Tab</strong>.  </p>
+<p>No painel de navegação principal, clique com o botão direito em <strong>Jobs &amp; Pipelines</strong> e selecione <strong>Open link in New Tab</strong>.  </p>
 </li>
 <li>
-<p>In the new tab, select <strong>Create → ETL Pipeline</strong>.  </p>
+<p>Na nova aba, selecione <strong>Create → ETL Pipeline</strong>.  </p>
 </li>
 </ol>
-<p><strong>NOTE:</strong> If prompted to <strong>Try the new Lakeflow Pipelines Editor</strong>, choose <strong>Enable Lakeflow Pipelines Editor</strong>. This appears only if you did not complete the previous step.  </p>
+<p><strong>NOTA:</strong> Se solicitado a <strong>Try the new Lakeflow Pipelines Editor</strong>, escolha <strong>Enable Lakeflow Pipelines Editor</strong>. Isso só aparece se você não completou o passo anterior.  </p>
 <ol>
-<li>At the top, complete the following:</li>
-<li>Name your pipeline <code>demo_multi_flow_yourname</code></li>
+<li>No topo, complete o seguinte:</li>
+<li>Nomeie seu pipeline como <code>demo_multi_flow_yourname</code></li>
 <li>
-<p>Select your default <strong>catalog</strong> and <strong>schema</strong>:<br />
-        - <strong>Catalog:</strong> The catalog you specified for this notebook<br />
+<p>Selecione seu <strong>catalog</strong> e <strong>schema</strong> padrão:<br />
+        - <strong>Catalog:</strong> O catálogo que você especificou para este notebook<br />
         - <strong>Schema:</strong> <strong>multi_flow_1_bronze</strong><br />
-<strong>NOTE:</strong> Clear the selected schema using the cross icon to view all schemas.</p>
+<strong>NOTA:</strong> Limpe o schema selecionado usando o ícone de x para visualizar todos os schemas.</p>
 </li>
 <li>
-<p>Rename the <strong>transformations</strong> folder to <code>ingest_multiple_flows</code>.</p>
+<p>Renomeie a pasta <strong>transformations</strong> para <code>ingest_multiple_flows</code>.</p>
 </li>
 <li>
-<p>Rename the <strong>my_transformation.py</strong> file to <code>flow_ingestion.sql</code>.</p>
+<p>Renomeie o arquivo <strong>my_transformation.py</strong> para <code>flow_ingestion.sql</code>.</p>
 </li>
 <li>
-<p>Leave the <strong>Lakeflow Pipelines Editor</strong> page open.</p>
+<p>Deixe a página do <strong>Lakeflow Pipelines Editor</strong> aberta.</p>
 </li>
 </ol>
 <h4>Checkpoint</h4>
 <p><img alt="Create SDP Checkpoint" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/multi_flow/pipeline_creation.png" /></p>
 </section>
 <section class="notebook-cell">
-<h2>D. Using Multiple Flows to Write to a Single Target</h2>
-<p>In many enterprise environments, data arrives from several systems that must be consolidated into a single table for downstream processing.</p>
-<p>In this example, the company has <strong>three subsidiaries, each producing transaction data in slightly different raw file formats</strong>. </p>
-<p>With Spark Declarative Pipelines, you can define multiple flows that write to the same target streaming table, allowing all raw files in cloud storage to be <strong>incrementally ingested into one unified destination</strong>.</p>
+<h2>D. Usando Múltiplos Flows para Escrever em um Único Target</h2>
+<p>Em muitos ambientes corporativos, os dados chegam de vários sistemas que precisam ser consolidados em uma única tabela para processamento posterior.</p>
+<p>Neste exemplo, a empresa tem <strong>três subsidiárias, cada uma produzindo dados de transação em formatos de arquivo bruto ligeiramente diferentes</strong>. </p>
+<p>Com Spark Declarative Pipelines, você pode definir múltiplos flows que escrevem na mesma target streaming table, permitindo que todos os arquivos brutos no cloud storage sejam <strong>ingeridos incrementalmente em um único destino unificado</strong>.</p>
 </section>
 <section class="notebook-cell">
-<h3>D1. Create the Bronze Target Table</h3>
+<h3>D1. Crie a Tabela Target Bronze</h3>
 </section>
 <section class="notebook-cell">
 <ol>
 <li>
-<p>Start by creating the <strong>bronze streaming table</strong> that will serve as the landing zone for all incoming transaction data. </p>
-<p>This table ingests every column as <code>STRING</code> to ensure compatibility across the different source systems.</p>
-<p>Copy the SQL code below and paste it into your <code>flow_ingestion.sql</code> file.</p>
+<p>Comece criando a <strong>bronze streaming table</strong> que servirá como landing zone para todos os dados de transação recebidos. </p>
+<p>Esta tabela ingere todas as colunas como <code>STRING</code> para garantir compatibilidade entre os diferentes sistemas de origem.</p>
+<p>Copie o código SQL abaixo e cole no seu arquivo <code>flow_ingestion.sql</code>.</p>
 </li>
 </ol>
 </section>
@@ -627,7 +627,7 @@ display(df_preview)</code></pre></div></section>
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
 ------------------------------------------
--- CREATE THE BRONZE TABLE STRUCTURE
+-- CRIAR A ESTRUTURA DA TABELA BRONZE
 ------------------------------------------
 CREATE OR REPLACE STREAMING TABLE multi_flow_1_bronze.orders_bronze_flows_demo
 (
@@ -647,12 +647,12 @@ CREATE OR REPLACE STREAMING TABLE multi_flow_1_bronze.orders_bronze_flows_demo
   coupon_code     STRING,
   total_amount    STRING,
   order_date      STRING,
-  source_file     STRING,   -- Added by the _metadata column to return the source file name
-  file_mod_time   TIMESTAMP -- Added by the _metadata column to return file modification time of the file. Returns a consistent value
+  source_file     STRING,   -- Adicionada pela coluna _metadata para retornar o nome do arquivo de origem
+  file_mod_time   TIMESTAMP -- Adicionada pela coluna _metadata para retornar o horário de modificação do arquivo. Retorna um valor consistente
 )
-COMMENT "Creates a single bronze streaming table with orders from all subsidiaries using multiple flows."
+COMMENT "Cria uma única tabela bronze streaming com pedidos de todas as subsidiárias usando múltiplos flows."
 TBLPROPERTIES (
-  'pipelines.reset.allowed' = false    -- prevent full table refreshes on the bronze table
+  'pipelines.reset.allowed' = false    -- impede refreshes completos na tabela bronze
 );
 </code></pre>
 
@@ -696,20 +696,20 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<p><strong>Review the code</strong>
-- The <code>COMMENT</code> clause adds descriptive metadata to the table for documentation purposes.</p>
+<p><strong>Revise o código</strong>
+- A cláusula <code>COMMENT</code> adiciona metadados descritivos à tabela para fins de documentação.</p>
 <ul>
-<li>The <code>TBLPROPERTIES</code> statement configures the following setting:</li>
-<li><strong>Reset Protection</strong>: The <code>'pipelines.reset.allowed' = false</code> property prevents full refreshes on the streaming table, which helps avoid accidentally removing checkpoints and truncating the streaming table data.</li>
+<li>A instrução <code>TBLPROPERTIES</code> configura a seguinte definição:</li>
+<li><strong>Proteção contra Reset</strong>: A propriedade <code>'pipelines.reset.allowed' = false</code> impede refreshes completos na streaming table, o que ajuda a evitar a remoção acidental de checkpoints e a truncagem dos dados da streaming table.</li>
 </ul>
-<h4>IMPORTANT: Understanding Full Table Refresh Protection</h4>
-<p>This protection is particularly important when your raw data source automatically removes files after a certain timeframe. Without this setting, data that is no longer present in the source directory would not be reingested into the target table during a <strong>Run pipeline with full table refresh</strong> operation.</p>
-<p><strong>NOTE:</strong> For guidance on when to use full refreshes, see the <a href="https://docs.databricks.com/aws/en/ldp/updates#should-i-use-a-full-refresh">Should I use a full refresh?</a> documentation.</p>
+<h4>IMPORTANTE: Entendendo a Proteção contra Full Table Refresh</h4>
+<p>Essa proteção é particularmente importante quando sua fonte de dados bruta remove arquivos automaticamente após um determinado período. Sem essa configuração, dados que não estão mais presentes no diretório de origem não seriam reingeridos na target table durante uma operação de <strong>Run pipeline with full table refresh</strong>.</p>
+<p><strong>NOTA:</strong> Para orientações sobre quando usar full refreshes, consulte a documentação <a href="https://docs.databricks.com/aws/en/ldp/updates#should-i-use-a-full-refresh">Should I use a full refresh?</a>.</p>
 </section>
 <section class="notebook-cell">
-<h3>D2. Configure the Pipeline Parameters</h3>
+<h3>D2. Configure os Parâmetros do Pipeline</h3>
 <ol>
-<li>Run the cell below to retrieve the key value pairs needed to set your pipeline configuration parameters for each <strong>raw data source volume</strong>.</li>
+<li>Execute a célula abaixo para obter os pares chave-valor necessários para definir os parâmetros de configuração do seu pipeline para cada <strong>volume de fonte de dados bruta</strong>.</li>
 </ol>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>config_parameters = [
@@ -718,25 +718,25 @@ function fallbackCopy(text) {
     ('northstar_outfitters_orders_source', f'{my_vol_path}/northstar_outfitters_orders')
 ]
 for key, value in config_parameters:
-    print(f"Key: {key}\nValue: {value}\n")</code></pre></div></section>
+    print(f"Chave: {key}\nValor: {value}\n")</code></pre></div></section>
 <section class="notebook-cell">
 <ol>
-<li>Copy the paths above and add each one by one as a configuration parameter in your <strong>Spark Declarative Pipeline</strong>.</li>
+<li>Copie os caminhos acima e adicione cada um, um por um, como um parâmetro de configuração no seu <strong>Spark Declarative Pipeline</strong>.</li>
 </ol>
-<p>This will allow your pipeline to reference each volume through parameters.</p>
-<p>a. Select <strong>Settings</strong> in your pipeline tab.  </p>
-<p>b. Under <strong>Configuration</strong>, select <strong>Add configuration</strong>. </p>
-<p>c. For each <strong>Key</strong>, enter the key name shown above.  </p>
-<p>d. For each <strong>Value</strong>, enter the corresponding volume path.  </p>
-<p>e. Select <strong>Save</strong>.</p>
-<p><strong>NOTE:</strong> For more details on configuration parameters, see the Databricks documentation: <a href="https://docs.databricks.com/aws/en/ldp/parameters">Use parameters with Spark Declarative Pipelines</a></p>
-<h4>Checkpoint (your path will vary)</h4>
+<p>Isso permitirá que seu pipeline referencie cada volume através de parâmetros.</p>
+<p>a. Selecione <strong>Settings</strong> na aba do seu pipeline.  </p>
+<p>b. Em <strong>Configuration</strong>, selecione <strong>Add configuration</strong>. </p>
+<p>c. Para cada <strong>Key</strong>, insira o nome da chave mostrado acima.  </p>
+<p>d. Para cada <strong>Value</strong>, insira o caminho de volume correspondente.  </p>
+<p>e. Selecione <strong>Save</strong>.</p>
+<p><strong>NOTA:</strong> Para mais detalhes sobre parâmetros de configuração, consulte a documentação da Databricks: <a href="https://docs.databricks.com/aws/en/ldp/parameters">Use parameters with Spark Declarative Pipelines</a></p>
+<h4>Checkpoint (seu caminho será diferente)</h4>
 <p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/multi_flow/checkpoint_config_params.png" alt="Config Parameter Checkpoint" width="600"></p>
 </section>
 <section class="notebook-cell">
-<h3>D3. Configure Flow from the Store Bright Home Orders Volume</h3>
+<h3>D3. Configure o Flow a partir do Volume Bright Home Orders</h3>
 <ol>
-<li>Copy the code below and paste into your <code>flow_ingestion.sql</code> file.</li>
+<li>Copie o código abaixo e cole no seu arquivo <code>flow_ingestion.sql</code>.</li>
 </ol>
 </section>
 <section class="notebook-cell">
@@ -745,9 +745,9 @@ for key, value in config_parameters:
 <code>
 <!-------------------ADD SOLUTION CODE BELOW------------------->
 ------------------------------------------
--- BRONZE FLOW - BRIGHT HOME
+-- FLOW BRONZE - BRIGHT HOME
 ------------------------------------------
--- Read CSV files from the bright_home_orders volume
+-- Lê arquivos CSV do volume bright_home_orders
 CREATE FLOW bright_home_orders_flow
 AS INSERT INTO multi_flow_1_bronze.orders_bronze_flows_demo BY NAME
 SELECT
@@ -770,7 +770,7 @@ SELECT
   _metadata.file_name AS source_file,
   _metadata.file_modification_time AS file_mod_time
 FROM STREAM read_files(
-    '${bright_home_orders_source}',   -- Uses the configuration parameter to point to the bright_home_orders volume
+    '${bright_home_orders_source}',   -- Usa o parâmetro de configuração para apontar para o volume bright_home_orders
     format => 'csv',
     header => true
 );
@@ -817,15 +817,15 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<p><strong>Review the code</strong>
-- All business columns are cast to <code>STRING</code> so this flow aligns with the unified bronze schema, while the <strong>metadata</strong> columns keep their native types.<br />
-- The <strong>metadata columns</strong> capture the source <strong>file name and modification time</strong>, which helps with lineage and debugging.<br />
-- The <code>FROM STREAM read_files('${bright_home_orders_source}', ...)</code> clause uses your configuration parameter to reference the volume path and relies on Auto Loader for incremental ingestion.</p>
+<p><strong>Revise o código</strong>
+- Todas as colunas de negócio são convertidas para <code>STRING</code> para que este flow se alinhe ao schema bronze unificado, enquanto as colunas de <strong>metadata</strong> mantêm seus tipos nativos.<br />
+- As <strong>colunas de metadata</strong> capturam o <strong>nome do arquivo e o horário de modificação</strong> de origem, o que ajuda com lineage e debugging.<br />
+- A cláusula <code>FROM STREAM read_files('${bright_home_orders_source}', ...)</code> usa seu parâmetro de configuração para referenciar o caminho do volume e depende do Auto Loader para ingestão incremental.</p>
 </section>
 <section class="notebook-cell">
-<h3>D4. Configure Flow from Store Lumina Sports Orders Volume</h3>
+<h3>D4. Configure o Flow a partir do Volume Lumina Sports Orders</h3>
 <ol>
-<li>Copy the code below and paste into your <code>flow_ingestion.sql</code> file.</li>
+<li>Copie o código abaixo e cole no seu arquivo <code>flow_ingestion.sql</code>.</li>
 </ol>
 </section>
 <section class="notebook-cell">
@@ -834,9 +834,9 @@ function fallbackCopy(text) {
 <code>
 <!-------------------ADD SOLUTION CODE BELOW------------------->
 ------------------------------------------
--- BRONZE FLOW - LUMINA SPORTS
+-- FLOW BRONZE - LUMINA SPORTS
 ------------------------------------------
--- Read CSV files from the lumina_sports_orders volume
+-- Lê arquivos CSV do volume lumina_sports_orders
 CREATE FLOW lumina_sports_orders_flow
 AS INSERT INTO multi_flow_1_bronze.orders_bronze_flows_demo BY NAME
 SELECT
@@ -859,7 +859,7 @@ SELECT
   _metadata.file_name AS source_file,
   _metadata.file_modification_time AS file_mod_time
 FROM STREAM read_files(
-  '${lumina_sports_orders_source}',   -- Uses the configuration parameter to point to the lumina sports volume
+  '${lumina_sports_orders_source}',   -- Usa o parâmetro de configuração para apontar para o volume lumina sports
   format => 'csv',
   header => true
 );
@@ -906,15 +906,15 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<p><strong>Review the code</strong>
-- All business columns are cast to <code>STRING</code> so this flow aligns with the unified bronze schema, while the <strong>metadata</strong> columns keep their native types.<br />
-- The <strong>metadata columns</strong> capture the source <strong>file name and modification time</strong>, which helps with lineage and debugging.<br />
-- The <code>FROM STREAM read_files('${lumina_sports_orders_source}', ...)</code> clause uses your configuration parameter to reference the volume path and relies on Auto Loader for incremental ingestion.</p>
+<p><strong>Revise o código</strong>
+- Todas as colunas de negócio são convertidas para <code>STRING</code> para que este flow se alinhe ao schema bronze unificado, enquanto as colunas de <strong>metadata</strong> mantêm seus tipos nativos.<br />
+- As <strong>colunas de metadata</strong> capturam o <strong>nome do arquivo e o horário de modificação</strong> de origem, o que ajuda com lineage e debugging.<br />
+- A cláusula <code>FROM STREAM read_files('${lumina_sports_orders_source}', ...)</code> usa seu parâmetro de configuração para referenciar o caminho do volume e depende do Auto Loader para ingestão incremental.</p>
 </section>
 <section class="notebook-cell">
-<h3>D5. Configure Flow from Northstar Outfitters Orders Volume</h3>
+<h3>D5. Configure o Flow a partir do Volume Northstar Outfitters Orders</h3>
 <ol>
-<li>Copy the code below and paste into your <code>flow_ingestion.sql</code> file.</li>
+<li>Copie o código abaixo e cole no seu arquivo <code>flow_ingestion.sql</code>.</li>
 </ol>
 </section>
 <section class="notebook-cell">
@@ -923,9 +923,9 @@ function fallbackCopy(text) {
 <code>
 <!-------------------ADD SOLUTION CODE BELOW------------------->
 ------------------------------------------
--- BRONZE FLOW - NORTHSTAR OUTFITTERS
+-- FLOW BRONZE - NORTHSTAR OUTFITTERS
 ------------------------------------------
--- Read JSON files from the northstar_outfitters_orders volume
+-- Lê arquivos JSON do volume northstar_outfitters_orders
 CREATE FLOW northstar_outfitters_orders_flow
 AS INSERT INTO multi_flow_1_bronze.orders_bronze_flows_demo BY NAME
 SELECT
@@ -948,7 +948,7 @@ SELECT
   _metadata.file_name AS source_file,
   _metadata.file_modification_time AS file_mod_time
 FROM STREAM read_files(
-  '${northstar_outfitters_orders_source}',  -- Uses the configuration parameter to point to the northstar volume
+  '${northstar_outfitters_orders_source}',  -- Usa o parâmetro de configuração para apontar para o volume northstar
   format => 'json'
 );
 <!-------------------END SOLUTION CODE------------------->
@@ -994,43 +994,43 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<p><strong>Review the code</strong>
-- All business columns are cast to <code>STRING</code> so this flow aligns with the unified bronze schema, while the <strong>metadata</strong> columns keep their native types.<br />
-- The <strong>metadata columns</strong> capture the source <strong>file name and modification time</strong>, which helps with lineage and debugging.<br />
-- The <code>FROM STREAM read_files('${northstar_outfitters_orders_source}', ...)</code> clause uses your configuration parameter to reference the volume path and relies on Auto Loader for incremental ingestion.</p>
+<p><strong>Revise o código</strong>
+- Todas as colunas de negócio são convertidas para <code>STRING</code> para que este flow se alinhe ao schema bronze unificado, enquanto as colunas de <strong>metadata</strong> mantêm seus tipos nativos.<br />
+- As <strong>colunas de metadata</strong> capturam o <strong>nome do arquivo e o horário de modificação</strong> de origem, o que ajuda com lineage e debugging.<br />
+- A cláusula <code>FROM STREAM read_files('${northstar_outfitters_orders_source}', ...)</code> usa seu parâmetro de configuração para referenciar o caminho do volume e depende do Auto Loader para ingestão incremental.</p>
 </section>
 <section class="notebook-cell">
-<h3>D6. Run and Explore the Pipeline</h3>
+<h3>D6. Execute e Explore o Pipeline</h3>
 <ol>
 <li>
-<p>Run the Spark Declarative Pipeline and confirm it runs successfully. </p>
+<p>Execute o Spark Declarative Pipeline e confirme que ele executa com sucesso. </p>
 </li>
 <li>
-<p>Explore the run in the Lakeflow Pipelines Editor.</p>
+<p>Explore a execução no Lakeflow Pipelines Editor.</p>
 </li>
-<li>Confirm <strong>449</strong> rows were ingested into the bronze table from the three volumes (<strong>157 + 110 + 182</strong>)</li>
-<li>Preview the data in the editor (Select <strong>orders_bronze_flows_demo</strong> -&gt; <strong>Data</strong> tab). Notice data from each volume was incrementally ingested into the bronze table.</li>
+<li>Confirme que <strong>449</strong> linhas foram ingeridas na tabela bronze a partir dos três volumes (<strong>157 + 110 + 182</strong>)</li>
+<li>Faça um preview dos dados no editor (Selecione <strong>orders_bronze_flows_demo</strong> -&gt; aba <strong>Data</strong>). Note que os dados de cada volume foram ingeridos incrementalmente na tabela bronze.</li>
 </ol>
 <blockquote>
-<p><strong>TROUBLESHOOTING:</strong> If your pipeline does not run successfully, confirm that your volumes were created and that your configuration parameters are set correctly.</p>
+<p><strong>TROUBLESHOOTING:</strong> Se seu pipeline não executar com sucesso, confirme que seus volumes foram criados e que seus parâmetros de configuração estão definidos corretamente.</p>
 </blockquote>
 <h4>Checkpoint</h4>
 <p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/multi_flow/checkpoint_bronze_flows.png" alt="Bronze Flow" width="1200"></p>
 </section>
 <section class="notebook-cell">
-<h3>D7. Query the Bronze Streaming Table</h3>
+<h3>D7. Consulte a Bronze Streaming Table</h3>
 <ol>
 <li>
-<p>The query below groups records by the captured <strong>source_file</strong> column so you can see the number of ingested rows per file.</p>
-<p>Review how many files were ingested from each source confirming each cloud storage flow was ingested successfully.</p>
+<p>A query abaixo agrupa os registros pela coluna <strong>source_file</strong> capturada, para que você veja o número de linhas ingeridas por arquivo.</p>
+<p>Revise quantos arquivos foram ingeridos de cada origem, confirmando que cada flow de cloud storage foi ingerido com sucesso.</p>
 </li>
 </ol>
 <h4>Checkpoint</h4>
 <table>
 <thead>
 <tr>
-<th>Source File</th>
-<th>Total Ingested by Source</th>
+<th>Arquivo de Origem</th>
+<th>Total Ingerido por Origem</th>
 </tr>
 </thead>
 <tbody>
@@ -1050,31 +1050,31 @@ function fallbackCopy(text) {
 </table>
 </section>
 <section class="notebook-cell">
-<h2>E. Silver Table Data Quality, Optimization, and Transformation</h2>
-<p>In the silver layer, we refine the <strong>raw bronze table</strong> into a clean and consistent <strong>single source of truth (silver table)</strong>. </p>
-<p>This is where we standardize fields, enforce data quality, and prepare the dataset for downstream analytics.</p>
-<p>In this section, you will:</p>
+<h2>E. Qualidade de Dados, Otimização e Transformação da Tabela Silver</h2>
+<p>Na camada silver, refinamos a <strong>tabela bronze bruta</strong> em uma <strong>single source of truth (tabela silver)</strong> limpa e consistente. </p>
+<p>É aqui que padronizamos campos, aplicamos qualidade de dados e preparamos o dataset para analytics posteriores.</p>
+<p>Nesta seção, você irá:</p>
 <ul>
-<li>Apply data quality constraints  </li>
-<li>Clean and standardize fields  </li>
-<li>Enable liquid clustering for on the streaming table for optimized performance</li>
+<li>Aplicar constraints de qualidade de dados  </li>
+<li>Limpar e padronizar campos  </li>
+<li>Habilitar liquid clustering na streaming table para performance otimizada</li>
 </ul>
 </section>
 <section class="notebook-cell">
-<h3>E1. Create a New SQL File in your Pipeline</h3>
+<h3>E1. Crie um Novo Arquivo SQL no seu Pipeline</h3>
 <ol>
-<li>Click the kebab menu next to your <code>ingest_multiple_flows</code> folder and select <strong>Create file</strong>.</li>
-<li>Select the language as <strong>SQL</strong>.</li>
-<li>Name the file <code>silver_transformation.sql</code>.</li>
+<li>Clique no menu kebab ao lado da sua pasta <code>ingest_multiple_flows</code> e selecione <strong>Create file</strong>.</li>
+<li>Selecione a linguagem como <strong>SQL</strong>.</li>
+<li>Nomeie o arquivo como <code>silver_transformation.sql</code>.</li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h3>E2. Create Silver Transactions Table with Liquid Clustering and Data Quality Rules</h3>
+<h3>E2. Crie a Tabela Silver de Transações com Liquid Clustering e Regras de Qualidade de Dados</h3>
 <ol>
-<li>Add the following code to your <code>silver_transformation.sql</code> file to create a Silver table with:</li>
-<li>a defined schema, </li>
-<li>enforce consistent column types through <code>TRY_CAST</code> </li>
-<li>and enable liquid clustering for performance</li>
+<li>Adicione o código a seguir ao seu arquivo <code>silver_transformation.sql</code> para criar uma tabela Silver com:</li>
+<li>um schema definido, </li>
+<li>tipos de coluna consistentes aplicados via <code>TRY_CAST</code> </li>
+<li>e liquid clustering habilitado para performance</li>
 </ol>
 </section>
 <section class="notebook-cell">
@@ -1084,7 +1084,7 @@ function fallbackCopy(text) {
 <!-------------------ADD SOLUTION CODE BELOW------------------->
 CREATE OR REFRESH STREAMING TABLE multi_flow_2_silver.orders_silver_flows_demo
 (
-  -- A: Define a fixed schema to prevent schema evolution.
+  -- A: Define um schema fixo para prevenir evolução de schema.
   subsidiary_id   STRING,
   order_id        STRING,
   order_timestamp TIMESTAMP,
@@ -1102,19 +1102,19 @@ CREATE OR REFRESH STREAMING TABLE multi_flow_2_silver.orders_silver_flows_demo
   total_amount    DOUBLE,
   coupon_code     STRING,
 
-  -- B: Data quality constraints to drop or flag or drop invalid rows.
+  -- B: Constraints de qualidade de dados para descartar ou sinalizar linhas inválidas.
   CONSTRAINT qty_valid          EXPECT (qty >= 0) ON VIOLATION DROP ROW,
   CONSTRAINT total_amount_valid EXPECT (total_amount >= 0) ON VIOLATION DROP ROW,
   CONSTRAINT timestamp_not_null EXPECT (order_timestamp IS NOT NULL) ON VIOLATION FAIL UPDATE
 )
--- C: Adds a table comment
-COMMENT 'Clean and standardize data from the multiple-flow bronze table'
+-- C: Adiciona um comentário na tabela
+COMMENT 'Limpa e padroniza dados da tabela bronze de múltiplos flows'
 
--- D: Enable liquid clustering to improve performance on common filters.
+-- D: Habilita liquid clustering para melhorar a performance em filtros comuns.
 CLUSTER BY AUTO
 
 AS
--- E: Select and clean data from the Bronze table. Uses TRY_CAST to enforce consistent types across all subsidiaries.
+-- E: Seleciona e limpa dados da tabela Bronze. Usa TRY_CAST para garantir tipos consistentes entre todas as subsidiárias.
 SELECT
   subsidiary_id,
   order_id,
@@ -1132,7 +1132,7 @@ SELECT
   TRY_CAST(discount_pct AS DOUBLE) AS discount_pct,
   TRY_CAST(total_amount AS DOUBLE) AS total_amount,
   coupon_code
--- F: Incrementally reads data from the bronze table that contains data from three volumes
+-- F: Lê incrementalmente os dados da tabela bronze que contém dados dos três volumes
 FROM STREAM multi_flow_1_bronze.orders_bronze_flows_demo;
 <!-------------------END SOLUTION CODE------------------->
 </code></pre>
@@ -1177,89 +1177,89 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<p><strong>Review the code</strong>
-- A: <code>CREATE OR REFRESH STREAMING TABLE</code> - Creates or refreshes the <strong>multi_flow_2_silver.orders_silver_flows_demo</strong> Silver table and applies a fixed schema to prevent schema drift across multiple flows.</p>
+<p><strong>Revise o código</strong>
+- A: <code>CREATE OR REFRESH STREAMING TABLE</code> - Cria ou atualiza a tabela Silver <strong>multi_flow_2_silver.orders_silver_flows_demo</strong> e aplica um schema fixo para prevenir schema drift entre múltiplos flows.</p>
 <ul>
 <li>
-<p>B: <code>CONSTRAINT ... EXPECT</code>  Applies data quality rules that drop rows with invalid quantities, negative totals, or missing timestamps.</p>
+<p>B: <code>CONSTRAINT ... EXPECT</code>  Aplica regras de qualidade de dados que descartam linhas com quantidades inválidas, totais negativos ou timestamps ausentes.</p>
 </li>
 <li>
-<p>C: <code>COMMENT</code>  Adds descriptive metadata explaining the purpose of the Silver table.</p>
+<p>C: <code>COMMENT</code>  Adiciona metadados descritivos explicando o propósito da tabela Silver.</p>
 </li>
 <li>
-<p>D: <code>CLUSTER BY AUTO</code>  Enables automatic liquid clustering where Databricks intelligently chooses clustering keys to optimize your query performance. You can also specify your own clustering keys if you'd like.</p>
+<p>D: <code>CLUSTER BY AUTO</code>  Habilita liquid clustering automático, onde o Databricks escolhe de forma inteligente as clustering keys para otimizar a performance de suas queries. Você também pode especificar suas próprias clustering keys, se preferir.</p>
 </li>
 <li>
-<p>E: <code>TRY_CAST</code>  Enforces consistent column types across all subsidiaries by converting raw values into standardized data types.</p>
+<p>E: <code>TRY_CAST</code>  Garante tipos de coluna consistentes entre todas as subsidiárias, convertendo valores brutos em tipos de dados padronizados.</p>
 </li>
 <li>
-<p>F: <code>SELECT ... FROM STREAM</code>  Incrementally reads, selects, and cleans records from the <strong>multi_flow_1_bronze.orders_bronze_flows_demo</strong> Bronze streaming table, which contains data from three separate volumes.</p>
+<p>F: <code>SELECT ... FROM STREAM</code>  Lê, seleciona e limpa incrementalmente os registros da bronze streaming table <strong>multi_flow_1_bronze.orders_bronze_flows_demo</strong>, que contém dados de três volumes separados.</p>
 </li>
 </ul>
 </section>
 <section class="notebook-cell">
-<h3>E3. Run and Explore the Pipeline</h3>
+<h3>E3. Execute e Explore o Pipeline</h3>
 <ol>
-<li>Select <strong>Run pipeline</strong> to create the Silver table.  </li>
+<li>Selecione <strong>Run pipeline</strong> para criar a tabela Silver.  </li>
 <li>
-<p>This run executes the transformation logic and applies the data quality expectations.</p>
+<p>Esta execução roda a lógica de transformação e aplica as expectations de qualidade de dados.</p>
 </li>
 <li>
-<p>Explore the pipeline in the Lakeflow Pipeline Editor. Notice the following:</p>
+<p>Explore o pipeline no Lakeflow Pipeline Editor. Observe o seguinte:</p>
 </li>
-<li>Since the pipeline has already ingested the source files into Bronze, <strong>0</strong> rows are processed in the Bronze table.</li>
-<li>All <strong>449</strong> rows are processed in the Silver table.</li>
-<li>In the <strong>Expectations</strong> column, select <code>3 met</code> to view the data quality rules. All rows pass the expectations.</li>
+<li>Como o pipeline já ingeriu os arquivos de origem no Bronze, <strong>0</strong> linhas são processadas na tabela Bronze.</li>
+<li>Todas as <strong>449</strong> linhas são processadas na tabela Silver.</li>
+<li>Na coluna <strong>Expectations</strong>, selecione <code>3 met</code> para visualizar as regras de qualidade de dados. Todas as linhas atendem às expectations.</li>
 </ol>
 <h4>Checkpoint</h4>
 <p><img alt="Silver SDP Checkpoint" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/multi_flow/checkpoint_silver.png" /></p>
 </section>
 <section class="notebook-cell">
-<h3>E4. Explore the Silver Streaming table</h3>
+<h3>E4. Explore a Silver Streaming Table</h3>
 <ol>
 <li>
-<p>Run the command to view the table metadata. When the results appear, notice the following:</p>
+<p>Execute o comando para visualizar os metadados da tabela. Quando os resultados aparecerem, observe o seguinte:</p>
 </li>
 <li>
-<p>The silver table has the exact <strong>column data types</strong> that were defined.</p>
+<p>A tabela silver tem exatamente os <strong>tipos de dados de coluna</strong> que foram definidos.</p>
 </li>
-<li><strong>Liquid clustering</strong> is enabled:</li>
-<li>In the <strong># Clustering Information</strong> section no columns are specified since Databricks hasn't optimized the keys yet (requires historical query analysis on the table to optimize the clustered columns)</li>
-<li>In the <strong>Table Properties</strong> row you will see cluster by auto is enabled (<code>clusterByAuto=true</code>).</li>
+<li><strong>Liquid clustering</strong> está habilitado:</li>
+<li>Na seção <strong># Clustering Information</strong> nenhuma coluna é especificada, pois o Databricks ainda não otimizou as chaves (requer análise histórica de queries na tabela para otimizar as colunas de clustering)</li>
+<li>Na linha <strong>Table Properties</strong> você verá que cluster by auto está habilitado (<code>clusterByAuto=true</code>).</li>
 </ol>
-<p><strong>NOTE:</strong> SDP supports Liquid clustering. Liquid clustering automatically organizes data based on frequently filtered columns to improve query performance. For more information, view the <a href="https://docs.databricks.com/aws/en/delta/clustering">Use liquid clustering for tables</a>.</p>
+<p><strong>NOTA:</strong> SDP suporta Liquid clustering. O Liquid clustering organiza os dados automaticamente com base nas colunas frequentemente filtradas para melhorar a performance de queries. Para mais informações, veja <a href="https://docs.databricks.com/aws/en/delta/clustering">Use liquid clustering for tables</a>.</p>
 </section>
 <section class="notebook-cell">
 <ol>
 <li>
-<p>Run the code below to view the data in your <strong>silver table</strong>. </p>
-<p>Confirm that the records look clean, standardized, and ready for gold-level analysis. </p>
-<p>Look for consistent data types, valid numeric values, and properly cast timestamps and dates.</p>
+<p>Execute o código abaixo para visualizar os dados na sua <strong>tabela silver</strong>. </p>
+<p>Confirme que os registros parecem limpos, padronizados e prontos para análise em nível gold. </p>
+<p>Procure por tipos de dados consistentes, valores numéricos válidos e timestamps e datas convertidos corretamente.</p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h2>F. Business Intelligence Materialized Views</h2>
-<p>Materialized views in Lakeflow provide precomputed results that power fast, reliable analytics for downstream users. Unlike regular views, they automatically refresh as new data arrives, so stakeholders always see up-to-date insights without requiring on-demand computation.</p>
-<p><strong>NOTE:</strong> This section assumes prior familiarity with materialized views.</p>
+<h2>F. Materialized Views de Business Intelligence</h2>
+<p>Materialized views no Lakeflow fornecem resultados pré-computados que potencializam analytics rápidos e confiáveis para usuários posteriores. Diferente de views comuns, elas atualizam automaticamente à medida que novos dados chegam, para que stakeholders sempre vejam insights atualizados sem exigir computação sob demanda.</p>
+<p><strong>NOTA:</strong> Esta seção assume familiaridade prévia com materialized views.</p>
 </section>
 <section class="notebook-cell">
-<h3>F1. Create a New SQL File in your Pipeline</h3>
+<h3>F1. Crie um Novo Arquivo SQL no seu Pipeline</h3>
 <ol>
-<li>Click the kebab menu next to your <code>ingest_multiple_flows</code> folder and select <strong>Create file</strong>.</li>
-<li>Select the language as <strong>SQL</strong>.</li>
-<li>Name the file <code>gold_mvs.sql</code>.</li>
+<li>Clique no menu kebab ao lado da sua pasta <code>ingest_multiple_flows</code> e selecione <strong>Create file</strong>.</li>
+<li>Selecione a linguagem como <strong>SQL</strong>.</li>
+<li>Nomeie o arquivo como <code>gold_mvs.sql</code>.</li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h3>F2. Create Simple Gold Materialized Views</h3>
+<h3>F2. Crie Materialized Views Gold Simples</h3>
 <ol>
-<li>Next you will add two small simple materialized views for your consumers. These are only used to confirm that your silver data is clean and ready for analysis. Materialized views are not the focus here, so we will keep them simple.</li>
+<li>Em seguida, você adicionará duas materialized views pequenas e simples para seus consumidores. Elas são usadas apenas para confirmar que seus dados silver estão limpos e prontos para análise. Materialized views não são o foco aqui, então vamos mantê-las simples.</li>
 </ol>
-<p>a. The first materialized view gives a <strong>daily summary by subsidiary</strong>, letting you quickly check revenue, units, and order counts over time.  </p>
-<p>b. The second view highlights <strong>basic product performance</strong> so you can see which categories and SKUs are selling within each subsidiary.</p>
+<p>a. A primeira materialized view fornece um <strong>resumo diário por subsidiária</strong>, permitindo verificar rapidamente receita, unidades e contagem de pedidos ao longo do tempo.  </p>
+<p>b. A segunda view destaca a <strong>performance básica de produtos</strong>, para que você veja quais categorias e SKUs estão vendendo dentro de cada subsidiária.</p>
 <ol>
-<li>Copy the code below into your <code>gold_mvs.sql</code> file to create both materialized views.</li>
+<li>Copie o código abaixo no seu arquivo <code>gold_mvs.sql</code> para criar ambas as materialized views.</li>
 </ol>
 </section>
 <section class="notebook-cell">
@@ -1268,25 +1268,25 @@ function fallbackCopy(text) {
 <code>
 <!-------------------ADD SOLUTION CODE BELOW------------------->
 ------------------------------------------
--- a. GOLD MATERIALIZED VIEW: DAILY SUBSIDIARY SCORECARD
--- Simple daily summary by subsidiary
+-- a. MATERIALIZED VIEW GOLD: SCORECARD DIÁRIO POR SUBSIDIÁRIA
+-- Resumo diário simples por subsidiária
 ------------------------------------------
 CREATE OR REPLACE MATERIALIZED VIEW multi_flow_3_gold.mv_daily_subsidiary_scorecard_demo
 AS
 SELECT
   order_date,
   subsidiary_id,
-  COUNT(DISTINCT order_id)    AS order_count,   -- how many unique orders occurred
-  ROUND(SUM(total_amount),2)  AS total_revenue, -- total revenue for the day
-  SUM(qty)                    AS total_units    -- total units sold
+  COUNT(DISTINCT order_id)    AS order_count,   -- quantos pedidos únicos ocorreram
+  ROUND(SUM(total_amount),2)  AS total_revenue, -- receita total do dia
+  SUM(qty)                    AS total_units    -- total de unidades vendidas
 FROM multi_flow_2_silver.orders_silver_flows_demo
 WHERE order_date IS NOT NULL
 GROUP BY order_date, subsidiary_id;
 
 
 ------------------------------------------
--- b. GOLD MATERIALIZED VIEW: PRODUCT PERFORMANCE BY SUBSIDIARY
--- Basic units and revenue by product and subsidiary
+-- b. MATERIALIZED VIEW GOLD: PERFORMANCE DE PRODUTO POR SUBSIDIÁRIA
+-- Unidades e receita básicas por produto e subsidiária
 ------------------------------------------
 CREATE OR REPLACE MATERIALIZED VIEW multi_flow_3_gold.mv_product_performance_by_subsidiary_demo
 AS
@@ -1294,8 +1294,8 @@ SELECT
   subsidiary_id,
   category,
   sku,
-  SUM(qty)                   AS units_sold,  -- total units sold for each SKU
-  ROUND(SUM(total_amount),2) AS revenue      -- total revenue for each SKU
+  SUM(qty)                   AS units_sold,  -- total de unidades vendidas por SKU
+  ROUND(SUM(total_amount),2) AS revenue      -- receita total por SKU
 FROM multi_flow_2_silver.orders_silver_flows_demo
 GROUP BY subsidiary_id, category, sku;
 <!-------------------END SOLUTION CODE------------------->
@@ -1341,99 +1341,99 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<h3>F3. Run and Explore the Pipeline</h3>
+<h3>F3. Execute e Explore o Pipeline</h3>
 <ol>
 <li>
-<p>Select <strong>Run pipeline</strong> to create the two Gold materialized views.</p>
+<p>Selecione <strong>Run pipeline</strong> para criar as duas materialized views Gold.</p>
 </li>
 <li>
-<p>Explore the pipeline in the Lakeflow Pipeline Editor. Notice the following:</p>
+<p>Explore o pipeline no Lakeflow Pipeline Editor. Observe o seguinte:</p>
 </li>
 <li>
-<p>Since the pipeline has already ingested the raw data into the <strong>Bronze</strong> and <strong>Silver</strong> streaming tables, and no new files were added, there are no new records for the streaming tables to process.</p>
+<p>Como o pipeline já ingeriu os dados brutos nas streaming tables <strong>Bronze</strong> e <strong>Silver</strong>, e nenhum arquivo novo foi adicionado, não há novos registros para as streaming tables processarem.</p>
 </li>
 <li>
-<p>Both materialized views are created with <strong>3</strong> and <strong>15</strong> rows respectively.</p>
+<p>Ambas as materialized views são criadas com <strong>3</strong> e <strong>15</strong> linhas, respectivamente.</p>
 </li>
 <li>
-<p>In the <strong>Tables</strong> window at the bottom:  </p>
+<p>Na janela <strong>Tables</strong> na parte inferior:  </p>
 <ul>
-<li>Select the <strong>Show and hide columns</strong> button <img alt="Show and Hide Columns" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/show_hide_columns_icon.png" />  </li>
-<li>Then show the <strong>Incrementalization</strong> column to see whether the materialized views were <strong>fully recomputed</strong> or <strong>incrementally computed</strong>.</li>
+<li>Selecione o botão <strong>Show and hide columns</strong> <img alt="Show and Hide Columns" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/show_hide_columns_icon.png" />  </li>
+<li>Depois exiba a coluna <strong>Incrementalization</strong> para ver se as materialized views foram <strong>totalmente recomputadas</strong> ou <strong>computadas incrementalmente</strong>.</li>
 </ul>
 </li>
 <li>
-<p>On this initial run, both materialized views show <strong>Full recompute</strong> on the initial creation. Later, we will see these views compute incrementally.</p>
+<p>Nesta execução inicial, ambas as materialized views mostram <strong>Full recompute</strong> na criação inicial. Mais adiante, veremos essas views serem computadas incrementalmente.</p>
 </li>
 </ol>
 <h4>Checkpoint</h4>
 <p><img alt="MVs SDP Checkpoint" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/multi_flow/checkpoint_mvs_pipeline.png" /></p>
 </section>
 <section class="notebook-cell">
-<h3>F4. Display the Materialized Views</h3>
+<h3>F4. Exiba as Materialized Views</h3>
 </section>
 <section class="notebook-cell">
 <ol>
 <li>
-<p>Querying the <strong>multi_flow_3_gold.mv_daily_subsidiary_scorecard_demo</strong> materialized view returns a daily scorecard for each subsidiary. </p>
-<p>It summarizes order volume, total revenue, and total units so you can quickly compare performance across the three subsidiaries and order date.</p>
+<p>Consultar a materialized view <strong>multi_flow_3_gold.mv_daily_subsidiary_scorecard_demo</strong> retorna um scorecard diário para cada subsidiária. </p>
+<p>Ela resume volume de pedidos, receita total e unidades totais para que você possa comparar rapidamente a performance entre as três subsidiárias e a data do pedido.</p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
 <ol>
 <li>
-<p>The <strong>multi_flow_3_gold.mv_product_performance_by_subsidiary_demo</strong>  materialized view provides a simple product performance breakdown, showing which categories and SKUs are selling within each subsidiary. </p>
-<p>It helps you compare units sold and revenue across product lines.</p>
+<p>A materialized view <strong>multi_flow_3_gold.mv_product_performance_by_subsidiary_demo</strong> fornece uma quebra simples da performance de produtos, mostrando quais categorias e SKUs estão vendendo dentro de cada subsidiária. </p>
+<p>Ela ajuda você a comparar unidades vendidas e receita entre linhas de produto.</p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h2>G. Run the Spark Declarative Pipeline with New Files</h2>
-<p>Now that the pipeline is built, let's add the daily drop for the <strong>2025-11-02</strong> orders for each subsidiary.</p>
+<h2>G. Execute o Spark Declarative Pipeline com Novos Arquivos</h2>
+<p>Agora que o pipeline está construído, vamos adicionar a remessa diária de pedidos de <strong>2025-11-02</strong> para cada subsidiária.</p>
 </section>
 <section class="notebook-cell">
-<h3>G1. Land a New File in Each Volume</h3>
+<h3>G1. Adicione um Novo Arquivo em Cada Volume</h3>
 <ol>
 <li>
-<p>Run the cell below to add the next daily file (<strong>2025-11-02</strong>) to each subsidiary volume.  </p>
+<p>Execute a célula abaixo para adicionar o próximo arquivo diário (<strong>2025-11-02</strong>) a cada volume de subsidiária.  </p>
 </li>
 <li>
-<p>After the cell runs, confirm that each volume now contains two files: <strong>2025-11-01</strong> and <strong>2025-11-02</strong>.</p>
+<p>Após a célula executar, confirme que cada volume agora contém dois arquivos: <strong>2025-11-01</strong> e <strong>2025-11-02</strong>.</p>
 </li>
 </ol>
 </section>
-<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>## Copy a second CSV file into the bright_home_orders volume
+<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>## Copia um segundo arquivo CSV para o volume bright_home_orders
 marketplace_share_path = f'/Volumes/{your_marketplace_share_catalog_name}/v02/subsidiary_daily_orders'
 copy_files(
     copy_from = f'{marketplace_share_path}/bright_home_orders', 
     copy_to = f'/Volumes/{my_catalog}/multi_flow_1_bronze/bright_home_orders', 
     n = 2
 )
-## Copy a second CSV file into the lumina_sports_orders volume
+## Copia um segundo arquivo CSV para o volume lumina_sports_orders
 copy_files(
     copy_from = f'{marketplace_share_path}/lumina_sports_orders', 
     copy_to = f'/Volumes/{my_catalog}/multi_flow_1_bronze/lumina_sports_orders', 
     n = 2
 )
-## Copy a second JSON file into the northstar_outfitters_orders volume
+## Copia um segundo arquivo JSON para o volume northstar_outfitters_orders
 copy_files(
     copy_from = f'{marketplace_share_path}/northstar_outfitters_orders', 
     copy_to = f'/Volumes/{my_catalog}/multi_flow_1_bronze/northstar_outfitters_orders', 
     n = 2
 )
-## List files in your volumes (confirm two files exist)
+## Lista os arquivos nos seus volumes (confirma que existem dois arquivos)
 spark.sql(f'LIST "{my_vol_path}/bright_home_orders"').display()
 spark.sql(f'LIST "{my_vol_path}/lumina_sports_orders"').display()
 spark.sql(f'LIST "{my_vol_path}/northstar_outfitters_orders"').display()</code></pre></div></section>
 <section class="notebook-cell">
-<h3>G2. Explore the New Daily Drop (2025-11-02) File in Each Volume</h3>
+<h3>G2. Explore o Novo Arquivo Diário (2025-11-02) em Cada Volume</h3>
 <ol>
 <li>
-<p>Simply run the cell below to count the number of records in the raw daily drop file <strong>2025-11-02</strong> within each volume.</p>
+<p>Basta executar a célula abaixo para contar o número de registros no arquivo diário bruto <strong>2025-11-02</strong> dentro de cada volume.</p>
 </li>
 <li>
-<p>Confirm that the output shows <strong>502</strong> total rows across all three subsidiaries for the <strong>2025-11-02</strong> orders drop.</p>
+<p>Confirme que a saída mostra <strong>502</strong> linhas totais entre as três subsidiárias para a remessa de pedidos de <strong>2025-11-02</strong>.</p>
 </li>
 </ol>
 <table>
@@ -1488,166 +1488,166 @@ df_all = spark.sql(f"""
         'nso_orders_2025-11-02.json' AS FileName
     FROM read_files('{my_vol_path}/northstar_outfitters_orders/nso_orders_2025-11-02.json')
 """)
-# Build TOTAL row
+# Monta a linha TOTAL
 total_row = (
     df_all
     .agg(_sum("TotalRows").alias("TotalRows"))
     .withColumn("Volume", lit("TOTAL"))
     .withColumn("FileName", lit(""))
-    .select("Volume", "TotalRows", "FileName")  # match column order
+    .select("Volume", "TotalRows", "FileName")  # mantém a ordem das colunas
 )
-# Append TOTAL row to the bottom
+# Anexa a linha TOTAL ao final
 df_with_total = df_all.unionByName(total_row)
 display(df_with_total)</code></pre></div></section>
 <section class="notebook-cell">
-<h3>G3. Run and Explore the Pipeline</h3>
+<h3>G3. Execute e Explore o Pipeline</h3>
 <ol>
 <li>
-<p>Run the Spark Declarative Pipeline to <strong>incrementally</strong> ingest, process and aggregate the <strong>new daily sales drop</strong>. Confirm it runs successfully. </p>
+<p>Execute o Spark Declarative Pipeline para ingerir, processar e agregar <strong>incrementalmente</strong> a <strong>nova remessa diária de vendas</strong>. Confirme que ele executa com sucesso. </p>
 </li>
 <li>
-<p>Explore the run in the Lakeflow Pipelines Editor.</p>
+<p>Explore a execução no Lakeflow Pipelines Editor.</p>
 </li>
-<li>Confirm <strong>502</strong> rows were ingested into the <strong>bronze table</strong> from the new daily orders drop in the three volumes.</li>
-<li>Confirm all <strong>502</strong> were processed and passed the data quality checks in the <strong>silver table</strong>.</li>
-<li>Confirm the materialized views:<ul>
-<li>Contain <strong>6</strong> and <strong>15</strong> rows respectively</li>
-<li>Were both incrementally refreshed (<strong>Incremental</strong>). </li>
-<li><strong>NOTE:</strong> For more information view the <a href="https://docs.databricks.com/aws/en/optimizations/incremental-refresh">Incremental refresh for materialized views</a> documentation.</li>
+<li>Confirme que <strong>502</strong> linhas foram ingeridas na <strong>tabela bronze</strong> a partir da nova remessa diária de pedidos nos três volumes.</li>
+<li>Confirme que todas as <strong>502</strong> foram processadas e passaram nas checagens de qualidade de dados na <strong>tabela silver</strong>.</li>
+<li>Confirme as materialized views:<ul>
+<li>Contêm <strong>6</strong> e <strong>15</strong> linhas, respectivamente</li>
+<li>Foram ambas atualizadas incrementalmente (<strong>Incremental</strong>). </li>
+<li><strong>NOTA:</strong> Para mais informações, veja a documentação <a href="https://docs.databricks.com/aws/en/optimizations/incremental-refresh">Incremental refresh for materialized views</a>.</li>
 </ul>
 </li>
 </ol>
 <blockquote>
-<p><strong>TROUBLESHOOTING:</strong> If your pipeline does does not match the output below make sure you have landed the second file in each volume from the 'Land a New File in Each Volume' section above.</p>
+<p><strong>TROUBLESHOOTING:</strong> Se o seu pipeline não corresponder à saída abaixo, verifique se você adicionou o segundo arquivo em cada volume na seção 'Adicione um Novo Arquivo em Cada Volume' acima.</p>
 </blockquote>
 <h4>Checkpoint</h4>
 <p><img alt="SDP Run 2 Files in All Volumes" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/multi_flow/checkpoint_run_daily_drop_2.png" /></p>
 </section>
 <section class="notebook-cell">
-<h3>G4. Explore the Final Pipeline Objects</h3>
+<h3>G4. Explore os Objetos Finais do Pipeline</h3>
 </section>
 <section class="notebook-cell">
 <ol>
 <li>
-<p>Run the cell below to view the <strong>bronze</strong> table. </p>
-<p>Notice that the table contains <strong>951 rows</strong> (The total number of rows after both runs)</p>
+<p>Execute a célula abaixo para visualizar a tabela <strong>bronze</strong>. </p>
+<p>Note que a tabela contém <strong>951 linhas</strong> (o número total de linhas após as duas execuções)</p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
 <ol>
 <li>
-<p>Count the number of rows ingested by each <strong>source_file</strong> in the <strong>bronze</strong> streaming table. </p>
-<p>Notice that we can easily examine how many rows were ingested by each source file (<strong>daily orders drop</strong>).</p>
+<p>Conte o número de linhas ingeridas por cada <strong>source_file</strong> na streaming table <strong>bronze</strong>. </p>
+<p>Note que podemos examinar facilmente quantas linhas foram ingeridas por cada arquivo de origem (<strong>remessa diária de pedidos</strong>).</p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>View the data in the <strong>silver table</strong>. Notice that the data is clean, adheres to our defined schema and contains our 'single source of truth'.</li>
-</ol>
-</section>
-<section class="notebook-cell">
-<ol>
-<li>
-<p>View the gold level materialized view <strong>mv_daily_subsidiary_scorecard_demo</strong>. </p>
-<p>Notice downstream consumers can easily examine orders by date for each subsidiary.</p>
-</li>
+<li>Visualize os dados na <strong>tabela silver</strong>. Note que os dados estão limpos, aderem ao nosso schema definido e contêm nossa 'single source of truth'.</li>
 </ol>
 </section>
 <section class="notebook-cell">
 <ol>
 <li>
-<p>View the gold level materialized view <strong>mv_product_performance_by_subsidiary_demo</strong>. </p>
-<p>Notice downstream consumers can easily examine detailed order metrics by each <strong>subsidiary_id</strong> and <strong>sku</strong>.</p>
+<p>Visualize a materialized view de nível gold <strong>mv_daily_subsidiary_scorecard_demo</strong>. </p>
+<p>Note que consumidores posteriores podem examinar facilmente os pedidos por data para cada subsidiária.</p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h2>H. Introduction to Adding Tags to Bronze, Silver and Gold Objects</h2>
-<h4>This requires the necessary permissions to add tags</h4>
-<p>In this step you add semantic metadata to your tables and materialized views. Tags make it easier to organize, search and govern objects in Unity Catalog. They help downstream teams quickly understand what each object represents and how it should be used.</p>
-<p>You apply two types of tags:</p>
+<ol>
+<li>
+<p>Visualize a materialized view de nível gold <strong>mv_product_performance_by_subsidiary_demo</strong>. </p>
+<p>Note que consumidores posteriores podem examinar facilmente métricas detalhadas de pedidos por cada <strong>subsidiary_id</strong> e <strong>sku</strong>.</p>
+</li>
+</ol>
+</section>
+<section class="notebook-cell">
+<h2>H. Introdução à Adição de Tags em Objetos Bronze, Silver e Gold</h2>
+<h4>Isso requer as permissões necessárias para adicionar tags</h4>
+<p>Nesta etapa você adiciona metadados semânticos às suas tabelas e materialized views. Tags facilitam a organização, busca e governança de objetos no Unity Catalog. Elas ajudam times posteriores a entender rapidamente o que cada objeto representa e como deve ser usado.</p>
+<p>Você aplica dois tipos de tags:</p>
 <ul>
-<li><strong>Custom demo tags</strong><br />
-  These describe the department that owns the data and the quality level in the medallion architecture.<br />
-  Examples:  </li>
+<li><strong>Tags customizadas da demo</strong><br />
+  Elas descrevem o departamento dono dos dados e o nível de qualidade na arquitetura medallion.<br />
+  Exemplos:  </li>
 <li><code>demo_tag_Department = 'Sales'</code>  </li>
 <li>
 <p><code>demo_tag_Quality = 'bronze' | 'silver' | 'gold'</code></p>
 </li>
 <li>
-<p><strong>System tags</strong><br />
-  These are built-in Unity Catalog tags. Here you add the <code>system.Certified</code> tag to identify trusted, production-ready objects.</p>
+<p><strong>Tags de sistema</strong><br />
+  Estas são tags nativas do Unity Catalog. Aqui você adiciona a tag <code>system.Certified</code> para identificar objetos confiáveis e prontos para produção.</p>
 </li>
 </ul>
-<p><strong>NOTE</strong>: For more information view the <a href="https://docs.databricks.com/aws/en/database-objects/tags">Apply tags to Unity Catalog securable objects</a></p>
+<p><strong>NOTA</strong>: Para mais informações, veja <a href="https://docs.databricks.com/aws/en/database-objects/tags">Apply tags to Unity Catalog securable objects</a></p>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>The code below creates the following tags:</li>
-<li>Updates the <strong>bronze table</strong> with department and quality tags so users can see this is raw, ingested data owned by Sales.</li>
-<li>Updates the <strong>silver table</strong> with the same tags, then adds the <code>system.Certified</code> tag to mark it as a clean, trusted dataset.</li>
-<li>Updates both <strong>gold materialized views</strong> with department and quality tags, then marks each one as <code>system.Certified</code> because these are curated analytics objects intended for broad consumption.</li>
+<li>O código abaixo cria as seguintes tags:</li>
+<li>Atualiza a <strong>tabela bronze</strong> com tags de departamento e qualidade, para que os usuários vejam que estes são dados brutos ingeridos, de propriedade do Sales.</li>
+<li>Atualiza a <strong>tabela silver</strong> com as mesmas tags, e então adiciona a tag <code>system.Certified</code> para marcá-la como um dataset limpo e confiável.</li>
+<li>Atualiza ambas as <strong>materialized views gold</strong> com tags de departamento e qualidade, e então marca cada uma como <code>system.Certified</code>, pois são objetos analíticos curados destinados a consumo amplo.</li>
 </ol>
-<p><strong>NOTE:</strong> <a href="">ALTER TABLE</a></p>
+<p><strong>NOTA:</strong> <a href="">ALTER TABLE</a></p>
 </section>
 <section class="notebook-cell">
 <ol>
 <li>
-<p>After you add tags to a table or materialized view, you can query them directly using the <strong>information_schema.table_tags</strong> view within the specific catalog, or the <strong>system.information_schema</strong> schema. </p>
-<p>The query below queries <strong>your-catalog.information_schema</strong>.</p>
+<p>Depois de adicionar tags a uma tabela ou materialized view, você pode consultá-las diretamente usando a view <strong>information_schema.table_tags</strong> dentro do catálogo específico, ou o schema <strong>system.information_schema</strong>. </p>
+<p>A query abaixo consulta <strong>your-catalog.information_schema</strong>.</p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>You can also view tags in <strong>Catalog Explorer</strong>. Follow these steps to inspect the tags on one of your objects:</li>
+<li>Você também pode visualizar as tags no <strong>Catalog Explorer</strong>. Siga estes passos para inspecionar as tags em um dos seus objetos:</li>
 </ol>
-<p>a. Right click <strong>Catalog</strong> and select <strong>Open in New Tab</strong>  </p>
-<p>b. Navigate to your catalog  </p>
-<p>c. Open the <strong>multi_flow_3_gold</strong> schema  </p>
-<p>d. Select the <strong>mv_daily_subsidiary_scorecard_demo</strong> materialized view  </p>
-<p>e. In the right pane, locate the <strong>Tags</strong> section and confirm the three tags that were added</p>
+<p>a. Clique com o botão direito em <strong>Catalog</strong> e selecione <strong>Open in New Tab</strong>  </p>
+<p>b. Navegue até seu catálogo  </p>
+<p>c. Abra o schema <strong>multi_flow_3_gold</strong>  </p>
+<p>d. Selecione a materialized view <strong>mv_daily_subsidiary_scorecard_demo</strong>  </p>
+<p>e. No painel direito, localize a seção <strong>Tags</strong> e confirme as três tags que foram adicionadas</p>
 <h4>Checkpoint</h4>
 <p><img alt="Tagging Checkpoint" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/multi_flow/checkpoint_tagging.png" /></p>
 </section>
 <section class="notebook-cell">
-<h2>I. (OPTIONAL) Land Additional Files in your Volumes</h2>
-<p>If you'd like to continue practicing, use the demonstration function <code>copy_files</code> to dynamically add another JSON file (file number 3) to your cloud storage location.  </p>
-<p><strong>NOTES:</strong> 
-- Ensure the variables you defined at the start of this lab: <code>your_marketplace_share_catalog_name</code>, <code>my_catalog</code> are still active for the function to work properly.
-- There are a total of 7 available files you can continue practicing with.</p>
+<h2>I. (OPCIONAL) Adicione Arquivos Adicionais nos seus Volumes</h2>
+<p>Se quiser continuar praticando, use a função de demonstração <code>copy_files</code> para adicionar dinamicamente outro arquivo JSON (arquivo número 3) ao seu local de cloud storage.  </p>
+<p><strong>NOTAS:</strong> 
+- Certifique-se de que as variáveis definidas no início deste lab, <code>your_marketplace_share_catalog_name</code> e <code>my_catalog</code>, ainda estão ativas para que a função funcione corretamente.
+- Há um total de 7 arquivos disponíveis para você continuar praticando.</p>
 </section>
 <section class="notebook-cell">
-<h2>J. Clean up</h2>
+<h2>J. Limpeza</h2>
 <ol>
-<li>Feel free to delete the schemas you create in this demonstration by running cell below and confirming the delete (<strong>Y</strong>).</li>
+<li>Sinta-se à vontade para excluir os schemas criados nesta demonstração executando a célula abaixo e confirmando a exclusão (<strong>Y</strong>).</li>
 </ol>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>delete_schemas(
-    catalog = my_catalog, ## &lt;--- Your catalog name using the variable you set earlier
+    catalog = my_catalog, ## &lt;--- Nome do seu catálogo usando a variável definida anteriormente
     schemas = ['multi_flow_1_bronze', 'multi_flow_2_silver', 'multi_flow_3_gold']
 )</code></pre></div></section>
 <section class="notebook-cell">
 <ol>
-<li>Delete your Spark Declarative Pipeline through the <strong>Jobs &amp; Pipelines</strong> UI.</li>
+<li>Exclua seu Spark Declarative Pipeline através da UI <strong>Jobs &amp; Pipelines</strong>.</li>
 </ol>
 </section>
 <section class="notebook-cell">
 <h2>K. Resumo e Pontos-Chave</h2>
 <ul>
-<li><strong>Multi-Flow Ingestion</strong>: Successfully ingested data from three different subsidiaries (<code>CSV</code> and <code>JSON</code> formats) into a single bronze streaming table using separate flows</li>
-<li><strong>Schema Standardization</strong>: Resolved format conflicts by casting all columns to STRING in bronze, then applying proper data types in silver</li>
-<li><strong>Data Quality &amp; Performance</strong>: Implemented constraint-based data quality checks and enabled liquid clustering for optimized query performance</li>
-<li><strong>Incremental Processing</strong>: Demonstrated true incremental processing across the entire medallion architecture with automatic materialized view refresh</li>
+<li><strong>Ingestão Multi-Flow</strong>: Ingeriu com sucesso dados de três subsidiárias diferentes (formatos <code>CSV</code> e <code>JSON</code>) em uma única bronze streaming table usando flows separados</li>
+<li><strong>Padronização de Schema</strong>: Resolveu conflitos de formato convertendo todas as colunas para STRING no bronze, e depois aplicando os tipos de dados corretos no silver</li>
+<li><strong>Qualidade de Dados e Performance</strong>: Implementou checagens de qualidade de dados baseadas em constraints e habilitou liquid clustering para performance otimizada de queries</li>
+<li><strong>Processamento Incremental</strong>: Demonstrou processamento verdadeiramente incremental em toda a arquitetura medallion, com atualização automática das materialized views</li>
 </ul>
-<h4>Business Value Delivered</h4>
-<p>The pipeline processed <strong>951 total records</strong> from six source files across two daily drops, creating a unified view of sales data that enables:
-- Cross-subsidiary performance analysis
-- Real-time business intelligence through auto-refreshing materialized views
-- Scalable data quality enforcement as new subsidiaries are added</p>
-<p>This architecture provides a foundation for enterprise-scale data consolidation while maintaining data lineage, quality, and performance optimization.</p>
+<h4>Valor de Negócio Entregue</h4>
+<p>O pipeline processou <strong>951 registros no total</strong> de seis arquivos de origem em duas remessas diárias, criando uma visão unificada dos dados de vendas que possibilita:
+- Análise de performance entre subsidiárias
+- Business intelligence em tempo real através de materialized views com auto-refresh
+- Aplicação escalável de qualidade de dados à medida que novas subsidiárias são adicionadas</p>
+<p>Esta arquitetura fornece uma base para consolidação de dados em escala corporativa, mantendo data lineage, qualidade e otimização de performance.</p>
 </section>
 <section class="notebook-cell">
 <p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
