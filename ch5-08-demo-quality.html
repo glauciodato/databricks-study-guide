@@ -21,18 +21,18 @@
 </div>
 </section>
 <section class="notebook-cell">
-<h1>Demo - Advanced Data Quality Checks and Expectations in Spark Declarative Pipelines</h1>
+<h1>Demo - Advanced Data Quality Checks and Expectations em Spark Declarative Pipelines</h1>
 <h2>Visão Geral</h2>
-<p>This demonstration showcases enterprise-grade data quality management using Spark Declarative Pipelines (Lakeflow) with advanced quality expectations and quarantine patterns. You will build a comprehensive medallion architecture that implements three critical data engineering patterns: range-based validation, automatic schema evolution, and zero-loss quarantine processing.</p>
-<p>The demo simulates a real-world scenario where order data arrives with varying quality levels and evolving schemas. Using official Databricks patterns, you will process this data through bronze, silver, and gold layers while implementing robust quality controls that catch data anomalies, handle schema changes seamlessly, and ensure zero data loss through intelligent quarantine mechanisms.</p>
-<p>This demonstration uses a two-run approach: Run 1 establishes a clean baseline with 157 perfect records to validate the quality framework, while Run 2 introduces 60 records containing intentional quality issues and schema evolution to demonstrate the system's resilience and monitoring capabilities.</p>
+<p>Esta demonstração mostra gerenciamento de qualidade de dados de nível corporativo usando Spark Declarative Pipelines (Lakeflow), com expectations avançadas de qualidade e padrões de quarentena. Você construirá uma arquitetura medallion abrangente que implementa três padrões críticos de engenharia de dados: validação baseada em intervalos (range), evolução automática de schema e processamento de quarentena sem perda de dados.</p>
+<p>A demo simula um cenário do mundo real onde dados de pedidos chegam com níveis variados de qualidade e schemas em evolução. Usando padrões oficiais da Databricks, você processará esses dados através das camadas bronze, silver e gold, implementando controles robustos de qualidade que capturam anomalias nos dados, lidam com mudanças de schema de forma transparente e garantem zero perda de dados através de mecanismos inteligentes de quarentena.</p>
+<p>Esta demonstração usa uma abordagem de duas execuções: a Execução 1 estabelece uma baseline limpa com 157 registros perfeitos para validar o framework de qualidade, enquanto a Execução 2 introduz 60 registros contendo problemas de qualidade intencionais e evolução de schema, para demonstrar a resiliência e as capacidades de monitoramento do sistema.</p>
 <h2>Objetivos de Aprendizado</h2>
-<p>By the end of this demonstration, you will be able to:</p>
+<p>Ao final desta demonstração, você será capaz de:</p>
 <ul>
-<li><strong>Implement comprehensive data validation</strong> using 6 quality expectations covering NOT NULL checks, numeric ranges, and date validations with proper constraint syntax</li>
-<li><strong>Handle automatic schema evolution</strong> without pipeline code changes using flexible bronze layer design and schema hints</li>
-<li><strong>Build quarantine patterns</strong> using official Databricks inverse logic to capture invalid records while maintaining zero data loss and detailed failure tracking</li>
-<li><strong>Monitor data quality metrics</strong> and analyze expectation performance to identify specific data quality issues and develop remediation strategies</li>
+<li><strong>Implementar validação de dados abrangente</strong> usando 6 expectations de qualidade cobrindo checagens de NOT NULL, intervalos numéricos e validações de data com sintaxe de constraint apropriada</li>
+<li><strong>Lidar com evolução automática de schema</strong> sem alterações no código do pipeline, usando design flexível da camada bronze e schema hints</li>
+<li><strong>Construir padrões de quarentena</strong> usando a lógica inversa oficial da Databricks para capturar registros inválidos, mantendo zero perda de dados e rastreamento detalhado de falhas</li>
+<li><strong>Monitorar métricas de qualidade de dados</strong> e analisar a performance das expectations para identificar problemas específicos de qualidade e desenvolver estratégias de remediação</li>
 </ul>
 </section>
 <section class="notebook-cell">
@@ -58,25 +58,25 @@ Before starting this notebook, select the required compute environment listed be
 </section>
 <section class="notebook-cell">
 <h2>Visão Geral da Arquitetura da Demo</h2>
-<p>This demo demonstrates how to build a robust data pipeline using Databricks medallion architecture, focusing on data quality enforcement and schema flexibility.</p>
-<h3>Key Patterns Demonstrated</h3>
+<p>Esta demo demonstra como construir um pipeline de dados robusto usando a arquitetura medallion da Databricks, com foco em aplicação de qualidade de dados e flexibilidade de schema.</p>
+<h3>Principais Padrões Demonstrados</h3>
 <p><strong>1. Advanced Data Quality Checks</strong>
-- Enforce comprehensive data quality rules: NOT NULL for business keys, numeric range validations, and temporal checks
-- Invalid rows are systematically quarantined with detailed failure analysis for remediation workflows</p>
-<p><strong>2. Seamless Schema Evolution</strong>
-- Handles new columns automatically—no pipeline code changes required
-- Bronze layer stores all columns as STRING for maximum flexibility
-- Silver layer performs safe type conversion with validation</p>
-<p><strong>3. Zero-Loss Quarantine Pattern</strong>
-- Invalid records are captured in a dedicated quarantine table ensuring no data loss
-- Tracks which specific rules failed for each record with detailed failure reasons
-- Enables parallel processing of valid and invalid data streams</p>
-<h3>Demo Pipeline Architecture</h3>
+- Aplica regras abrangentes de qualidade de dados: NOT NULL para chaves de negócio, validações de intervalo numérico e checagens temporais
+- Linhas inválidas são sistematicamente colocadas em quarentena, com análise detalhada de falhas para workflows de remediação</p>
+<p><strong>2. Evolução de Schema Transparente</strong>
+- Lida automaticamente com novas colunas — nenhuma alteração no código do pipeline é necessária
+- A camada bronze armazena todas as colunas como STRING para máxima flexibilidade
+- A camada silver realiza conversão de tipo segura com validação</p>
+<p><strong>3. Padrão de Quarentena Sem Perda de Dados</strong>
+- Registros inválidos são capturados em uma tabela de quarentena dedicada, garantindo que nenhum dado seja perdido
+- Rastreia quais regras específicas falharam para cada registro, com motivos de falha detalhados
+- Permite o processamento paralelo de streams de dados válidos e inválidos</p>
+<h3>Arquitetura do Pipeline da Demo</h3>
 <p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/dq/dq_pipeline_overview.png" alt="Complete Pipeline Run 1" width="1200"></p>
-<h3>Demo Execution Flow</h3>
+<h3>Fluxo de Execução da Demo</h3>
 <ul>
-<li><strong>Run 1:</strong> Clean baseline data (157 records) — all pass quality checks, establishes 100% quality baseline</li>
-<li><strong>Run 2:</strong> Data with quality issues (60 records, 2 new columns) — demonstrates issue detection and schema evolution</li>
+<li><strong>Execução 1:</strong> Dados limpos de baseline (157 registros) — todos passam nas checagens de qualidade, estabelecendo uma baseline de qualidade de 100%</li>
+<li><strong>Execução 2:</strong> Dados com problemas de qualidade (60 registros, 2 novas colunas) — demonstra a detecção de problemas e a evolução de schema</li>
 </ul>
 </section>
 <section class="notebook-cell">
@@ -141,25 +141,25 @@ The catalog name is derived from your Databricks username and follows this patte
 </div>
 </section>
 <section class="notebook-cell">
-<h3>A1. Configure Your Catalog and Schema</h3>
-<p>Run the cell below to initialize your environment. This setup step performs the following actions:</p>
+<h3>A1. Configure Seu Catálogo e Schema</h3>
+<p>Execute a célula abaixo para inicializar seu ambiente. Este passo de configuração realiza as seguintes ações:</p>
 <ul>
-<li><strong>Creates or validates catalog access</strong> when running outside of a Databricks provided Vocareum workspace</li>
-<li><strong>Creates four schemas</strong> in your specified catalog:<ul>
-<li><strong>dq_1_bronze</strong> - Raw data ingestion layer</li>
-<li><strong>dq_2_silver</strong> - Validated and transformed data layer  </li>
-<li><strong>dq_3_gold</strong> - Analytics-ready aggregated data layer</li>
+<li><strong>Cria ou valida o acesso ao catálogo</strong> quando executado fora de um workspace Vocareum fornecido pela Databricks</li>
+<li><strong>Cria quatro schemas</strong> no catálogo especificado:<ul>
+<li><strong>dq_1_bronze</strong> - Camada de ingestão de dados brutos</li>
+<li><strong>dq_2_silver</strong> - Camada de dados validados e transformados  </li>
+<li><strong>dq_3_gold</strong> - Camada de dados agregados prontos para analytics</li>
 </ul>
 </li>
-<li><strong>Creates volume storage</strong> for source data processing:<ul>
-<li><code>sales</code> volume: Active processing location for pipeline consumption</li>
-<li><code>ops</code> volume: Staging location containing multiple data files</li>
+<li><strong>Cria armazenamento em volume</strong> para processamento dos dados de origem:<ul>
+<li>volume <code>sales</code>: local de processamento ativo para consumo do pipeline</li>
+<li>volume <code>ops</code>: local de staging contendo múltiplos arquivos de dados</li>
 </ul>
 </li>
-<li><strong>Verifies compute environment</strong> compatibility with Lakeflow pipelines</li>
+<li><strong>Verifica a compatibilidade</strong> do ambiente de compute com pipelines Lakeflow</li>
 </ul>
-<p>This ensures that all schemas, tables, and objects are created in your designated catalog with proper isolation.</p>
-<p><strong>Important:</strong> You must have permission to create catalogs in your own non-Vocareum workspace. If you do not have the required permissions, this step will fail. Review the troubleshooting note below before continuing.</p>
+<p>Isso garante que todos os schemas, tabelas e objetos sejam criados no seu catálogo designado, com o isolamento adequado.</p>
+<p><strong>Importante:</strong> Você deve ter permissão para criar catálogos no seu próprio workspace fora do Vocareum. Se você não tiver as permissões necessárias, este passo falhará. Revise a nota de troubleshooting abaixo antes de continuar.</p>
 </section>
 <section class="notebook-cell">
 <div style="
@@ -171,162 +171,162 @@ The catalog name is derived from your Databricks username and follows this patte
 ">
 
   <strong style="display:block; color:#e65100; margin-bottom:6px; font-size: 1.1em;">
-    Troubleshooting Configuração - Missing Create Catalog Permissions
+    Troubleshooting Configuração - Faltam Permissões para Criar Catálogo
   </strong>
 <details>
   <div style="color:#333;">
 
-If you do not have permission to create a new catalog but already have one available, you can explicitly specify an existing catalog by using the `catalog_forced` argument in the `build_user_catalog_name` function.
+Se você não tiver permissão para criar um novo catálogo, mas já tiver um disponível, você pode especificar explicitamente um catálogo existente usando o argumento `catalog_forced` na função `build_user_catalog_name`.
 
-This function is defined in the notebook: `./Includes/Classroom-Configuração-dq`
+Essa função é definida no notebook: `./Includes/Classroom-Setup-dq`
 
   </div>
 </details>
 </div>
 </section>
 <section class="notebook-cell">
-<h3>A2. Verify Volume Path Configuration</h3>
-<p>Run the cell below to view the value of the <code>my_vol_path</code> variable and confirm that it references your <strong>your-catalog.dq_1_bronze</strong> path. This path will be used to dynamically reference your source volumes throughout this demonstration.</p>
+<h3>A2. Verifique a Configuração do Caminho do Volume</h3>
+<p>Execute a célula abaixo para ver o valor da variável <code>my_vol_path</code> e confirme que ela referencia seu caminho <strong>your-catalog.dq_1_bronze</strong>. Esse caminho será usado para referenciar dinamicamente seus volumes de origem ao longo desta demonstração.</p>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>print(my_vol_path)</code></pre></div></section>
 <section class="notebook-cell">
-<h2>B. Explore Source Data Characteristics</h2>
-<p>Before building the pipeline, examine the source data to understand its structure, quality characteristics, and schema evolution patterns. This analysis will inform our quality expectation design.</p>
+<h2>B. Explore as Características dos Dados de Origem</h2>
+<p>Antes de construir o pipeline, examine os dados de origem para entender sua estrutura, características de qualidade e padrões de evolução de schema. Essa análise vai orientar o design das nossas expectations de qualidade.</p>
 </section>
 <section class="notebook-cell">
-<h3>B1. Examine Available Data Files</h3>
-<p>View all files available in your <strong>ops</strong> volume. Note that it contains multiple files that will be incrementally moved to the <code>sales</code> volume for processing, simulating real-world data arrival patterns.</p>
+<h3>B1. Examine os Arquivos de Dados Disponíveis</h3>
+<p>Visualize todos os arquivos disponíveis no seu volume <strong>ops</strong>. Note que ele contém múltiplos arquivos que serão movidos incrementalmente para o volume <code>sales</code> para processamento, simulando padrões reais de chegada de dados.</p>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># List files in volume
 display(spark.sql(f"LIST '{my_vol_path}/ops'"))</code></pre></div></section>
 <section class="notebook-cell">
-<p>View the current files available for processing in the <strong>sales</strong> volume location. The <code>sales</code> volume currently contains only one file; additional files will be added incrementally from the <code>ops</code> location to demonstrate schema evolution and quality issue detection.</p>
+<p>Visualize os arquivos atualmente disponíveis para processamento no local do volume <strong>sales</strong>. O volume <code>sales</code> atualmente contém apenas um arquivo; arquivos adicionais serão adicionados incrementalmente a partir do local <code>ops</code> para demonstrar evolução de schema e detecção de problemas de qualidade.</p>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code># List files in volume
 display(spark.sql(f"LIST '{my_vol_path}/sales'"))</code></pre></div></section>
 <section class="notebook-cell">
-<h3>B2. Analyze First File - Clean Baseline Data</h3>
-<p>Explore the first file which contains clean, high-quality data that will establish our quality baseline and validate the pipeline framework.</p>
+<h3>B2. Analise o Primeiro Arquivo - Dados de Baseline Limpos</h3>
+<p>Explore o primeiro arquivo, que contém dados limpos e de alta qualidade que estabelecerão nossa baseline de qualidade e validarão o framework do pipeline.</p>
 </section>
 <section class="notebook-cell">
-<p><strong>Firt File Characteristics (sales_1.csv):</strong>
-- <strong>157 clean records</strong> from a single sales subsidiary with perfect data quality
-- <strong>16 columns</strong>: Standard order fields including order_id, customer_id, qty, unit_price, discount_pct, total_amount, order_date
-- <strong>Quality Profile</strong>: No missing business keys, valid discount percentages (0-100%), recent order dates
-- <strong>Purpose</strong>: Establishes 100% quality baseline to validate expectation framework</p>
+<p><strong>Características do Primeiro Arquivo (sales_1.csv):</strong>
+- <strong>157 registros limpos</strong> de uma única subsidiária de vendas, com qualidade de dados perfeita
+- <strong>16 colunas</strong>: campos padrão de pedido, incluindo order_id, customer_id, qty, unit_price, discount_pct, total_amount, order_date
+- <strong>Perfil de Qualidade</strong>: sem chaves de negócio ausentes, percentuais de desconto válidos (0-100%), datas de pedido recentes
+- <strong>Propósito</strong>: estabelece uma baseline de qualidade de 100% para validar o framework de expectations</p>
 </section>
 <section class="notebook-cell">
-<h3>B3. Analyze Second File - Quality Issues and Schema Evolution</h3>
-<p>Explore the second file which contains intentional quality issues and demonstrates schema evolution with new business columns.</p>
+<h3>B3. Analise o Segundo Arquivo - Problemas de Qualidade e Evolução de Schema</h3>
+<p>Explore o segundo arquivo, que contém problemas de qualidade intencionais e demonstra evolução de schema com novas colunas de negócio.</p>
 </section>
 <section class="notebook-cell">
-<p><strong>Second File Characteristics (sales_2.csv):</strong></p>
-<p><strong>Schema Evolution (New Business Columns):</strong>
-- <strong>19 columns</strong> (16 original + 2 new business fields)
-- <strong>New Column</strong>: <code>order_status</code> (confirmed, pending, shipped, delivered, cancelled)
-- <strong>New Column</strong>: <code>shipping_cost</code> (numeric values for shipping fees)</p>
-<p><strong>Intentional Quality Issues for Testing:</strong>
-- <strong>Invalid discount percentages</strong>: discount_pct = 120 (violates discount &lt;= 100% rule)
-- <strong>Negative discounts</strong>: discount_pct = -10.73 (violates discount &gt;= 0 rule)
-- <strong>Historical dates</strong>: order_date = 1930-12-31 (violates recent date range requirement)
-- <strong>Missing business keys</strong>: NULL order_id or customer_id values
-- <strong>Invalid shipping costs</strong>: shipping_cost &gt; 100 or shipping_cost &lt; 0</p>
-<p><strong>Expected Quality Results:</strong>
-- Approximately 85% of records will pass all quality checks
-- 15% will be quarantined with detailed failure reasons for remediation</p>
+<p><strong>Características do Segundo Arquivo (sales_2.csv):</strong></p>
+<p><strong>Evolução de Schema (Novas Colunas de Negócio):</strong>
+- <strong>19 colunas</strong> (16 originais + 2 novos campos de negócio)
+- <strong>Nova Coluna</strong>: <code>order_status</code> (confirmed, pending, shipped, delivered, cancelled)
+- <strong>Nova Coluna</strong>: <code>shipping_cost</code> (valores numéricos para custos de frete)</p>
+<p><strong>Problemas de Qualidade Intencionais para Teste:</strong>
+- <strong>Percentuais de desconto inválidos</strong>: discount_pct = 120 (viola a regra de desconto &lt;= 100%)
+- <strong>Descontos negativos</strong>: discount_pct = -10.73 (viola a regra de desconto &gt;= 0)
+- <strong>Datas históricas</strong>: order_date = 1930-12-31 (viola o requisito de intervalo de data recente)
+- <strong>Chaves de negócio ausentes</strong>: valores NULL em order_id ou customer_id
+- <strong>Custos de frete inválidos</strong>: shipping_cost &gt; 100 ou shipping_cost &lt; 0</p>
+<p><strong>Resultados de Qualidade Esperados:</strong>
+- Aproximadamente 85% dos registros passarão em todas as checagens de qualidade
+- 15% serão colocados em quarentena com motivos de falha detalhados para remediação</p>
 </section>
 <section class="notebook-cell">
-<p><strong>Data Analysis Checkpoint:</strong>
-- <strong>sales_1.csv</strong>: 157 rows (clean baseline for framework validation)
-- <strong>sales_2.csv</strong>: 60 rows (quality issues + schema evolution demonstration)
-- <strong>Total Expected</strong>: 217 records across both files with varying quality profiles</p>
+<p><strong>Checkpoint da Análise de Dados:</strong>
+- <strong>sales_1.csv</strong>: 157 linhas (baseline limpa para validação do framework)
+- <strong>sales_2.csv</strong>: 60 linhas (problemas de qualidade + demonstração de evolução de schema)
+- <strong>Total Esperado</strong>: 217 registros entre os dois arquivos, com perfis de qualidade variados</p>
 </section>
 <section class="notebook-cell">
-<h2>C. Create the Spark Declarative Pipeline</h2>
-<p>Now that we understand the data characteristics and quality challenges, create the Spark Declarative Pipeline with comprehensive data quality expectations and quarantine handling.</p>
+<h2>C. Crie o Spark Declarative Pipeline</h2>
+<p>Agora que entendemos as características dos dados e os desafios de qualidade, vamos criar o Spark Declarative Pipeline com expectations abrangentes de qualidade de dados e tratamento de quarentena.</p>
 </section>
 <section class="notebook-cell">
-<h3>C1. Enable the Lakeflow Pipelines Editor</h3>
-<p>Complete the following steps to confirm or enable the <strong>Lakeflow Pipelines Editor</strong>:</p>
+<h3>C1. Habilite o Lakeflow Pipelines Editor</h3>
+<p>Complete os passos a seguir para confirmar ou habilitar o <strong>Lakeflow Pipelines Editor</strong>:</p>
 <ol>
 <li>
-<p>In the top-right corner of the workspace, select your <strong>account icon</strong> <img alt="Account Icon" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/account_icon.png" /> (<em>Your icon letter will differ</em>).  </p>
+<p>No canto superior direito do workspace, selecione seu <strong>ícone de conta</strong> <img alt="Account Icon" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/account_icon.png" /> (<em>A letra do seu ícone será diferente</em>).  </p>
 </li>
 <li>
-<p>Right-click <strong>Settings</strong> and choose <strong>Open link in new tab</strong>.  </p>
+<p>Clique com o botão direito em <strong>Settings</strong> e escolha <strong>Open link in new tab</strong>.  </p>
 </li>
 <li>
-<p>In the left sidebar, select <strong>Developer</strong> under <strong>User</strong>.  </p>
+<p>Na barra lateral esquerda, selecione <strong>Developer</strong> em <strong>User</strong>.  </p>
 </li>
 <li>
-<p>In the <strong>Experimental features</strong> section, locate <strong>Lakeflow Pipelines Editor</strong> and toggle it <strong>on</strong>.</p>
+<p>Na seção <strong>Experimental features</strong>, localize <strong>Lakeflow Pipelines Editor</strong> e ative-o.</p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h3>C2. Create a Apache Spark™ Declarative Pipeline</h3>
-<p>Complete the following steps to create your Spark Declarative Pipeline using the Lakeflow Pipelines Editor:</p>
+<h3>C2. Crie um Apache Spark™ Declarative Pipeline</h3>
+<p>Complete os passos a seguir para criar seu Spark Declarative Pipeline usando o Lakeflow Pipelines Editor:</p>
 <ol>
 <li>
-<p>In the main navigation pane, right-click <strong>Jobs &amp; Pipelines</strong> and select <strong>Open link in New Tab</strong>.  </p>
+<p>No painel de navegação principal, clique com o botão direito em <strong>Jobs &amp; Pipelines</strong> e selecione <strong>Open link in New Tab</strong>.  </p>
 </li>
 <li>
-<p>In the new tab, select <strong>Create → ETL Pipeline</strong>.  </p>
+<p>Na nova aba, selecione <strong>Create → ETL Pipeline</strong>.  </p>
 </li>
 </ol>
-<p><strong>NOTE:</strong> If prompted to <strong>Try the new Lakeflow Pipelines Editor</strong>, choose <strong>Enable Lakeflow Pipelines Editor</strong>. This appears only if you did not complete the previous step.  </p>
+<p><strong>NOTA:</strong> Se solicitado a <strong>Try the new Lakeflow Pipelines Editor</strong>, escolha <strong>Enable Lakeflow Pipelines Editor</strong>. Isso só aparece se você não completou o passo anterior.  </p>
 <ol>
-<li>Configure the pipeline settings:</li>
+<li>Configure as definições do pipeline:</li>
 <li><strong>Pipeline Name</strong>: <code>demo_dq_yourname</code></li>
 <li><strong>Default Catalog</strong>: <code>YOUR_LABUSER_CATALOG</code></li>
 <li>
 <p><strong>Default Schema</strong>: <code>dq_1_bronze</code><br />
-<strong>NOTE:</strong> Clear the selected schema using the cross icon to view all schemas.</p>
+<strong>NOTA:</strong> Limpe o schema selecionado usando o ícone de x para visualizar todos os schemas.</p>
 </li>
 <li>
-<p><strong>Rename pipeline components</strong>:</p>
+<p><strong>Renomeie os componentes do pipeline</strong>:</p>
 </li>
-<li>Rename the <strong>transformations</strong> folder to <code>dq_pipeline</code></li>
+<li>Renomeie a pasta <strong>transformations</strong> para <code>dq_pipeline</code></li>
 <li>
-<p>Rename <strong>my_transformation.py</strong> file to <code>bronze_ingestion.sql</code></p>
+<p>Renomeie o arquivo <strong>my_transformation.py</strong> para <code>bronze_ingestion.sql</code></p>
 </li>
 <li>
-<p>Leave the <strong>Lakeflow Pipelines Editor</strong> page open for the next steps.</p>
+<p>Deixe a página do <strong>Lakeflow Pipelines Editor</strong> aberta para os próximos passos.</p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h3>C3. Configure Pipeline Parameters</h3>
+<h3>C3. Configure os Parâmetros do Pipeline</h3>
 <ol>
-<li>Run the cell below to retrieve the key-value pairs needed to set your pipeline configuration parameters for the <strong>source volume</strong>.</li>
+<li>Execute a célula abaixo para obter os pares chave-valor necessários para definir os parâmetros de configuração do seu pipeline para o <strong>volume de origem</strong>.</li>
 </ol>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>config_parameters = [
     ('source', f'{my_vol_path}/sales')
 ]
 for key, value in config_parameters:
-    print(f"Key: {key}\nValue: {value}\n")</code></pre></div></section>
+    print(f"Chave: {key}\nValor: {value}\n")</code></pre></div></section>
 <section class="notebook-cell">
 <ol>
 <li>
-<p>Copy the paths above and add each one as a configuration parameter in your <strong>Spark Declarative Pipeline</strong>.</p>
-<p>This will allow your pipeline to reference each volume through parameters.</p>
+<p>Copie os caminhos acima e adicione cada um como um parâmetro de configuração no seu <strong>Spark Declarative Pipeline</strong>.</p>
+<p>Isso permitirá que seu pipeline referencie cada volume através de parâmetros.</p>
 </li>
 </ol>
-<p>a. Select <strong>Settings</strong> in your pipeline tab  </p>
-<p>b. Under <strong>Configuration</strong>, select <strong>Add configuration</strong></p>
-<p>c. For each <strong>Key</strong>, enter the key name shown above  </p>
-<p>d. For each <strong>Value</strong>, enter the corresponding volume path  </p>
-<p>e. Select <strong>Save</strong></p>
-<p><strong>NOTE:</strong> For more details on configuration parameters, see the Databricks documentation: <a href="https://docs.databricks.com/aws/en/ldp/parameters">Use parameters with Spark Declarative Pipelines</a></p>
+<p>a. Selecione <strong>Settings</strong> na aba do seu pipeline  </p>
+<p>b. Em <strong>Configuration</strong>, selecione <strong>Add configuration</strong></p>
+<p>c. Para cada <strong>Key</strong>, insira o nome da chave mostrado acima  </p>
+<p>d. Para cada <strong>Value</strong>, insira o caminho de volume correspondente  </p>
+<p>e. Selecione <strong>Save</strong></p>
+<p><strong>NOTA:</strong> Para mais detalhes sobre parâmetros de configuração, consulte a documentação da Databricks: <a href="https://docs.databricks.com/aws/en/ldp/parameters">Use parameters with Spark Declarative Pipelines</a></p>
 </section>
 <section class="notebook-cell">
-<h2>D. Create Bronze Layer - Raw Ingestion with Schema Evolution</h2>
-<p>The bronze layer implements schema evolution by using the <code>read_files</code> function with flexible column handling and schema hints for future column compatibility.</p>
+<h2>D. Crie a Camada Bronze - Ingestão Bruta com Evolução de Schema</h2>
+<p>A camada bronze implementa evolução de schema usando a função <code>read_files</code> com tratamento flexível de colunas e schema hints para compatibilidade com colunas futuras.</p>
 </section>
 <section class="notebook-cell">
-<h3>D1. Create Bronze Table with Schema Evolution Support</h3>
-<p>Copy the code below into your <code>bronze_ingestion.sql</code> file. This implementation uses a STRING-based approach for maximum schema flexibility and includes schema hints for future columns.</p>
+<h3>D1. Crie a Tabela Bronze com Suporte a Evolução de Schema</h3>
+<p>Copie o código abaixo no seu arquivo <code>bronze_ingestion.sql</code>. Esta implementação usa uma abordagem baseada em STRING para máxima flexibilidade de schema e inclui schema hints para colunas futuras.</p>
 </section>
 <section class="notebook-cell">
 <p><button onclick="copyBlock()">Copiar para área de transferência</button></p>
@@ -334,12 +334,12 @@ for key, value in config_parameters:
 <code>
 
 ------------------------------------------
--- BRONZE LAYER: RAW DATA INGESTION
+-- CAMADA BRONZE: INGESTÃO DE DADOS BRUTOS
 ------------------------------------------
 CREATE OR REFRESH STREAMING TABLE dq_1_bronze.sales_bronze_raw_demo
 AS
 SELECT 
-  -- Core business fields (all as STRING for schema flexibility)
+  -- Campos de negócio principais (todos como STRING para flexibilidade de schema)
   CAST(subsidiary_id AS STRING) AS subsidiary_id,
   CAST(order_id AS STRING) AS order_id,
   CAST(order_timestamp AS STRING) AS order_timestamp,
@@ -357,14 +357,14 @@ SELECT
   CAST(total_amount AS STRING) AS total_amount,
   CAST(order_date AS STRING) AS order_date,
 
-  -- New columns for schema evolution (will be null initially)
+  -- Novas colunas para evolução de schema (serão nulas inicialmente)
   CAST(order_status AS STRING) AS order_status,
   CAST(shipping_cost AS STRING) AS shipping_cost,
 
-  -- Rescued data column for parsing issues
+  -- Coluna de dados resgatados (rescued) para problemas de parsing
   CAST(_rescued_data AS STRING) AS _rescued_data,
 
-  -- Metadata columns for lineage tracking
+  -- Colunas de metadata para rastreamento de lineage
   _metadata.file_name AS source_file,
   _metadata.file_modification_time AS file_mod_time
 FROM STREAM read_files(
@@ -414,30 +414,30 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<p><strong>Review the Bronze Layer Design Patterns:</strong></p>
-<p><strong>Schema Evolution Strategy:</strong>
-- <strong>STRING storage</strong>: All business columns stored as STRING for maximum flexibility and compatibility
-- <strong>Pre-defined schema</strong>: Includes both original and two future columns for seamless evolution
-- <strong>Schema hints</strong>: Declares expected new columns (<code>order_status</code>, <code>shipping_cost</code>) even when not yet present in data
-- <strong>Null handling</strong>: New columns will be NULL for existing files, populated for future files</p>
-<p><strong>Data Lineage and Protection:</strong>
-- <strong>Auto Loader</strong>: <code>read_files</code> function enables incremental processing with checkpoint management
-- <strong>Metadata capture</strong>: Source file names and modification timestamps for complete data lineage
-- <strong>Rescued data</strong>: <code>_rescued_data</code> column captures any parsing issues for investigation and recovery
-- <strong>Parameter reference</strong>: <code>${source}</code> enables dynamic path configuration</p>
-<p><strong>Technical Benefits:</strong>
-- No pipeline code changes required when new columns arrive
-- Backward compatibility with existing data files
-- Forward compatibility with evolving business requirements</p>
-<p>For more information about schema hints functionality, see the <a href="https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema#override-schema-inference-with-schema-hints">Databricks documentation on schema hints</a>.</p>
+<p><strong>Revise os Padrões de Design da Camada Bronze:</strong></p>
+<p><strong>Estratégia de Evolução de Schema:</strong>
+- <strong>Armazenamento como STRING</strong>: todas as colunas de negócio armazenadas como STRING para máxima flexibilidade e compatibilidade
+- <strong>Schema pré-definido</strong>: inclui tanto as colunas originais quanto duas colunas futuras, para evolução transparente
+- <strong>Schema hints</strong>: declara as novas colunas esperadas (<code>order_status</code>, <code>shipping_cost</code>) mesmo quando ainda não presentes nos dados
+- <strong>Tratamento de nulos</strong>: novas colunas serão NULL para arquivos existentes, e preenchidas para arquivos futuros</p>
+<p><strong>Data Lineage e Proteção:</strong>
+- <strong>Auto Loader</strong>: a função <code>read_files</code> permite processamento incremental com gerenciamento de checkpoint
+- <strong>Captura de metadata</strong>: nomes de arquivo de origem e timestamps de modificação para data lineage completo
+- <strong>Dados resgatados (rescued)</strong>: a coluna <code>_rescued_data</code> captura quaisquer problemas de parsing para investigação e recuperação
+- <strong>Referência de parâmetro</strong>: <code>${source}</code> permite configuração dinâmica de caminho</p>
+<p><strong>Benefícios Técnicos:</strong>
+- Nenhuma alteração no código do pipeline é necessária quando novas colunas chegam
+- Compatibilidade retroativa com arquivos de dados existentes
+- Compatibilidade futura com requisitos de negócio em evolução</p>
+<p>Para mais informações sobre a funcionalidade de schema hints, veja a <a href="https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/schema#override-schema-inference-with-schema-hints">documentação da Databricks sobre schema hints</a>.</p>
 </section>
 <section class="notebook-cell">
-<h3>D2. Create Clean Bronze Table</h3>
-<p>Create a streaming intermediate Bronze table that performs safe type casting from the raw ingested data, without applying any quality checks. This step ensures clean type conversion before data validation.</p>
+<h3>D2. Crie a Tabela Bronze Clean</h3>
+<p>Crie uma tabela Bronze intermediária de streaming que realiza conversão de tipo segura a partir dos dados brutos ingeridos, sem aplicar nenhuma checagem de qualidade. Esta etapa garante uma conversão de tipo limpa antes da validação de dados.</p>
 <ul>
-<li>Creates a clean streaming Bronze table from the source data stream.</li>
-<li>Uses <code>TRY_CAST</code> to safely convert data types (dates, numbers) without failing on bad data.</li>
-<li>Passes through all columns without applying any data quality filters yet.</li>
+<li>Cria uma tabela Bronze de streaming limpa a partir do stream de dados de origem.</li>
+<li>Usa <code>TRY_CAST</code> para converter tipos de dados (datas, números) com segurança, sem falhar em dados ruins.</li>
+<li>Repassa todas as colunas sem ainda aplicar nenhum filtro de qualidade de dados.</li>
 </ul>
 </section>
 <section class="notebook-cell">
@@ -445,15 +445,15 @@ function fallbackCopy(text) {
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
 --========================================================================
--- BRONZE LAYER: INTERMEDIATE TRANSFORMATION TABLE
--- Purpose: Clean type casting from Bronze Raw (no quality checks yet)
+-- CAMADA BRONZE: TABELA DE TRANSFORMAÇÃO INTERMEDIÁRIA
+-- Propósito: conversão de tipo limpa a partir do Bronze Raw (ainda sem checagens de qualidade)
 --========================================================================
 
 CREATE OR REFRESH STREAMING TABLE dq_1_bronze.sales_bronze_clean_demo
-COMMENT "Intermediate table - type casting only, no quality checks"
+COMMENT "Tabela intermediária - apenas conversão de tipo, sem checagens de qualidade"
 AS
 SELECT
-  -- Direct pass-through and safe type casting
+  -- Repasse direto e conversão de tipo segura
   subsidiary_id,
   order_id,
   TRY_CAST(order_timestamp AS TIMESTAMP) AS order_timestamp,
@@ -514,112 +514,112 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<h3>D3. Run and Validate the Bronze Layer</h3>
+<h3>D3. Execute e Valide a Camada Bronze</h3>
 <ol>
 <li>
-<p><strong>Run the pipeline</strong> and confirm that it completes successfully with no errors.</p>
+<p><strong>Execute o pipeline</strong> e confirme que ele conclui com sucesso, sem erros.</p>
 </li>
 <li>
-<p><strong>Validate ingestion results</strong> in the Lakeflow Pipelines editor:</p>
+<p><strong>Valide os resultados da ingestão</strong> no Lakeflow Pipelines editor:</p>
 </li>
-<li>Verify that <strong>157 records</strong> were ingested into the sales_bronze_raw_demo and table from the first file</li>
-<li>Select the <strong>sales_bronze_raw_demo</strong> table and open the <strong>Data</strong> tab to preview the ingested sales data</li>
-<li>Confirm that new columns (<code>order_status</code>, <code>shipping_cost</code>) exist but contain NULL values</li>
+<li>Verifique que <strong>157 registros</strong> foram ingeridos na tabela sales_bronze_raw_demo a partir do primeiro arquivo</li>
+<li>Selecione a tabela <strong>sales_bronze_raw_demo</strong> e abra a aba <strong>Data</strong> para fazer um preview dos dados de vendas ingeridos</li>
+<li>Confirme que as novas colunas (<code>order_status</code>, <code>shipping_cost</code>) existem, mas contêm valores NULL</li>
 </ol>
-<p><strong>Troubleshooting:</strong> If your pipeline fails, verify that:
-- Volume paths are correctly configured in pipeline parameters
-- The <code>source</code> configuration parameter matches your volume path
-- Serverless compute is selected and running</p>
-<p><strong>Expected Checkpoint Results:</strong></p>
+<p><strong>Troubleshooting:</strong> Se seu pipeline falhar, verifique se:
+- Os caminhos de volume estão configurados corretamente nos parâmetros do pipeline
+- O parâmetro de configuração <code>source</code> corresponde ao caminho do seu volume
+- O compute Serverless está selecionado e em execução</p>
+<p><strong>Resultados Esperados no Checkpoint:</strong></p>
 <p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/dq/checkpoint_bronze.png" alt="Bronze Layer Results" width="1200"></p>
 </section>
 <section class="notebook-cell">
-<h3>D4. Query and Analyze Bronze Layer</h3>
-<p>Run these queries to validate the bronze layer tables:</p>
+<h3>D4. Consulte e Analise a Camada Bronze</h3>
+<p>Execute estas queries para validar as tabelas da camada bronze:</p>
 <ul>
-<li>Confirm that all records are ingested into the raw bronze table</li>
-<li>Check that <code>schema_hints</code> worked successfully</li>
+<li>Confirme que todos os registros foram ingeridos na tabela bronze bruta</li>
+<li>Verifique que os <code>schema_hints</code> funcionaram com sucesso</li>
 </ul>
 </section>
 <section class="notebook-cell">
-<h2>E. Create Silver Layer with Data Quality Expectations and Quarantine Logic</h2>
+<h2>E. Crie a Camada Silver com Data Quality Expectations e Lógica de Quarentena</h2>
 <ul>
-<li>In this layer, we will first type-cast columns to their appropriate data formats.</li>
-<li>Next, we will apply data quality expectations.</li>
-<li>Finally, based on these expectations, we will separate the data into two tables: one for clean records and one for invalid records, using inverse logic.</li>
+<li>Nesta camada, primeiro converteremos os tipos das colunas para seus formatos de dados apropriados.</li>
+<li>Em seguida, aplicaremos as expectations de qualidade de dados.</li>
+<li>Por fim, com base nessas expectations, separaremos os dados em duas tabelas: uma para registros limpos e outra para registros inválidos, usando lógica inversa.</li>
 </ul>
 </section>
 <section class="notebook-cell">
-<h3>E1. Understanding Data Quality Expectations Framework</h3>
-<p>Before creating tables with expectations, understand the expectation framework and why each validation is critical for enterprise data quality.</p>
-<p><strong>Expectation Syntax:</strong></p>
+<h3>E1. Entendendo o Framework de Data Quality Expectations</h3>
+<p>Antes de criar tabelas com expectations, entenda o framework de expectations e por que cada validação é crítica para a qualidade de dados corporativa.</p>
+<p><strong>Sintaxe de Expectation:</strong></p>
 <pre><code class="language-sql">CONSTRAINT &lt;constraint_name&gt; 
   EXPECT (&lt;condition&gt;) 
   ON VIOLATION &lt;action&gt;
 </code></pre>
-<p><strong>Available Violation Actions:</strong>
-- <strong>WARN</strong> (default): Invalid records included but violation logged for monitoring
-- <strong>DROP ROW</strong>: Invalid records excluded from target table 
-- <strong>FAIL UPDATE</strong>: Pipeline stops and requires manual intervention</p>
-<p><strong>Our Strategy:</strong> We use <strong>WARN</strong> (default) for all expectations to ensure the pipeline continues running and all records are retained for quarantine analysis.</p>
-<p><strong>Our 6 Comprehensive Quality Expectations:</strong></p>
-<p><strong>Category 1: Business Key Validation (Critical for Data Integrity)</strong>
-1. <strong><code>check_subsidiary_id</code></strong>: Every order must have a subsidiary identifier for proper attribution
-2. <strong><code>check_customer_id</code></strong>: Must identify which customer placed the order for analytics and compliance
-3. <strong><code>check_sku</code></strong>: Must identify what product was ordered for inventory and revenue tracking</p>
-<p><strong>Category 2: Range-Based Validations (Business Rule Enforcement)</strong></p>
+<p><strong>Ações de Violação Disponíveis:</strong>
+- <strong>WARN</strong> (padrão): registros inválidos são incluídos, mas a violação é registrada para monitoramento
+- <strong>DROP ROW</strong>: registros inválidos são excluídos da tabela target 
+- <strong>FAIL UPDATE</strong>: o pipeline para e requer intervenção manual</p>
+<p><strong>Nossa Estratégia:</strong> Usamos <strong>WARN</strong> (padrão) para todas as expectations, garantindo que o pipeline continue em execução e que todos os registros sejam mantidos para análise de quarentena.</p>
+<p><strong>Nossas 6 Expectations de Qualidade Abrangentes:</strong></p>
+<p><strong>Categoria 1: Validação de Chaves de Negócio (Crítica para Integridade de Dados)</strong>
+1. <strong><code>check_subsidiary_id</code></strong>: todo pedido deve ter um identificador de subsidiária para atribuição correta
+2. <strong><code>check_customer_id</code></strong>: deve identificar qual cliente fez o pedido, para analytics e compliance
+3. <strong><code>check_sku</code></strong>: deve identificar qual produto foi pedido, para rastreamento de inventário e receita</p>
+<p><strong>Categoria 2: Validações Baseadas em Intervalo (Aplicação de Regras de Negócio)</strong></p>
 <ol>
-<li><strong><code>valid_discount_range</code></strong>: Discount must be 0%-100% (catches negative discounts and impossible values)</li>
-<li><strong><code>valid_date_range</code></strong>: Order dates within last 4 years  (catches archived data and future dates)</li>
+<li><strong><code>valid_discount_range</code></strong>: o desconto deve estar entre 0% e 100% (captura descontos negativos e valores impossíveis)</li>
+<li><strong><code>valid_date_range</code></strong>: datas de pedido dentro dos últimos 4 anos (captura dados arquivados e datas futuras)</li>
 </ol>
-<p><strong>NOTE:</strong> Since our data is static, we are checking the constraint <strong><code>valid_date_range</code></strong> with respect to <strong>01-01-2026</strong>.</p>
-<p><strong>Category 3: Schema Evolution Validation (New Column Quality)</strong></p>
+<p><strong>NOTA:</strong> Como nossos dados são estáticos, estamos checando a constraint <strong><code>valid_date_range</code></strong> em relação a <strong>01-01-2026</strong>.</p>
+<p><strong>Categoria 3: Validação de Evolução de Schema (Qualidade de Novas Colunas)</strong></p>
 <ol>
-<li><strong><code>valid_shipping_cost</code></strong>: Shipping cost must be between $0 and $100 (validates new business column)</li>
+<li><strong><code>valid_shipping_cost</code></strong>: o custo de frete deve estar entre $0 e $100 (valida a nova coluna de negócio)</li>
 </ol>
-<p><strong>Note on Schema Evolution:</strong> The <code>valid_shipping_cost</code> expectation applies to a column not present in initial data but expected in future files. Once the column appears, the expectation automatically enforces validation. For details, see <a href="https://docs.databricks.com/aws/en/ldp/expectation-patterns?language=SQL#schema-evolution-pattern">Schema Evolution Pattern</a>.</p>
+<p><strong>Nota sobre Evolução de Schema:</strong> A expectation <code>valid_shipping_cost</code> se aplica a uma coluna não presente nos dados iniciais, mas esperada em arquivos futuros. Assim que a coluna aparece, a expectation aplica automaticamente a validação. Para detalhes, veja <a href="https://docs.databricks.com/aws/en/ldp/expectation-patterns?language=SQL#schema-evolution-pattern">Schema Evolution Pattern</a>.</p>
 </section>
 <section class="notebook-cell">
-<h3>E2. Understanding Quarantine Records Pattern</h3>
-<p><strong>Quarantine records</strong> in Spark Declarative Pipelines are records that violate data quality expectations and are routed to a separate quarantine table for analysis and remediation. This enterprise pattern ensures:</p>
-<p><strong>Benefits:</strong>
-- <strong>Zero data loss</strong>: Invalid data is isolated for review, not dropped or causing pipeline failures
-- <strong>Detailed tracking</strong>: Metadata captures which specific expectations failed for each record
-- <strong>Flexible workflows</strong>: Enables remediation processes, reprocessing, and quality improvement
-- <strong>Audit compliance</strong>: Complete record of data quality issues for regulatory requirements</p>
-<p><strong>Implementation Pattern:</strong>
-- <strong>Primary table</strong>: Contains expectations with WARN action (logs violations, retains records)
-- <strong>Quarantine logic</strong>: Uses inverse logic (NOT condition) to identify failed records
-- <strong>Parallel processing</strong>: Valid and invalid records flow to separate tables simultaneously</p>
+<h3>E2. Entendendo o Padrão de Quarantine Records</h3>
+<p><strong>Quarantine records</strong> em Spark Declarative Pipelines são registros que violam expectations de qualidade de dados e são encaminhados a uma tabela de quarentena separada, para análise e remediação. Esse padrão corporativo garante:</p>
+<p><strong>Benefícios:</strong>
+- <strong>Zero perda de dados</strong>: dados inválidos são isolados para revisão, sem serem descartados ou causarem falhas no pipeline
+- <strong>Rastreamento detalhado</strong>: metadados capturam quais expectations específicas falharam para cada registro
+- <strong>Workflows flexíveis</strong>: permite processos de remediação, reprocessamento e melhoria de qualidade
+- <strong>Compliance de auditoria</strong>: registro completo de problemas de qualidade de dados para requisitos regulatórios</p>
+<p><strong>Padrão de Implementação:</strong>
+- <strong>Tabela principal</strong>: contém expectations com ação WARN (registra violações, mantém os registros)
+- <strong>Lógica de quarentena</strong>: usa lógica inversa (condição NOT) para identificar registros que falharam
+- <strong>Processamento paralelo</strong>: registros válidos e inválidos fluem simultaneamente para tabelas separadas</p>
 <blockquote>
-<p><strong>Learn More:</strong><br />
-💡 For comprehensive information on quarantine frameworks and best practices, see the <a href="https://docs.databricks.com/aws/en/ldp/expectation-patterns?language=Python%20Module#quarantine-invalid-records">Databricks documentation on expectation patterns and quarantining invalid records</a>.</p>
+<p><strong>Saiba Mais:</strong><br />
+💡 Para informações abrangentes sobre frameworks de quarentena e boas práticas, veja a <a href="https://docs.databricks.com/aws/en/ldp/expectation-patterns?language=Python%20Module#quarantine-invalid-records">documentação da Databricks sobre padrões de expectations e quarentena de registros inválidos</a>.</p>
 </blockquote>
 </section>
 <section class="notebook-cell">
-<h3>E3. Create a New SQL File in your Pipeline</h3>
+<h3>E3. Crie um Novo Arquivo SQL no seu Pipeline</h3>
 <ol>
-<li>Click the kebab menu next to your <code>dq_pipeline</code> folder and select <strong>Create file</strong>.</li>
-<li>Select the language as <strong>SQL</strong>.</li>
-<li>Name the file <code>silver_transformation.sql</code>.</li>
+<li>Clique no menu kebab ao lado da sua pasta <code>dq_pipeline</code> e selecione <strong>Create file</strong>.</li>
+<li>Selecione a linguagem como <strong>SQL</strong>.</li>
+<li>Nomeie o arquivo como <code>silver_transformation.sql</code>.</li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h3>E4. Create Quarantine Table with Quality Expectations</h3>
-<p>Add the following code to your <code>silver_transformations.sql</code> file. This creates the main quarantine table with all 6 data quality expectations defined.</p>
+<h3>E4. Crie a Tabela de Quarentena com Expectations de Qualidade</h3>
+<p>Adicione o código a seguir ao seu arquivo <code>silver_transformations.sql</code>. Isso cria a tabela principal de quarentena com as 6 expectations de qualidade de dados definidas.</p>
 </section>
 <section class="notebook-cell">
 <p><button onclick="copyBlock()">Copiar para área de transferência</button></p>
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
 --========================================================================
--- SILVER LAYER - STEP 1: QUARANTINE TABLE WITH EXPECTATIONS
--- Purpose: Define table structure and 6 data quality expectations
+-- CAMADA SILVER - PASSO 1: TABELA DE QUARENTENA COM EXPECTATIONS
+-- Propósito: definir a estrutura da tabela e as 6 expectations de qualidade de dados
 --========================================================================
 
 CREATE OR REFRESH STREAMING TABLE dq_2_silver.sales_silver_dq_demo
 (
-  -- Business columns with proper data types
+  -- Colunas de negócio com os tipos de dados apropriados
   subsidiary_id STRING,
   order_id STRING,
   order_timestamp TIMESTAMP,
@@ -640,12 +640,12 @@ CREATE OR REFRESH STREAMING TABLE dq_2_silver.sales_silver_dq_demo
   shipping_cost DOUBLE,
   source_file STRING,
 
-  -- Quality tracking columns for quarantine analysis
+  -- Colunas de rastreamento de qualidade para análise de quarentena
   is_quarantined BOOLEAN,
   quarantine_reason STRING,
 
   --========================================================================
-  -- 6 DATA QUALITY EXPECTATIONS (WARN ACTION FOR QUARANTINE PATTERN)
+  -- 6 EXPECTATIONS DE QUALIDADE DE DADOS (AÇÃO WARN PARA O PADRÃO DE QUARENTENA)
   --========================================================================
 
   CONSTRAINT check_subsidiary_id 
@@ -660,7 +660,7 @@ CREATE OR REFRESH STREAMING TABLE dq_2_silver.sales_silver_dq_demo
   CONSTRAINT valid_discount_range
     EXPECT (discount_pct IS NULL OR (discount_pct >= 0 AND discount_pct <= 100)),
 
-  -- Since the data is static, we check that order_date falls between 01-01-2026 and 4 years prior, instead of using the current date.
+  -- Como os dados são estáticos, verificamos que order_date está entre 01-01-2026 e 4 anos antes, em vez de usar a data atual.
   CONSTRAINT valid_date_range 
     EXPECT (order_date IS NULL OR 
         (order_date >= DATE_SUB(DATE '2026-01-01', 1460) AND 
@@ -670,7 +670,7 @@ CREATE OR REFRESH STREAMING TABLE dq_2_silver.sales_silver_dq_demo
     CASE WHEN shipping_cost IS NOT NULL THEN shipping_cost > 0 AND shipping_cost < 100 ELSE TRUE END
   )
 )
-COMMENT "Quarantine table with 6 expectations - supports inverse logic pattern"
+COMMENT "Tabela de quarentena com 6 expectations - suporta o padrão de lógica inversa"
 TBLPROPERTIES (
   'quality.layer' = 'silver_quarantine',
   'quality.pattern' = 'inverse_logic'
@@ -715,89 +715,89 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<p><strong>Review the Expectation Framework:</strong></p>
-<p><strong>Expectations Summary:</strong></p>
+<p><strong>Revise o Framework de Expectations:</strong></p>
+<p><strong>Resumo das Expectations:</strong></p>
 <table>
 <thead>
 <tr>
 <th>#</th>
-<th>Expectation Name</th>
-<th>Validates</th>
-<th>Range/Rule</th>
-<th>Violation Example</th>
+<th>Nome da Expectation</th>
+<th>Valida</th>
+<th>Intervalo/Regra</th>
+<th>Exemplo de Violação</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>1</td>
 <td>check_subsidiary_id</td>
-<td>Business Key</td>
+<td>Chave de Negócio</td>
 <td>NOT NULL</td>
-<td>Missing subsidiary IDs</td>
+<td>subsidiary_id ausente</td>
 </tr>
 <tr>
 <td>2</td>
 <td>check_customer_id</td>
-<td>Business Key</td>
+<td>Chave de Negócio</td>
 <td>NOT NULL</td>
-<td>Missing customer IDs</td>
+<td>customer_id ausente</td>
 </tr>
 <tr>
 <td>3</td>
 <td>check_sku</td>
-<td>Business Key</td>
+<td>Chave de Negócio</td>
 <td>NOT NULL</td>
-<td>Missing SKUs</td>
+<td>sku ausente</td>
 </tr>
 <tr>
 <td>4</td>
 <td>valid_discount_range</td>
-<td>Discount</td>
+<td>Desconto</td>
 <td>0%-100%</td>
-<td>discount = -10.73% or 120%</td>
+<td>discount = -10,73% ou 120%</td>
 </tr>
 <tr>
 <td>5</td>
 <td>valid_date_range</td>
-<td>Date</td>
-<td>Last 4 years</td>
+<td>Data</td>
+<td>Últimos 4 anos</td>
 <td>date = 1930-12-31</td>
 </tr>
 <tr>
 <td>6</td>
 <td>valid_shipping_cost</td>
-<td>Shipping</td>
+<td>Frete</td>
 <td>$0-$100</td>
-<td>shipping_cost = -5 or 150</td>
+<td>shipping_cost = -5 ou 150</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Quality Tracking Design:</strong>
-- <strong>is_quarantined</strong>: Boolean flag indicating whether record failed any expectation
-- <strong>quarantine_reason</strong>: Detailed string listing all failed validations for remediation
-- <strong>Partitioning</strong>: Separates quarantined and valid data for performance optimization</p>
-<p><strong>Table Properties:</strong>
-- Metadata tags identify this as a quarantine pattern implementation
-- Enables monitoring and governance tools to recognize the quality framework</p>
+<p><strong>Design de Rastreamento de Qualidade:</strong>
+- <strong>is_quarantined</strong>: flag booleano indicando se o registro falhou em alguma expectation
+- <strong>quarantine_reason</strong>: string detalhada listando todas as validações que falharam, para remediação
+- <strong>Particionamento</strong>: separa dados em quarentena e dados válidos para otimização de performance</p>
+<p><strong>Propriedades da Tabela:</strong>
+- Tags de metadata identificam esta como uma implementação do padrão de quarentena
+- Permite que ferramentas de monitoramento e governança reconheçam o framework de qualidade</p>
 </section>
 <section class="notebook-cell">
-<h3>E5. Create Inverse Logic Flow for Quarantine Population</h3>
-<p>Add the inverse logic flow to populate the quarantine table with quality tracking information. This flow implements the official Databricks quarantine pattern by using inverse logic to identify and flag records that fail any quality expectations.</p>
+<h3>E5. Crie o Flow de Lógica Inversa para Popular a Quarentena</h3>
+<p>Adicione o flow de lógica inversa para popular a tabela de quarentena com informações de rastreamento de qualidade. Este flow implementa o padrão de quarentena oficial da Databricks, usando lógica inversa para identificar e sinalizar registros que falham em qualquer expectation de qualidade.</p>
 </section>
 <section class="notebook-cell">
 <p><button onclick="copyBlock()">Copiar para área de transferência</button></p>
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
 --========================================================================
--- SILVER LAYER - STEP 2: FLOW TO APPLY INVERSE LOGIC
--- Purpose: Calculate is_quarantined flag and populate quarantine table
+-- CAMADA SILVER - PASSO 2: FLOW PARA APLICAR A LÓGICA INVERSA
+-- Propósito: calcular a flag is_quarantined e popular a tabela de quarentena
 --========================================================================
 
 CREATE FLOW apply_inverse_logic_flow
 AS
 INSERT INTO dq_2_silver.sales_silver_dq_demo BY NAME
 SELECT
-  -- Pass through all business columns
+  -- Repassa todas as colunas de negócio
   subsidiary_id,
   order_id,
   order_timestamp,
@@ -819,7 +819,7 @@ SELECT
   source_file,
 
   --========================================================================
-  -- INVERSE LOGIC: Mark as quarantined if ANY expectation fails
+  -- LÓGICA INVERSA: marca como quarentena se QUALQUER expectation falhar
   --========================================================================
   NOT (
     (subsidiary_id IS NOT NULL) AND
@@ -833,22 +833,22 @@ SELECT
   ) AS is_quarantined,
 
   --========================================================================
-  -- BUILD DETAILED QUARANTINE REASON STRING
+  -- CONSTRÓI A STRING DETALHADA DO MOTIVO DA QUARENTENA
   --========================================================================
   CONCAT_WS('; ',
     CASE WHEN subsidiary_id IS NULL 
-         THEN 'Missing subsidiary_id' END,
+         THEN 'subsidiary_id ausente' END,
     CASE WHEN customer_id IS NULL 
-         THEN 'Missing customer_id' END,
+         THEN 'customer_id ausente' END,
     CASE WHEN sku IS NULL 
-         THEN 'Missing sku' END,
+         THEN 'sku ausente' END,
     CASE WHEN discount_pct IS NOT NULL AND (discount_pct < 0 OR discount_pct > 100) 
-         THEN 'Invalid discount_pct (must be 0-100)' END,
+         THEN 'discount_pct inválido (deve ser 0-100)' END,
     CASE WHEN order_date IS NOT NULL AND 
               (order_date < DATE_SUB(DATE '2026-01-01', 1460) OR order_date > DATE '2026-01-01') 
-         THEN 'Invalid order_date (outside 4-year range)' END,
+         THEN 'order_date inválido (fora do intervalo de 4 anos)' END,
     CASE WHEN shipping_cost IS NOT NULL AND (shipping_cost <= 0 OR shipping_cost >= 100)
-         THEN 'Invalid shipping_cost (must be 0-100)' END
+         THEN 'shipping_cost inválido (deve ser 0-100)' END
   ) AS quarantine_reason
 
 FROM STREAM dq_1_bronze.sales_bronze_clean_demo;
@@ -891,50 +891,50 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<p><strong>Review the Inverse Logic Implementation:</strong></p>
-<p><strong>Quarantine Flag Logic:</strong>
-- <strong>NOT()</strong> wrapper around all expectations combined with AND logic
-- If ANY expectation fails, the record is marked <code>is_quarantined = TRUE</code>
-- If ALL expectations pass, the record is marked <code>is_quarantined = FALSE</code></p>
-<p><strong>Detailed Failure Tracking:</strong>
-- <strong>CONCAT_WS()</strong> builds semicolon-separated failure reasons
-- Each CASE statement checks for specific violation types
-- Provides actionable information for data remediation teams
-- Empty string for records that pass all validations</p>
-<p><strong>Streaming Flow Benefits:</strong>
-- Processes records continuously as they arrive
-- Maintains low latency for real-time quality monitoring
-- Enables immediate quarantine identification for operational workflows</p>
+<p><strong>Revise a Implementação da Lógica Inversa:</strong></p>
+<p><strong>Lógica da Flag de Quarentena:</strong>
+- Um wrapper <strong>NOT()</strong> envolve todas as expectations combinadas com lógica AND
+- Se QUALQUER expectation falhar, o registro é marcado como <code>is_quarantined = TRUE</code>
+- Se TODAS as expectations passarem, o registro é marcado como <code>is_quarantined = FALSE</code></p>
+<p><strong>Rastreamento Detalhado de Falhas:</strong>
+- <strong>CONCAT_WS()</strong> constrói motivos de falha separados por ponto e vírgula
+- Cada instrução CASE checa um tipo específico de violação
+- Fornece informação acionável para times de remediação de dados
+- String vazia para registros que passam em todas as validações</p>
+<p><strong>Benefícios do Streaming Flow:</strong>
+- Processa registros continuamente à medida que chegam
+- Mantém baixa latência para monitoramento de qualidade em tempo real
+- Permite identificação imediata de quarentena para workflows operacionais</p>
 </section>
 <section class="notebook-cell">
-<h3>E6. Create Separate Tables for Valid and Quarantined Records</h3>
-<p>Create separate tables for valid and quarantined records to enable zero data loss and parallel processing workflows. Add this code to your <code>silver_transformations.sql</code> file.</p>
+<h3>E6. Crie Tabelas Separadas para Registros Válidos e em Quarentena</h3>
+<p>Crie tabelas separadas para registros válidos e em quarentena, permitindo workflows de zero perda de dados e processamento paralelo. Adicione este código ao seu arquivo <code>silver_transformations.sql</code>.</p>
 </section>
 <section class="notebook-cell">
 <p><button onclick="copyBlock()">Copiar para área de transferência</button></p>
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
 --========================================================================
--- SILVER LAYER - STEP 3: SEPARATE VALID AND INVALID DATA PATHS
+-- CAMADA SILVER - PASSO 3: SEPARAR OS CAMINHOS DE DADOS VÁLIDOS E INVÁLIDOS
 --========================================================================
 
 --========================================================================
--- VALID RECORDS PATH - Clean data for analytics
+-- CAMINHO DE REGISTROS VÁLIDOS - Dados limpos para analytics
 --========================================================================
 
 CREATE OR REFRESH STREAMING TABLE dq_2_silver.sales_silver_valid_demo
-COMMENT "Clean records passing all 6 quality checks - ready for analytics"
+COMMENT "Registros limpos que passam nas 6 checagens de qualidade - prontos para analytics"
 AS
 SELECT * EXCEPT (is_quarantined, quarantine_reason)
 FROM STREAM dq_2_silver.sales_silver_dq_demo
 WHERE is_quarantined = FALSE;
 
 --========================================================================
--- QUARANTINED RECORDS PATH - Invalid data for remediation
+-- CAMINHO DE REGISTROS EM QUARENTENA - Dados inválidos para remediação
 --========================================================================
 
 CREATE OR REFRESH STREAMING TABLE dq_2_silver.sales_silver_quarantined_demo
-COMMENT "Invalid records with quality violations - requires remediation"
+COMMENT "Registros inválidos com violações de qualidade - requer remediação"
 AS
 SELECT *
 FROM STREAM dq_2_silver.sales_silver_dq_demo
@@ -979,29 +979,29 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<p><strong>Review the Official Quarantine Pattern Implementation:</strong></p>
-<p><strong>Zero Data Loss Architecture:</strong>
-- <strong>Source table</strong>: Contains expectations with WARN action (logs violations, retains all records)
-- <strong>Valid path</strong>: Records where <code>is_quarantined = FALSE</code> (passed all quality checks)
-- <strong>Quarantine path</strong>: Records where <code>is_quarantined = TRUE</code> (failed one or more checks)
-- <strong>Mathematical guarantee</strong>: Total Records = Valid Records + Quarantined Records</p>
-<p><strong>Parallel Processing Benefits:</strong>
-- <strong>Analytics workflow</strong>: Consumes only validated, clean data from <code>sales_silver_valid_demo</code>
-- <strong>Remediation workflow</strong>: Processes quarantined data with detailed failure information
-- <strong>Monitoring workflow</strong>: Tracks quality metrics across both streams
-- <strong>Performance optimization</strong>: Separate tables enable independent scaling and optimization</p>
+<p><strong>Revise a Implementação Oficial do Padrão de Quarentena:</strong></p>
+<p><strong>Arquitetura de Zero Perda de Dados:</strong>
+- <strong>Tabela de origem</strong>: contém expectations com ação WARN (registra violações, mantém todos os registros)
+- <strong>Caminho válido</strong>: registros onde <code>is_quarantined = FALSE</code> (passaram em todas as checagens de qualidade)
+- <strong>Caminho de quarentena</strong>: registros onde <code>is_quarantined = TRUE</code> (falharam em uma ou mais checagens)
+- <strong>Garantia matemática</strong>: Total de Registros = Registros Válidos + Registros em Quarentena</p>
+<p><strong>Benefícios do Processamento Paralelo:</strong>
+- <strong>Workflow de analytics</strong>: consome apenas dados validados e limpos de <code>sales_silver_valid_demo</code>
+- <strong>Workflow de remediação</strong>: processa dados em quarentena com informações detalhadas de falha
+- <strong>Workflow de monitoramento</strong>: rastreia métricas de qualidade em ambos os streams
+- <strong>Otimização de performance</strong>: tabelas separadas permitem escalonamento e otimização independentes</p>
 </section>
 <section class="notebook-cell">
-<h2>F. Create Gold Layer - Production-Ready Analytics Data</h2>
-<p>The gold layer contains pre-aggregated analytics from validated silver data, providing fast query performance for business intelligence and reporting applications.</p>
+<h2>F. Crie a Camada Gold - Dados de Analytics Prontos para Produção</h2>
+<p>A camada gold contém analytics pré-agregados a partir dos dados silver validados, fornecendo performance de query rápida para aplicações de business intelligence e relatórios.</p>
 </section>
 <section class="notebook-cell">
-<h3>F1. Create Gold Layer Analytics Table</h3>
+<h3>F1. Crie a Tabela de Analytics da Camada Gold</h3>
 <ol>
-<li>In your <strong>dq_pipeline</strong> folder, select the kebab menu and select <strong>Create File</strong></li>
-<li>Select the language as <strong>SQL</strong></li>
-<li>Name the file <code>gold_analytics.sql</code></li>
-<li>Copy and paste the code below</li>
+<li>Na sua pasta <strong>dq_pipeline</strong>, selecione o menu kebab e selecione <strong>Create File</strong></li>
+<li>Selecione a linguagem como <strong>SQL</strong></li>
+<li>Nomeie o arquivo como <code>gold_analytics.sql</code></li>
+<li>Copie e cole o código abaixo</li>
 </ol>
 </section>
 <section class="notebook-cell">
@@ -1009,11 +1009,11 @@ function fallbackCopy(text) {
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
 --========================================================================
--- GOLD LAYER: MATERIALIZED VIEW FOR BUSINESS ANALYTICS
+-- CAMADA GOLD: MATERIALIZED VIEW PARA ANALYTICS DE NEGÓCIO
 --========================================================================
 
 CREATE OR REFRESH MATERIALIZED VIEW dq_3_gold.sales_analytics_demo
-COMMENT "Business metrics aggregated from validated sales data"
+COMMENT "Métricas de negócio agregadas a partir de dados de vendas validados"
 AS
 SELECT
   region,
@@ -1069,159 +1069,159 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<p><strong>Review Gold Layer Design for Analytics:</strong></p>
-<p><strong>Why Materialized Views for Gold Layer?</strong>
-- <strong>Pre-computed aggregations</strong>: Eliminates expensive GROUP BY operations at query time
-- <strong>Automatic refresh</strong>: Updates when underlying silver data changes
-- <strong>Delta Lake storage</strong>: Provides ACID guarantees and time travel capabilities
-- <strong>BI tool optimization</strong>: Perfect for dashboards requiring fast response times</p>
-<p><strong>Business Metrics Provided:</strong>
-- <strong>Revenue analytics</strong>: Total revenue, average order value by region and category
-- <strong>Customer insights</strong>: Unique customer counts and purchasing patterns
-- <strong>Product performance</strong>: Quantity sold and discount effectiveness by category
-- <strong>Temporal analysis</strong>: Order date ranges for trend analysis
-- <strong>Data freshness</strong>: Last refresh timestamp for monitoring</p>
-<p><strong>Analytics Workflow Support:</strong>
-- <strong>BI dashboards</strong>: Query pre-aggregated gold views for fast performance
-- <strong>Data science</strong>: Access detailed, validated silver tables for modeling
-- <strong>Operations teams</strong>: Monitor quarantine tables for data quality remediation
-- <strong>Executive reporting</strong>: Use gold metrics for strategic decision making</p>
+<p><strong>Revise o Design da Camada Gold para Analytics:</strong></p>
+<p><strong>Por que Materialized Views para a Camada Gold?</strong>
+- <strong>Agregações pré-computadas</strong>: elimina operações caras de GROUP BY em tempo de query
+- <strong>Atualização automática</strong>: atualiza quando os dados silver subjacentes mudam
+- <strong>Armazenamento Delta Lake</strong>: fornece garantias ACID e capacidades de time travel
+- <strong>Otimização para ferramentas de BI</strong>: perfeito para dashboards que exigem tempos de resposta rápidos</p>
+<p><strong>Métricas de Negócio Fornecidas:</strong>
+- <strong>Analytics de receita</strong>: receita total, valor médio de pedido por região e categoria
+- <strong>Insights de clientes</strong>: contagem de clientes únicos e padrões de compra
+- <strong>Performance de produto</strong>: quantidade vendida e efetividade de desconto por categoria
+- <strong>Análise temporal</strong>: intervalos de data de pedido para análise de tendências
+- <strong>Atualidade dos dados</strong>: timestamp da última atualização para monitoramento</p>
+<p><strong>Suporte a Workflows de Analytics:</strong>
+- <strong>Dashboards de BI</strong>: consultam views gold pré-agregadas para performance rápida
+- <strong>Data science</strong>: acessa tabelas silver detalhadas e validadas para modelagem
+- <strong>Times de operações</strong>: monitoram tabelas de quarentena para remediação de qualidade de dados
+- <strong>Relatórios executivos</strong>: usam métricas gold para tomada de decisão estratégica</p>
 </section>
 <section class="notebook-cell">
-<h2>G. Run and Analyze Pipeline Results - First Run (Clean Baseline)</h2>
-<p>Execute the complete pipeline and analyze the results to validate that the quality framework correctly processes clean baseline data.</p>
+<h2>G. Execute e Analise os Resultados do Pipeline - Primeira Execução (Baseline Limpa)</h2>
+<p>Execute o pipeline completo e analise os resultados para validar que o framework de qualidade processa corretamente os dados de baseline limpos.</p>
 </section>
 <section class="notebook-cell">
-<h3>G1. Execute the Complete Pipeline</h3>
+<h3>G1. Execute o Pipeline Completo</h3>
 <ol>
-<li><strong>Run the pipeline</strong> and confirm that it completes successfully with no errors</li>
-<li><strong>Observe the pipeline graph</strong> to see data flowing through all layers: Bronze → Silver → Gold</li>
-<li><strong>Monitor execution time</strong> and resource utilization in the pipeline UI</li>
+<li><strong>Execute o pipeline</strong> e confirme que ele conclui com sucesso, sem erros</li>
+<li><strong>Observe o grafo do pipeline</strong> para ver os dados fluindo por todas as camadas: Bronze → Silver → Gold</li>
+<li><strong>Monitore o tempo de execução</strong> e a utilização de recursos na UI do pipeline</li>
 </ol>
-<p><strong>Troubleshooting:</strong> If your pipeline fails, verify that:
-- All SQL files are properly created in the <code>dq_pipeline</code> folder
-- Configuration parameters are correctly set
-- Serverless compute is selected and running
-- Volume paths are accessible and contain data files</p>
-<p><strong>Expected Pipeline Graph:</strong></p>
+<p><strong>Troubleshooting:</strong> Se seu pipeline falhar, verifique se:
+- Todos os arquivos SQL foram criados corretamente na pasta <code>dq_pipeline</code>
+- Os parâmetros de configuração estão definidos corretamente
+- O compute Serverless está selecionado e em execução
+- Os caminhos de volume estão acessíveis e contêm arquivos de dados</p>
+<p><strong>Grafo Esperado do Pipeline:</strong></p>
 <p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/dq/checkpoint_run_1.png" alt="Complete Pipeline Run 1" width="1200"></p>
 </section>
 <section class="notebook-cell">
-<h3>G2. Validate First Run Results - Clean Baseline</h3>
-<p>Review the pipeline execution to confirm that all data quality checks passed and the pipeline established a perfect baseline. This run demonstrates that the pipeline framework correctly ingests, transforms, and validates clean data.</p>
-<p><strong>Expected Results for Run 1 (Clean Baseline):</strong></p>
+<h3>G2. Valide os Resultados da Primeira Execução - Baseline Limpa</h3>
+<p>Revise a execução do pipeline para confirmar que todas as checagens de qualidade de dados passaram e que o pipeline estabeleceu uma baseline perfeita. Esta execução demonstra que o framework do pipeline ingere, transforma e valida os dados limpos corretamente.</p>
+<p><strong>Resultados Esperados para a Execução 1 (Baseline Limpa):</strong></p>
 <table>
 <thead>
 <tr>
-<th>Table</th>
-<th>Expected Records</th>
-<th>Quality Status</th>
-<th>Notes</th>
+<th>Tabela</th>
+<th>Registros Esperados</th>
+<th>Status de Qualidade</th>
+<th>Notas</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Bronze (sales_bronze_raw_demo)</td>
 <td>157</td>
-<td>All ingested</td>
-<td>Raw data from sales_1.csv</td>
+<td>Todos ingeridos</td>
+<td>Dados brutos de sales_1.csv</td>
 </tr>
 <tr>
 <td>Silver (sales_bronze_clean_demo)</td>
 <td>157</td>
-<td>Type-cast success</td>
-<td>All conversions successful</td>
+<td>Conversão de tipo bem-sucedida</td>
+<td>Todas as conversões bem-sucedidas</td>
 </tr>
 <tr>
 <td>Silver (sales_silver_dq_demo)</td>
 <td>157</td>
-<td>All tracked</td>
-<td>All records with is_quarantined = FALSE</td>
+<td>Todos rastreados</td>
+<td>Todos os registros com is_quarantined = FALSE</td>
 </tr>
 <tr>
 <td>Silver (sales_silver_valid_demo)</td>
 <td>157</td>
-<td>100% quality</td>
-<td>Perfect baseline established</td>
+<td>100% de qualidade</td>
+<td>Baseline perfeita estabelecida</td>
 </tr>
 <tr>
 <td>Silver (sales_silver_quarantined_demo)</td>
 <td>0</td>
-<td>No violations</td>
-<td>Quality framework validated</td>
+<td>Nenhuma violação</td>
+<td>Framework de qualidade validado</td>
 </tr>
 <tr>
 <td>Gold (sales_analytics_demo)</td>
 <td>~55</td>
-<td>Aggregated</td>
-<td>Business metrics by region/category</td>
+<td>Agregado</td>
+<td>Métricas de negócio por região/categoria</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Validation Steps in Pipeline UI:</strong>
-1. Select the <strong>sales_silver_dq_demo</strong> table and open the <strong>Expectations</strong> tab to verify "6 constraints tracked"
-2. Open the <strong>Data</strong> tab to confirm all records have <code>is_quarantined = FALSE</code>
-3. Check the <strong>sales_silver_quarantined_demo</strong> table to ensure it contains 0 records
-4. Verify the <strong>sales_analytics_demo</strong> gold table contains aggregated business metrics</p>
+<p><strong>Passos de Validação na UI do Pipeline:</strong>
+1. Selecione a tabela <strong>sales_silver_dq_demo</strong> e abra a aba <strong>Expectations</strong> para verificar "6 constraints tracked"
+2. Abra a aba <strong>Data</strong> para confirmar que todos os registros têm <code>is_quarantined = FALSE</code>
+3. Verifique a tabela <strong>sales_silver_quarantined_demo</strong> para garantir que ela contém 0 registros
+4. Verifique se a tabela gold <strong>sales_analytics_demo</strong> contém métricas de negócio agregadas</p>
 </section>
 <section class="notebook-cell">
-<h3>G3. Query and Analyze Results</h3>
-<p>Execute the following queries to verify silver and gold layers result:
-- Records in <strong>sales_silver_quarantined_demo</strong> should be zero
-- Quality Score should be <strong>100%</strong>
-- Querying on <strong>sales_analytics_demo</strong> MV for insight</p>
+<h3>G3. Consulte e Analise os Resultados</h3>
+<p>Execute as queries a seguir para verificar os resultados das camadas silver e gold:
+- Os registros em <strong>sales_silver_quarantined_demo</strong> devem ser zero
+- O Quality Score deve ser <strong>100%</strong>
+- Consulta na MV <strong>sales_analytics_demo</strong> para obter insights</p>
 </section>
 <section class="notebook-cell">
-<p><strong>Run 1 Validation Checkpoint - Expected Results:</strong>
-- <strong>Bronze Layer</strong>: 157 records from sales_1.csv successfully ingested
-- <strong>Silver Transformation</strong>: 157 records type-cast successfully with no conversion errors
-- <strong>Quality Validation</strong>: 157 records pass all 6 expectations (100% quality score)
-- <strong>Quarantine Status</strong>: 0 records quarantined (perfect baseline established)
-- <strong>Gold Analytics</strong>: Business metrics aggregated should have 55 validated records</p>
+<p><strong>Checkpoint de Validação da Execução 1 - Resultados Esperados:</strong>
+- <strong>Camada Bronze</strong>: 157 registros de sales_1.csv ingeridos com sucesso
+- <strong>Transformação Silver</strong>: 157 registros convertidos de tipo com sucesso, sem erros de conversão
+- <strong>Validação de Qualidade</strong>: 157 registros passam em todas as 6 expectations (quality score de 100%)
+- <strong>Status de Quarentena</strong>: 0 registros em quarentena (baseline perfeita estabelecida)
+- <strong>Analytics Gold</strong>: métricas de negócio agregadas devem ter 55 registros validados</p>
 </section>
 <section class="notebook-cell">
-<h2>H. Prepare and Execute Second Run - Quality Issues and Schema Evolution</h2>
-<p>Introduce the second data file containing quality issues and new schema columns to demonstrate the pipeline's resilience and monitoring capabilities.</p>
+<h2>H. Prepare e Execute a Segunda Execução - Problemas de Qualidade e Evolução de Schema</h2>
+<p>Introduza o segundo arquivo de dados contendo problemas de qualidade e novas colunas de schema, para demonstrar a resiliência e as capacidades de monitoramento do pipeline.</p>
 </section>
 <section class="notebook-cell">
-<h3>H1. Copy Additional Files for Processing</h3>
-<p>Copy the second file from the operations location to the sales processing location to trigger incremental processing with quality issues and schema evolution.</p>
+<h3>H1. Copie Arquivos Adicionais para Processamento</h3>
+<p>Copie o segundo arquivo do local de operações para o local de processamento de vendas, para disparar o processamento incremental com problemas de qualidade e evolução de schema.</p>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>ops_path = f'/Volumes/{my_catalog}/dq_1_bronze/ops'
 sales_path = f'/Volumes/{my_catalog}/dq_1_bronze/sales'
-# Copy files from ops location to user's source volume (now including sales_2.csv)
+# Copia arquivos do local ops para o volume de origem do usuário (agora incluindo sales_2.csv)
 copy_files(copy_from=ops_path, copy_to=sales_path, n=2)</code></pre></div></section>
 <section class="notebook-cell">
-<h3>H2. Verify File Availability for Processing</h3>
-<p>Confirm that <code>sales_2.csv</code> has been successfully moved to the processing source location and is ready for pipeline consumption.</p>
+<h3>H2. Verifique a Disponibilidade do Arquivo para Processamento</h3>
+<p>Confirme que <code>sales_2.csv</code> foi movido com sucesso para o local de origem de processamento e está pronto para consumo pelo pipeline.</p>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>spark.sql(f"LIST '{sales_path}'").display()</code></pre></div></section>
 <section class="notebook-cell">
-<h3>H3. Execute Pipeline Run 2 - Quality Issues and Schema Evolution</h3>
+<h3>H3. Execute a Execução 2 do Pipeline - Problemas de Qualidade e Evolução de Schema</h3>
 <ol>
-<li><strong>Run the pipeline again</strong> and confirm that it completes successfully despite quality issues</li>
-<li><strong>Observe incremental processing</strong> as the pipeline detects and processes the new file</li>
-<li><strong>Monitor quality metrics</strong> in the pipeline UI to see expectation violations being tracked</li>
+<li><strong>Execute o pipeline novamente</strong> e confirme que ele conclui com sucesso, apesar dos problemas de qualidade</li>
+<li><strong>Observe o processamento incremental</strong> enquanto o pipeline detecta e processa o novo arquivo</li>
+<li><strong>Monitore as métricas de qualidade</strong> na UI do pipeline para ver as violações de expectations sendo rastreadas</li>
 </ol>
-<p><strong>Expected Behavior:</strong>
-- Pipeline continues running despite quality violations (WARN action)
-- New columns are automatically incorporated (schema evolution)
-- Invalid records are systematically quarantined with detailed failure reasons
-- Valid records continue to flow to analytics tables</p>
-<p><strong>Expected Pipeline Results:</strong></p>
+<p><strong>Comportamento Esperado:</strong>
+- O pipeline continua em execução apesar das violações de qualidade (ação WARN)
+- Novas colunas são incorporadas automaticamente (evolução de schema)
+- Registros inválidos são sistematicamente colocados em quarentena com motivos de falha detalhados
+- Registros válidos continuam fluindo para as tabelas de analytics</p>
+<p><strong>Resultados Esperados do Pipeline:</strong></p>
 <p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/dq/checkpoint_run_2.png" alt="Pipeline Run 2 with Quality Issues" width="1200"></p>
 </section>
 <section class="notebook-cell">
-<h3>H4. Analyze Run 2 Results - Quality Issues Detected</h3>
-<p>Review the pipeline execution to see how quality issues and schema evolution were successfully handled by the quarantine framework.</p>
-<p><strong>Expected Results for Run 2 (Incremental with Issues):</strong></p>
+<h3>H4. Analise os Resultados da Execução 2 - Problemas de Qualidade Detectados</h3>
+<p>Revise a execução do pipeline para ver como os problemas de qualidade e a evolução de schema foram tratados com sucesso pelo framework de quarentena.</p>
+<p><strong>Resultados Esperados para a Execução 2 (Incremental com Problemas):</strong></p>
 <table>
 <thead>
 <tr>
-<th>Table</th>
-<th>New Records</th>
-<th>Total Records</th>
-<th>Quality Notes</th>
+<th>Tabela</th>
+<th>Novos Registros</th>
+<th>Total de Registros</th>
+<th>Notas de Qualidade</th>
 </tr>
 </thead>
 <tbody>
@@ -1229,105 +1229,105 @@ copy_files(copy_from=ops_path, copy_to=sales_path, n=2)</code></pre></div></sect
 <td>Bronze (sales_bronze_raw_demo)</td>
 <td>+60</td>
 <td>217</td>
-<td>Schema evolved! (2 new columns populated)</td>
+<td>Schema evoluiu! (2 novas colunas populadas)</td>
 </tr>
 <tr>
 <td>Bronze (sales_bronze_clean_demo)</td>
 <td>+60</td>
 <td>217</td>
-<td>Type casting successful for all records</td>
+<td>Conversão de tipo bem-sucedida para todos os registros</td>
 </tr>
 <tr>
 <td>Silver (sales_silver_dq_demo)</td>
 <td>+60</td>
 <td>217</td>
-<td>All records tracked with quality flags</td>
+<td>Todos os registros rastreados com flags de qualidade</td>
 </tr>
 <tr>
 <td>Silver (sales_silver_valid_demo)</td>
 <td>+51</td>
 <td>208</td>
-<td>9 records failed expectations</td>
+<td>9 registros falharam nas expectations</td>
 </tr>
 <tr>
 <td>Silver (sales_silver_quarantined_demo)</td>
 <td>+9</td>
 <td>9</td>
-<td>Invalid records captured with failure details</td>
+<td>Registros inválidos capturados com detalhes de falha</td>
 </tr>
 <tr>
 <td>Gold (sales_analytics_demo)</td>
-<td>Updated</td>
+<td>Atualizado</td>
 <td>~60</td>
-<td>Metrics updated with new valid data</td>
+<td>Métricas atualizadas com os novos dados válidos</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Key Validation Points:</strong>
-1. <strong>Zero Data Loss</strong>: Bronze (217) = Valid (208) + Quarantined (9)
-2. <strong>Schema Evolution</strong>: New columns populated automatically
-3. <strong>Quality Detection</strong>: Specific violations identified and quarantined
-4. <strong>Pipeline Resilience</strong>: Continues processing despite quality issues</p>
+<p><strong>Pontos-Chave de Validação:</strong>
+1. <strong>Zero Perda de Dados</strong>: Bronze (217) = Válidos (208) + Quarentena (9)
+2. <strong>Evolução de Schema</strong>: novas colunas populadas automaticamente
+3. <strong>Detecção de Qualidade</strong>: violações específicas identificadas e colocadas em quarentena
+4. <strong>Resiliência do Pipeline</strong>: continua processando apesar dos problemas de qualidade</p>
 </section>
 <section class="notebook-cell">
-<h3>H5. Comprehensive Quality Analysis</h3>
-<p>Execute detailed analysis queries to understand the quality patterns and validate the quarantine framework effectiveness.</p>
+<h3>H5. Análise Abrangente de Qualidade</h3>
+<p>Execute queries de análise detalhada para entender os padrões de qualidade e validar a efetividade do framework de quarentena.</p>
 </section>
 <section class="notebook-cell">
-<p><strong>Quality Analysis Insights:</strong>
-- <strong>Zero Data Loss Achieved</strong>: Mathematical verification that no records were lost
-- <strong>High Quality Score</strong>: Typically 94-96% overall quality across both files
-- <strong>Detailed Failure Tracking</strong>: Each quarantined record includes specific violation reasons
-- <strong>Actionable Intelligence</strong>: Operations teams can prioritize remediation based on failure types
-- <strong>Range Validation Effectiveness</strong>: Successfully caught discount &gt; 100%, negative values, and historical dates
-- <strong>Business Key Protection</strong>: Identified and quarantined records with missing critical identifiers</p>
+<p><strong>Insights da Análise de Qualidade:</strong>
+- <strong>Zero Perda de Dados Alcançada</strong>: verificação matemática de que nenhum registro foi perdido
+- <strong>Alto Quality Score</strong>: tipicamente 94-96% de qualidade geral entre os dois arquivos
+- <strong>Rastreamento Detalhado de Falhas</strong>: cada registro em quarentena inclui motivos de violação específicos
+- <strong>Inteligência Acionável</strong>: times de operações podem priorizar remediação com base nos tipos de falha
+- <strong>Efetividade da Validação de Intervalo</strong>: capturou com sucesso desconto &gt; 100%, valores negativos e datas históricas
+- <strong>Proteção de Chaves de Negócio</strong>: identificou e colocou em quarentena registros com identificadores críticos ausentes</p>
 </section>
 <section class="notebook-cell">
-<h3>H6. Validate Schema Evolution Success</h3>
-<p>Verify that schema evolution worked seamlessly without any pipeline code changes. Note that records from the first file will have null values for the new columns(<strong>shipping_cost</strong> and <strong>order_status</strong>), while records from the second file will have populated values.</p>
+<h3>H6. Valide o Sucesso da Evolução de Schema</h3>
+<p>Verifique que a evolução de schema funcionou de forma transparente, sem nenhuma alteração no código do pipeline. Note que os registros do primeiro arquivo terão valores nulos para as novas colunas (<strong>shipping_cost</strong> e <strong>order_status</strong>), enquanto os registros do segundo arquivo terão valores populados.</p>
 </section>
 <section class="notebook-cell">
-<p><strong>Schema Evolution Success Validation:</strong>
-- <strong>Seamless Evolution</strong>: Schema grew from 16 to 18 core business columns without any pipeline code changes
-- <strong>Backward Compatibility</strong>: File 1 records maintain NULL values for new columns
-- <strong>Forward Compatibility</strong>: File 2 records populate new columns with business values
-- <strong>No Pipeline Disruption</strong>: Schema hints enabled graceful column addition
-- <strong>Business Value Addition</strong>: New columns provide order status tracking and shipping cost analysis
-- <strong>Quality Framework Extension</strong>: New columns automatically included in quality validations</p>
+<p><strong>Validação do Sucesso da Evolução de Schema:</strong>
+- <strong>Evolução Transparente</strong>: o schema cresceu de 16 para 18 colunas de negócio principais sem nenhuma alteração no código do pipeline
+- <strong>Compatibilidade Retroativa</strong>: registros do Arquivo 1 mantêm valores NULL para as novas colunas
+- <strong>Compatibilidade Futura</strong>: registros do Arquivo 2 populam as novas colunas com valores de negócio
+- <strong>Sem Disrupção do Pipeline</strong>: schema hints permitiram a adição graciosa de colunas
+- <strong>Adição de Valor de Negócio</strong>: as novas colunas fornecem rastreamento de status de pedido e análise de custo de frete
+- <strong>Extensão do Framework de Qualidade</strong>: as novas colunas são automaticamente incluídas nas validações de qualidade</p>
 </section>
 <section class="notebook-cell">
-<h3>H7. Quality Performance by Source File</h3>
-<p>Analyze quality performance differences between the clean baseline file and the file with intentional quality issues.</p>
+<h3>H7. Performance de Qualidade por Arquivo de Origem</h3>
+<p>Analise as diferenças de performance de qualidade entre o arquivo de baseline limpo e o arquivo com problemas de qualidade intencionais.</p>
 </section>
 <section class="notebook-cell">
-<p><strong>File-Level Quality Performance Insights:</strong>
-- <strong>File 1 (Baseline)</strong>: 100% quality score validates framework correctness
-- <strong>File 2 (Issues)</strong>: 85% quality score demonstrates issue detection capability
-- <strong>Overall Performance</strong>: 95.85% combined quality score shows enterprise-grade data quality
-- <strong>Framework Validation</strong>: Clean data passes completely, problematic data is systematically identified
-- <strong>Production Readiness</strong>: Quality framework successfully handles both perfect and imperfect data scenarios</p>
+<p><strong>Insights de Performance de Qualidade por Arquivo:</strong>
+- <strong>Arquivo 1 (Baseline)</strong>: quality score de 100% valida a correção do framework
+- <strong>Arquivo 2 (Problemas)</strong>: quality score de 85% demonstra a capacidade de detecção de problemas
+- <strong>Performance Geral</strong>: quality score combinado de 95,85% mostra qualidade de dados de nível corporativo
+- <strong>Validação do Framework</strong>: dados limpos passam completamente, dados problemáticos são identificados sistematicamente
+- <strong>Prontidão para Produção</strong>: o framework de qualidade lida com sucesso tanto com cenários de dados perfeitos quanto imperfeitos</p>
 </section>
 <section class="notebook-cell">
 <h2>I. Resumo e Pontos-Chave</h2>
-<p><strong>Data Quality Management:</strong>
-- Successfully implemented 6 comprehensive data quality expectations covering business keys, numeric ranges, and temporal validations
-- Achieved 100% quality score on clean baseline data (Run 1: 157/157 records)
-- Detected and quarantined 9 quality violations in problematic data (Run 2: 51/60 records passed)
-- Overall pipeline quality score: 95.85% (208/217 total records processed)</p>
-<p><strong>Schema Evolution:</strong>
-- Seamlessly handled schema evolution from 16 to 18 core business columns from source without pipeline code changes
-- Bronze layer STRING strategy enabled backward compatibility and forward flexibility
-- New business columns (<strong>order_status, shipping_cost</strong>) automatically integrated</p>
-<p><strong>Zero Data Loss Quarantine:</strong>
-- Implemented official Databricks inverse logic pattern for quarantine processing
-- Achieved mathematical zero data loss: Bronze Records = Valid Sales Records + Quarantine Sales Records
-- Provided detailed failure analysis and remediation insights for each quarantined record</p>
-<h3>Production Readiness</h3>
-<p>This demonstration showcased enterprise-grade patterns that provide:
-- <strong>Robust data quality controls</strong> that catch anomalies before they reach analytics
-- <strong>Flexible schema handling</strong> that adapts to evolving business requirements
-- <strong>Complete data lineage</strong> with zero loss and full audit capabilities
-- <strong>Actionable quality insights</strong> for continuous data improvement</p>
+<p><strong>Gerenciamento de Qualidade de Dados:</strong>
+- Implementou com sucesso 6 expectations abrangentes de qualidade de dados, cobrindo chaves de negócio, intervalos numéricos e validações temporais
+- Alcançou quality score de 100% nos dados de baseline limpos (Execução 1: 157/157 registros)
+- Detectou e colocou em quarentena 9 violações de qualidade em dados problemáticos (Execução 2: 51/60 registros passaram)
+- Quality score geral do pipeline: 95,85% (208/217 registros totais processados)</p>
+<p><strong>Evolução de Schema:</strong>
+- Lidou de forma transparente com a evolução de schema de 16 para 18 colunas de negócio principais na origem, sem alterações no código do pipeline
+- A estratégia STRING da camada bronze permitiu compatibilidade retroativa e flexibilidade futura
+- Novas colunas de negócio (<strong>order_status, shipping_cost</strong>) integradas automaticamente</p>
+<p><strong>Quarentena com Zero Perda de Dados:</strong>
+- Implementou o padrão oficial de lógica inversa da Databricks para processamento de quarentena
+- Alcançou zero perda de dados matematicamente: Registros Bronze = Registros de Vendas Válidos + Registros de Vendas em Quarentena
+- Forneceu análise detalhada de falhas e insights de remediação para cada registro em quarentena</p>
+<h3>Prontidão para Produção</h3>
+<p>Esta demonstração mostrou padrões de nível corporativo que fornecem:
+- <strong>Controles robustos de qualidade de dados</strong> que capturam anomalias antes que cheguem aos analytics
+- <strong>Tratamento flexível de schema</strong> que se adapta a requisitos de negócio em evolução
+- <strong>Data lineage completo</strong> com zero perda e capacidades completas de auditoria
+- <strong>Insights de qualidade acionáveis</strong> para melhoria contínua dos dados</p>
 </section>
 <section class="notebook-cell">
 <p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
