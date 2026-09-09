@@ -21,37 +21,37 @@
 </div>
 </section>
 <section class="notebook-cell">
-<h1>Demo - Automating SCD Type 2 with AUTO CDC in Apache Spark Declarative Pipelines</h1>
+<h1>Demo - Automatizando SCD Type 2 com AUTO CDC em Apache Spark Declarative Pipelines</h1>
 <h2>Visão Geral</h2>
-<p>This demonstration showcases how to implement automated Change Data Capture (CDC) for Slowly Changing Dimension (SCD) Type 2 patterns using Apache Spark™ Declarative Pipelines. </p>
-<p>Learners will learn to build an end-to-end streaming pipeline that automatically processes customer data changes (inserts, updates, and deletes) while maintaining complete historical records. The demo uses real-world retail customer data from Databricks Marketplace and demonstrates how AUTO CDC INTO simplifies complex CDC operations that traditionally required manual coding. </p>
-<p>Learners will create a multi-layered architecture (Bronze → Silver → Gold) with automated data quality checks, incremental processing, and materialized views for both current and historical customer analytics.</p>
+<p>Esta demonstração mostra como implementar Change Data Capture (CDC) automatizado para padrões Slowly Changing Dimension (SCD) Type 2 usando Apache Spark™ Declarative Pipelines. </p>
+<p>Você aprenderá a construir um pipeline de streaming ponta a ponta que processa automaticamente mudanças em dados de clientes (inserções, atualizações e exclusões), mantendo registros históricos completos. A demo usa dados reais de clientes de varejo do Databricks Marketplace e demonstra como o AUTO CDC INTO simplifica operações complexas de CDC que tradicionalmente exigiam codificação manual. </p>
+<p>Você criará uma arquitetura em múltiplas camadas (Bronze → Silver → Gold) com checagens automatizadas de qualidade de dados, processamento incremental e materialized views para analytics de clientes tanto atuais quanto históricos.</p>
 <h3>Objetivos de Aprendizado</h3>
-<p>By the end of this notebook, you will be able to:</p>
+<p>Ao final deste notebook, você será capaz de:</p>
 <ul>
 <li>
-<p><strong>Configure and implement AUTO CDC INTO</strong> for automated Change Data Capture processing in Apache Spark™ Declarative Pipelines with SCD Type 2 patterns</p>
+<p><strong>Configurar e implementar AUTO CDC INTO</strong> para processamento automatizado de Change Data Capture em Apache Spark™ Declarative Pipelines com padrões SCD Type 2</p>
 </li>
 <li>
-<p><strong>Design multi-layered data architectures</strong> using Bronze (raw ingestion), Silver (CDC processing), and Gold (analytics-ready) layers with streaming tables and materialized views</p>
+<p><strong>Projetar arquiteturas de dados em múltiplas camadas</strong> usando as camadas Bronze (ingestão bruta), Silver (processamento CDC) e Gold (pronta para analytics) com streaming tables e materialized views</p>
 </li>
 <li>
-<p><strong>Apply comprehensive data quality constraints</strong> using pipeline expectations with WARN, DROP, and FAIL actions to ensure data integrity across CDC operations</p>
+<p><strong>Aplicar constraints abrangentes de qualidade de dados</strong> usando expectations do pipeline com ações WARN, DROP e FAIL para garantir a integridade dos dados nas operações de CDC</p>
 </li>
 <li>
-<p><strong>Process streaming JSON files incrementally</strong> using Auto Loader and manage customer lifecycle events (INSERT, UPDATE, DELETE) while preserving historical versions</p>
+<p><strong>Processar arquivos JSON de streaming incrementalmente</strong> usando Auto Loader e gerenciar eventos do ciclo de vida do cliente (INSERT, UPDATE, DELETE), preservando versões históricas</p>
 </li>
 <li>
-<p><strong>Create analytics ready materialized views</strong> that automatically maintain current customer states and track removed customers for downstream reporting and business intelligence</p>
+<p><strong>Criar materialized views prontas para analytics</strong> que mantêm automaticamente os estados atuais dos clientes e rastreiam clientes removidos, para relatórios e business intelligence posteriores</p>
 </li>
 </ul>
 <h3>CDC Pipeline Visão Geral</h3>
-<p>In this demonstration, you'll build a Apache Spark™ Declarative Pipeline that performs the full medallion flow from raw ingestion to curated analytics:</p>
+<p>Nesta demonstração, você construirá um Apache Spark™ Declarative Pipeline que executa o fluxo medallion completo, desde a ingestão bruta até analytics curados:</p>
 <ol>
-<li><strong>Ingest JSON source files</strong> from cloud storage into a <strong>Bronze raw streaming table</strong> using Auto Loader.  </li>
-<li><strong>Apply data quality expectations</strong> to the raw table to produce a <strong>clean Bronze table</strong> ready for downstream processing.  </li>
-<li><strong>Implement CDC SCD Type 2</strong> logic with <code>AUTO CDC INTO</code> to maintain an up-to-date <strong>Silver customer table</strong> with full change history.  </li>
-<li><strong>Create Gold materialized views</strong> for <strong>current customers</strong> and <strong>deleted customers</strong>, enabling simplified analytics and reporting.</li>
+<li><strong>Ingerir arquivos JSON de origem</strong> do cloud storage em uma <strong>Bronze raw streaming table</strong> usando Auto Loader.  </li>
+<li><strong>Aplicar data quality expectations</strong> à tabela bruta para produzir uma <strong>tabela Bronze limpa</strong>, pronta para processamento posterior.  </li>
+<li><strong>Implementar a lógica CDC SCD Type 2</strong> com <code>AUTO CDC INTO</code> para manter uma <strong>tabela Silver de clientes</strong> atualizada, com histórico completo de mudanças.  </li>
+<li><strong>Criar materialized views Gold</strong> para <strong>clientes atuais</strong> e <strong>clientes removidos</strong>, permitindo analytics e relatórios simplificados.</li>
 </ol>
 <p><img alt="CDC Pipeline Visão Geral" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/cdc_lecture/cdc_pipeline_overview.png" /></p>
 </section>
@@ -78,7 +78,7 @@ Before starting this notebook, select the required compute environment listed be
 </section>
 <section class="notebook-cell">
 <h2>A. REQUIRED - Configuração do Ambiente</h2>
-<p>Follow the cells below to set up the notebook for your specific Workspace.</p>
+<p>Siga as células abaixo para configurar o notebook para seu Workspace específico.</p>
 </section>
 <section class="notebook-cell">
 <div style="
@@ -141,27 +141,27 @@ The catalog name is derived from your Databricks username and follows this patte
 <section class="notebook-cell">
 <ol>
 <li>
-<p>Run the cell below to initialize your environment. This setup step does the following:</p>
+<p>Execute a célula abaixo para inicializar seu ambiente. Este passo de configuração faz o seguinte:</p>
 <ul>
 <li>
-<p><strong>Assumes you have permission to create a catalog</strong> when running outside of a Databricks provided Vocareum workspace</p>
+<p><strong>Assume que você tem permissão para criar um catálogo</strong> quando executado fora de um workspace Vocareum fornecido pela Databricks</p>
 </li>
 <li>
-<p>Creates a catalog named <strong>labuser_user_name</strong> when running outside of a Databricks Vocareum provided workspace  </p>
+<p>Cria um catálogo chamado <strong>labuser_user_name</strong> quando executado fora de um workspace Vocareum fornecido pela Databricks  </p>
 </li>
 <li>
-<p>Uses <strong>labuser_idnumber</strong> when running in Vocareum</p>
+<p>Usa <strong>labuser_idnumber</strong> quando executado no Vocareum</p>
 </li>
 <li>
-<p>Create three schemas in your specified catalog:  </p>
+<p>Cria três schemas no catálogo especificado:  </p>
 </li>
 <li><strong>sdp_cdc_1_bronze</strong></li>
 <li><strong>sdp_cdc_2_silver</strong></li>
 <li><strong>sdp_cdc_3_gold</strong>  </li>
-<li>Creates a volume named <strong>YOUR_LABUSER_CATALOG.sdp_cdc_1_bronze.customer_source_files</strong> and adds a single JSON file into the volume.</li>
-<li>Checks your specified compute</li>
+<li>Cria um volume chamado <strong>YOUR_LABUSER_CATALOG.sdp_cdc_1_bronze.customer_source_files</strong> e adiciona um único arquivo JSON ao volume.</li>
+<li>Verifica o compute especificado</li>
 </ul>
-<p>This ensures that all schemas, tables and objects are created in your catalog.</p>
+<p>Isso garante que todos os schemas, tabelas e objetos sejam criados no seu catálogo.</p>
 </li>
 </ol>
 </section>
@@ -175,14 +175,14 @@ The catalog name is derived from your Databricks username and follows this patte
 ">
 
   <strong style="display:block; color:#e65100; margin-bottom:6px; font-size: 1.1em;">
-    Troubleshooting Configuração - Missing Create Catalog Permissions
+    Troubleshooting Configuração - Faltam Permissões para Criar Catálogo
   </strong>
 <details>
   <div style="color:#333;">
 
-If you do not have permission to create a new catalog but already have one available, you can explicitly specify an existing catalog by using the `catalog_forced` argument in the `build_user_catalog_name` function.
+Se você não tiver permissão para criar um novo catálogo, mas já tiver um disponível, você pode especificar explicitamente um catálogo existente usando o argumento `catalog_forced` na função `build_user_catalog_name`.
 
-This function is defined in the notebook: `./Includes/Classroom-Configuração-auto-cdc-demo`
+Essa função é definida no notebook: `./Includes/Classroom-Setup-auto-cdc-demo`
 
   </div>
 </details>
@@ -191,20 +191,20 @@ This function is defined in the notebook: `./Includes/Classroom-Configuração-a
 <section class="notebook-cell">
 <ol>
 <li>
-<p>Confirm the variable <code>my_vol_path</code> created in the classroom setup points to <strong>your-catalog.sdp_cdc_1_bronze.customer_source_files</strong> volume path.</p>
-<p><strong>Example:</strong> <code>/Volumes/YOUR_LABUSER_CATALOG/sdp_cdc_1_bronze/customer_source_files</code></p>
+<p>Confirme que a variável <code>my_vol_path</code>, criada na configuração da classroom, aponta para o caminho de volume <strong>your-catalog.sdp_cdc_1_bronze.customer_source_files</strong>.</p>
+<p><strong>Exemplo:</strong> <code>/Volumes/YOUR_LABUSER_CATALOG/sdp_cdc_1_bronze/customer_source_files</code></p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>print(my_vol_path)</code></pre></div></section>
 <section class="notebook-cell">
-<h2>B. Explore the Customer Data Source File(s) in Your Volume</h2>
+<h2>B. Explore o(s) Arquivo(s) de Origem de Dados de Cliente no seu Volume</h2>
 </section>
 <section class="notebook-cell">
 <ol>
 <li>
-<p>Run the cell below to programmatically view the files in your <code>/Volumes/your-catalog/sdp_cdc_1_bronze/customer_source_files/</code> volume <strong>path</strong>.</p>
-<p>Confirm you only see one file for customers (<strong>00.json</strong>).</p>
+<p>Execute a célula abaixo para visualizar programaticamente os arquivos no <strong>caminho</strong> do seu volume <code>/Volumes/your-catalog/sdp_cdc_1_bronze/customer_source_files/</code>.</p>
+<p>Confirme que você vê apenas um arquivo de clientes (<strong>00.json</strong>).</p>
 </li>
 </ol>
 </section>
@@ -212,104 +212,104 @@ This function is defined in the notebook: `./Includes/Classroom-Configuração-a
 <section class="notebook-cell">
 <ol>
 <li>
-<p>Run the query below to explore the customers <strong>00.json</strong> file located in your <strong>customer_source_files</strong> volume within <strong>your-catalog.sdp_cdc_1_bronze</strong> schema. </p>
-<p>Note the following:</p>
-<p>a. The file contains <strong>939 customers</strong> (remember this number).</p>
-<p>b. It includes general customer information such as <strong>email</strong>, <strong>name</strong>, and <strong>address</strong>.</p>
-<p>c. The <strong>timestamp</strong> column specifies the logical order (sequence) of customer events in the source data as a UNIX timestamp.</p>
-<p>d. The <strong>operation</strong> column indicates whether the entry is for a new customer, a deletion, or an update.</p>
+<p>Execute a query abaixo para explorar o arquivo <strong>00.json</strong> de clientes, localizado no seu volume <strong>customer_source_files</strong> dentro do schema <strong>your-catalog.sdp_cdc_1_bronze</strong>. </p>
+<p>Observe o seguinte:</p>
+<p>a. O arquivo contém <strong>939 clientes</strong> (lembre-se desse número).</p>
+<p>b. Ele inclui informações gerais de cliente, como <strong>email</strong>, <strong>name</strong> e <strong>address</strong>.</p>
+<p>c. A coluna <strong>timestamp</strong> especifica a ordem lógica (sequência) dos eventos de cliente nos dados de origem, como um UNIX timestamp.</p>
+<p>d. A coluna <strong>operation</strong> indica se a entrada é de um novo cliente, uma exclusão ou uma atualização.</p>
 <ul>
-<li><strong>NOTE:</strong> Since this is the first JSON file, all rows will be considered new customers.</li>
+<li><strong>NOTA:</strong> Como este é o primeiro arquivo JSON, todas as linhas serão consideradas novos clientes.</li>
 </ul>
 </li>
 </ol>
-<p><strong>NOTE:</strong> The <code>my_vol_path</code> SQL variable was created for you in the classroom setup.</p>
+<p><strong>NOTA:</strong> A variável SQL <code>my_vol_path</code> foi criada para você na configuração da classroom.</p>
 </section>
 <section class="notebook-cell">
-<h3>Question</h3>
-<p>How can we ingest new raw JSON source files with customer updates into our pipeline to update a <strong>silver table</strong> when inserts, updates, or deletes occur, while also maintaining historical records (SCD Type 2)?</p>
-<h3>Answer</h3>
-<p>Use <code>AUTO CDC INTO</code> with Spark Declarative Pipelines!</p>
-<p>View the Databricks documentation <a href="https://docs.databricks.com/aws/en/ldp/what-is-change-data-capture#processing-a-change-data-feed-keep-only-the-latest-data-vs-keep-historical-versions-of-data">Processing a change data feed: Keep only the latest data vs. keep historical versions of data</a> for more information.</p>
+<h3>Pergunta</h3>
+<p>Como podemos ingerir novos arquivos JSON brutos de origem com atualizações de clientes no nosso pipeline, para atualizar uma <strong>tabela silver</strong> quando ocorrem inserções, atualizações ou exclusões, mantendo também registros históricos (SCD Type 2)?</p>
+<h3>Resposta</h3>
+<p>Use <code>AUTO CDC INTO</code> com Spark Declarative Pipelines!</p>
+<p>Veja a documentação da Databricks <a href="https://docs.databricks.com/aws/en/ldp/what-is-change-data-capture#processing-a-change-data-feed-keep-only-the-latest-data-vs-keep-historical-versions-of-data">Processing a change data feed: Keep only the latest data vs. keep historical versions of data</a> para mais informações.</p>
 </section>
 <section class="notebook-cell">
-<h2>C. Building the CDC Spark Declarative Pipeline with <code>AUTO CDC INTO</code></h2>
+<h2>C. Construindo o CDC Spark Declarative Pipeline com <code>AUTO CDC INTO</code></h2>
 </section>
 <section class="notebook-cell">
-<h3>C1. Enable the Lakeflow Pipelines Editor</h3>
-<p>Complete the following steps to confirm or enable the <strong>Lakeflow Pipelines Editor</strong>:</p>
+<h3>C1. Habilite o Lakeflow Pipelines Editor</h3>
+<p>Complete os passos a seguir para confirmar ou habilitar o <strong>Lakeflow Pipelines Editor</strong>:</p>
 <ol>
 <li>
-<p>In the top-right corner of the workspace, select your <strong>account icon</strong> <img alt="Account Icon" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/account_icon.png" /> (<em>Your letter will differ</em>).  </p>
+<p>No canto superior direito do workspace, selecione seu <strong>ícone de conta</strong> <img alt="Account Icon" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/account_icon.png" /> (<em>A sua letra será diferente</em>).  </p>
 </li>
 <li>
-<p>Right-click <strong>Settings</strong> and choose <strong>Open link in new tab</strong>.  </p>
+<p>Clique com o botão direito em <strong>Settings</strong> e escolha <strong>Open link in new tab</strong>.  </p>
 </li>
-<li>In the left sidebar, select <strong>Developer</strong> under <strong>User</strong>.  </li>
-<li>In the <strong>Experimental features</strong> section, locate <strong>Lakeflow Pipelines Editor</strong> and toggle it <strong>on</strong>.</li>
+<li>Na barra lateral esquerda, selecione <strong>Developer</strong> em <strong>User</strong>.  </li>
+<li>Na seção <strong>Experimental features</strong>, localize <strong>Lakeflow Pipelines Editor</strong> e ative-o.</li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h3>C2. Create a Apache Spark™ Declarative Pipeline using the Lakeflow Pipelines Editor</h3>
-<p>Complete the following steps to create your Spark Declarative Pipeline:</p>
+<h3>C2. Crie um Apache Spark™ Declarative Pipeline usando o Lakeflow Pipelines Editor</h3>
+<p>Complete os passos a seguir para criar seu Spark Declarative Pipeline:</p>
 <ol>
 <li>
-<p>In the main navigation pane, right-click <strong>Jobs &amp; Pipelines</strong> and select <strong>Open link in New Tab</strong>.  </p>
+<p>No painel de navegação principal, clique com o botão direito em <strong>Jobs &amp; Pipelines</strong> e selecione <strong>Open link in New Tab</strong>.  </p>
 </li>
 <li>
-<p>In the new tab, select <strong>Create → ETL Pipeline</strong>.  </p>
+<p>Na nova aba, selecione <strong>Create → ETL Pipeline</strong>.  </p>
 </li>
 </ol>
-<p><strong>NOTE:</strong> If prompted to <strong>Try the new Lakeflow Pipelines Editor</strong>, choose <strong>Enable Lakeflow Pipelines Editor</strong>. This appears only if you did not complete the previous step.  </p>
+<p><strong>NOTA:</strong> Se solicitado a <strong>Try the new Lakeflow Pipelines Editor</strong>, escolha <strong>Enable Lakeflow Pipelines Editor</strong>. Isso só aparece se você não completou o passo anterior.  </p>
 <ol>
-<li>At the top, complete the following:</li>
-<li>Name your pipeline <code>demo_auto_cdc_pipeline_yourname</code></li>
+<li>No topo, complete o seguinte:</li>
+<li>Nomeie seu pipeline como <code>demo_auto_cdc_pipeline_yourname</code></li>
 <li>
-<p>Select your default <strong>catalog</strong> and <strong>schema</strong>:<br />
-        - <strong>Catalog:</strong> The catalog specified in the setup script (example: <code>labuser_xxx</code>) 
+<p>Selecione seu <strong>catalog</strong> e <strong>schema</strong> padrão:<br />
+        - <strong>Catalog:</strong> O catálogo especificado no script de configuração (exemplo: <code>labuser_xxx</code>) 
         - <strong>Schema:</strong> <strong>sdp_cdc_1_bronze</strong><br />
-<strong>NOTE:</strong> Clear the selected schema using the cross icon to view all schemas.</p>
+<strong>NOTA:</strong> Limpe o schema selecionado usando o ícone de x para visualizar todos os schemas.</p>
 </li>
 <li>
-<p>Rename the <code>transformations</code> folder to <code>my_pipeline</code>.</p>
+<p>Renomeie a pasta <code>transformations</code> para <code>my_pipeline</code>.</p>
 </li>
 <li>
-<p>Rename the <code>my_transformation.py</code> file to <code>cdc_pipeline.sql</code>.</p>
+<p>Renomeie o arquivo <code>my_transformation.py</code> para <code>cdc_pipeline.sql</code>.</p>
 </li>
 <li>
-<p>Leave the <strong>Lakeflow Pipelines Editor</strong> page open.</p>
+<p>Deixe a página do <strong>Lakeflow Pipelines Editor</strong> aberta.</p>
 </li>
 </ol>
 <h4>Checkpoint</h4>
 <p><img alt="Create SDP Checkpoint" src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/cdc_lecture/cdc_create_initial_pipeline.png" /></p>
 </section>
 <section class="notebook-cell">
-<h3>C3. Configure Pipeline Parameter</h3>
+<h3>C3. Configure o Parâmetro do Pipeline</h3>
 <ol>
-<li>Run the cell below to get the path to your raw data source JSON files in your <strong>customer_source_files</strong> volume within your <strong>labuser.sdp_cdc_1_bronze</strong> schema.</li>
+<li>Execute a célula abaixo para obter o caminho dos seus arquivos JSON de origem brutos no seu volume <strong>customer_source_files</strong>, dentro do seu schema <strong>labuser.sdp_cdc_1_bronze</strong>.</li>
 </ol>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>print(my_vol_path)</code></pre></div></section>
 <section class="notebook-cell">
 <ol>
-<li>Copy the path above and add it as a configuration parameter in your <strong>Spark Declarative Pipeline</strong>. This will reference your <strong>sdp_cdc_1_bronze.customer_source_files</strong> volume that contains your raw JSON file(s) that you explored earlier:</li>
+<li>Copie o caminho acima e adicione-o como um parâmetro de configuração no seu <strong>Spark Declarative Pipeline</strong>. Isso referenciará seu volume <strong>sdp_cdc_1_bronze.customer_source_files</strong>, que contém o(s) arquivo(s) JSON bruto(s) que você explorou anteriormente:</li>
 </ol>
-<p>a. Select <strong>Settings</strong> in your pipeline tab.</p>
-<p>b. Under <strong>Configuration</strong> select <strong>Add configuration</strong>.</p>
-<p>c. For <strong>Key</strong> add <code>source</code></p>
-<p>d. For <strong>Value</strong> add the <code>path to your volume</code> from above.</p>
-<p>e. Select <strong>Save</strong>.</p>
-<p><strong>NOTE:</strong> For more information on configuration parameters, check out the Databricks documentation <a href="https://docs.databricks.com/aws/en/ldp/parameters">Use parameters with Apache Spark™ Declarative Pipelines</a></p>
-<h4>Checkpoint (your path will vary)</h4>
+<p>a. Selecione <strong>Settings</strong> na aba do seu pipeline.</p>
+<p>b. Em <strong>Configuration</strong>, selecione <strong>Add configuration</strong>.</p>
+<p>c. Para <strong>Key</strong>, adicione <code>source</code></p>
+<p>d. Para <strong>Value</strong>, adicione o <code>caminho do seu volume</code> obtido acima.</p>
+<p>e. Selecione <strong>Save</strong>.</p>
+<p><strong>NOTA:</strong> Para mais informações sobre parâmetros de configuração, veja a documentação da Databricks <a href="https://docs.databricks.com/aws/en/ldp/parameters">Use parameters with Apache Spark™ Declarative Pipelines</a></p>
+<h4>Checkpoint (seu caminho será diferente)</h4>
 <p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/cdc_lecture/cdc_config_parameter_value.png" alt="Config Parameter Checkpoint" width="600"></p>
 </section>
 <section class="notebook-cell">
-<h3>C4. Create Bronze Layer with Auto Loader for Incremental Ingestion</h3>
+<h3>C4. Crie a Camada Bronze com Auto Loader para Ingestão Incremental</h3>
 <ol>
-<li>In this step, you'll define the <strong>Bronze raw</strong> layer of your <strong>Spark Declarative Pipeline</strong> to create the table: <strong>sdp_cdc_1_bronze.customers_bronze_raw_demo</strong>.  </li>
+<li>Nesta etapa, você definirá a camada <strong>Bronze raw</strong> do seu <strong>Spark Declarative Pipeline</strong> para criar a tabela: <strong>sdp_cdc_1_bronze.customers_bronze_raw_demo</strong>.  </li>
 </ol>
-<p>This layer will incrementally ingest raw <strong>JSON</strong> files from cloud storage into a <strong>streaming table</strong> using <strong>Auto Loader</strong>.  </p>
-<p>Copy the SQL code below and paste it into your <code>cdc_pipeline.sql</code> file.</p>
+<p>Esta camada ingerirá incrementalmente arquivos <strong>JSON</strong> brutos do cloud storage em uma <strong>streaming table</strong> usando <strong>Auto Loader</strong>.  </p>
+<p>Copie o código SQL abaixo e cole no seu arquivo <code>cdc_pipeline.sql</code>.</p>
 </section>
 <section class="notebook-cell">
 <p><button onclick="copyBlock()">Copiar para área de transferência</button></p>
@@ -317,18 +317,18 @@ This function is defined in the notebook: `./Includes/Classroom-Configuração-a
 <code>
 <!-------------------ADD SOLUTION CODE BELOW------------------->
 ------------------------------------------------------
--- STEP 1: JSON -> Bronze Ingestion
+-- PASSO 1: JSON -> Ingestão Bronze
 ------------------------------------------------------
--- Ingest the JSON files from cloud storage into a streaming table using Auto Loader
+-- Ingere os arquivos JSON do cloud storage em uma streaming table usando Auto Loader
 CREATE OR REFRESH STREAMING TABLE sdp_cdc_1_bronze.customers_bronze_raw_demo
-  COMMENT "Raw data from customers CDC feed"
+  COMMENT "Dados brutos do feed CDC de clientes"
 AS 
 SELECT 
   *,
-  current_timestamp() processing_time,  -- Obtain the ingestion processing time for the rows
-  _metadata.file_name as source_file    -- Obtain the file name of the record
+  current_timestamp() processing_time,  -- Obtém o horário de processamento de ingestão das linhas
+  _metadata.file_name as source_file    -- Obtém o nome do arquivo do registro
 FROM STREAM read_files(
-  "${source}",  -- References your SDP parameter that points to your demonstration volume containing your JSON data source files
+  "${source}",  -- Referencia o parâmetro do SDP que aponta para o volume da demonstração contendo seus arquivos de dados JSON de origem
   format => "json");
 <!-------------------END SOLUTION CODE------------------->
 </code></pre>
@@ -373,50 +373,50 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<p><strong>Review the code:</strong></p>
+<p><strong>Revise o código:</strong></p>
 <ul>
-<li><code>CREATE OR REFRESH STREAMING TABLE</code> - Creates a managed streaming table that automatically updates as new data arrives.  </li>
-<li><code>COMMENT</code> - Describes the purpose of the table for easier discovery and documentation.  </li>
-<li><code>current_timestamp()</code> - Captures the ingestion timestamp for data lineage and auditing.  </li>
-<li><code>_metadata.file_name</code> - Adds the source file name for traceability and debugging.  </li>
-<li><code>FROM STREAM read_files()</code> - Uses Auto Loader to incrementally read new JSON files from the specified (triggered or continuous)  <code>${source}</code> path you added in the previous step.</li>
+<li><code>CREATE OR REFRESH STREAMING TABLE</code> - Cria uma streaming table gerenciada que atualiza automaticamente à medida que novos dados chegam.  </li>
+<li><code>COMMENT</code> - Descreve o propósito da tabela, facilitando a descoberta e a documentação.  </li>
+<li><code>current_timestamp()</code> - Captura o timestamp de ingestão para data lineage e auditoria.  </li>
+<li><code>_metadata.file_name</code> - Adiciona o nome do arquivo de origem para rastreabilidade e debugging.  </li>
+<li><code>FROM STREAM read_files()</code> - Usa o Auto Loader para ler incrementalmente novos arquivos JSON do caminho <code>${source}</code> especificado (triggered ou continuous) que você adicionou no passo anterior.</li>
 </ul>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>Select <strong>Dry Run</strong> to verify that your pipeline and SQL code are configured correctly.  </li>
+<li>Selecione <strong>Dry Run</strong> para verificar se seu pipeline e código SQL estão configurados corretamente.  </li>
 </ol>
-<p>This will validate your settings without actually running the full pipeline.</p>
+<p>Isso validará suas configurações sem realmente executar o pipeline completo.</p>
 <h4>Checkpoint</h4>
 <blockquote>
-<p><strong>TROUBLESHOOTING:</strong> If the dry run did not work, make sure you configured your <code>source</code> pipeline parameter correctly in the <strong>Configure Pipeline Parameter</strong> step above.</p>
+<p><strong>TROUBLESHOOTING:</strong> Se o dry run não funcionou, verifique se você configurou corretamente o parâmetro <code>source</code> do pipeline no passo <strong>Configure o Parâmetro do Pipeline</strong> acima.</p>
 </blockquote>
 <p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/cdc_lecture/cdc_dry_run_ingest.png" alt="JSON Ingest" width="1100"></p>
 </section>
 <section class="notebook-cell">
-<h3>C5. Apply Data Quality Rules to the Bronze Table</h3>
-<p>With the raw JSON CDC data now set up to stream into <strong>sdp_cdc_1_bronze.customers_bronze_raw_demo</strong>, we'll add another <strong>bronze</strong> quality layer before moving to <strong>Silver</strong>.  </p>
-<p>You'll create an intermediate table <strong>sdp_cdc_1_bronze.customers_bronze_clean</strong> and apply <strong>data quality constraints</strong> to filter and flag invalid records while preserving expected <code>NULL</code> values for <code>DELETE</code> operations.  </p>
-<p>In this step, you'll:<br />
-- Apply <strong>multiple constraints</strong> to check key fields.<br />
-- Use <strong>WARN</strong>, <strong>DROP</strong>, and <strong>FAIL</strong> actions to define how violations are handled.<br />
-- Add <strong>conditional logic</strong> and <strong>regex validation</strong> inside constraints.  </p>
-<p>For details, see <a href="https://docs.databricks.com/aws/en/ldp/expectations">Manage data quality with pipeline expectations</a>.</p>
+<h3>C5. Aplique Regras de Qualidade de Dados à Tabela Bronze</h3>
+<p>Com os dados brutos JSON de CDC agora configurados para fazer streaming em <strong>sdp_cdc_1_bronze.customers_bronze_raw_demo</strong>, vamos adicionar mais uma camada de qualidade <strong>bronze</strong> antes de avançar para o <strong>Silver</strong>.  </p>
+<p>Você criará uma tabela intermediária <strong>sdp_cdc_1_bronze.customers_bronze_clean</strong> e aplicará <strong>constraints de qualidade de dados</strong> para filtrar e sinalizar registros inválidos, preservando valores <code>NULL</code> esperados para operações <code>DELETE</code>.  </p>
+<p>Nesta etapa, você vai:<br />
+- Aplicar <strong>múltiplas constraints</strong> para checar campos-chave.<br />
+- Usar ações <strong>WARN</strong>, <strong>DROP</strong> e <strong>FAIL</strong> para definir como as violações são tratadas.<br />
+- Adicionar <strong>lógica condicional</strong> e <strong>validação regex</strong> dentro das constraints.  </p>
+<p>Para detalhes, veja <a href="https://docs.databricks.com/aws/en/ldp/expectations">Manage data quality with pipeline expectations</a>.</p>
 </section>
 <section class="notebook-cell">
-<h4>C5.1 - About the Data Source</h4>
+<h4>C5.1 - Sobre a Fonte de Dados</h4>
 <ul>
 <li>
-<p>The CDC feed contains <code>INSERT</code>, <code>UPDATE</code>, and <code>DELETE</code> operations for customer records. </p>
+<p>O feed de CDC contém operações <code>INSERT</code>, <code>UPDATE</code> e <code>DELETE</code> para registros de clientes. </p>
 </li>
 <li>
-<p><code>INSERT</code> and <code>UPDATE</code> events include valid values for all key columns.  </p>
+<p>Eventos <code>INSERT</code> e <code>UPDATE</code> incluem valores válidos para todas as colunas-chave.  </p>
 </li>
 <li>
-<p><code>DELETE</code> events have <code>NULL</code> values for all non-key fields such as <strong>name</strong>, <strong>email</strong>, <strong>address</strong>, <strong>city</strong>, and <strong>state</strong>.  </p>
+<p>Eventos <code>DELETE</code> têm valores <code>NULL</code> para todos os campos não-chave, como <strong>name</strong>, <strong>email</strong>, <strong>address</strong>, <strong>city</strong> e <strong>state</strong>.  </p>
 </li>
 </ul>
-<p><strong>Example of a Dropped Record:</strong></p>
+<p><strong>Exemplo de um Registro Descartado:</strong></p>
 <table>
 <thead>
 <tr>
@@ -443,11 +443,11 @@ function fallbackCopy(text) {
 </table>
 </section>
 <section class="notebook-cell">
-<h4>C5.2 - Create the Clean Bronze Table Using Pipeline Data Quality Expectations</h4>
+<h4>C5.2 - Crie a Tabela Bronze Clean Usando Pipeline Data Quality Expectations</h4>
 <ol>
-<li>Now that we have a general understanding of the data, let's define the following <strong>data quality constraints</strong> that enforce those rules in a secondary Bronze table named <strong>sdp_cdc_1_bronze.customers_bronze_clean_demo</strong> before the data moves to the Silver stage.</li>
+<li>Agora que temos uma compreensão geral dos dados, vamos definir as seguintes <strong>constraints de qualidade de dados</strong> que aplicam essas regras em uma tabela Bronze secundária chamada <strong>sdp_cdc_1_bronze.customers_bronze_clean_demo</strong> antes que os dados avancem para o estágio Silver.</li>
 </ol>
-<p>Below is a table of the data quality constraints:</p>
+<p>Abaixo está uma tabela com as constraints de qualidade de dados:</p>
 <table>
 <thead>
 <tr>
@@ -464,42 +464,42 @@ function fallbackCopy(text) {
 <td><strong><code>valid_id</code></strong></td>
 <td><strong>customer_id</strong> <code>IS NOT NULL</code></td>
 <td><strong>FAIL</strong></td>
-<td>Fails the transaction if a record has a missing <strong>customer_id</strong>. <em>Will required manual intervention to fix it.</em></td>
+<td>Falha a transação se um registro estiver com <strong>customer_id</strong> ausente. <em>Exigirá intervenção manual para correção.</em></td>
 </tr>
 <tr>
 <td style="text-align: center;"><strong>B</strong></td>
 <td><strong><code>valid_operation</code></strong></td>
 <td><strong>operation</strong> <code>IS NOT NULL</code></td>
 <td><strong>DROP ROW</strong></td>
-<td>Drops any record missing an <strong>operation</strong> type.</td>
+<td>Descarta qualquer registro sem um tipo de <strong>operation</strong>.</td>
 </tr>
 <tr>
 <td style="text-align: center;"><strong>C</strong></td>
 <td><strong><code>valid_name</code></strong></td>
 <td><strong>name</strong> <code>IS NOT NULL OR operation = "DELETE"</code></td>
 <td><strong>WARN</strong> (default)</td>
-<td>Flags missing <strong>name</strong> values unless it's a <strong>DELETE</strong> operation.</td>
+<td>Sinaliza valores ausentes de <strong>name</strong>, a menos que seja uma operação <strong>DELETE</strong>.</td>
 </tr>
 <tr>
 <td style="text-align: center;"><strong>D</strong></td>
 <td><strong><code>valid_address</code></strong></td>
 <td>All address fields (<strong>address</strong>, <strong>city</strong>, <strong>state</strong>, <strong>zip_code</strong>) must be <code>non-null</code> unless it's a <strong>DELETE</strong></td>
 <td><strong>WARN</strong> (default)</td>
-<td>Ensures complete address information for <strong>INSERT</strong> and <strong>UPDATE</strong> events.</td>
+<td>Garante informações de endereço completas para eventos <strong>INSERT</strong> e <strong>UPDATE</strong>.</td>
 </tr>
 <tr>
 <td style="text-align: center;"><strong>E</strong></td>
 <td><strong><code>valid_email</code></strong></td>
 <td><strong>email</strong> must match a valid format unless it's a <strong>DELETE</strong></td>
 <td><strong>DROP ROW</strong></td>
-<td>Uses regex to validate the <strong>email</strong> format and drops invalid records.</td>
+<td>Usa regex para validar o formato do <strong>email</strong> e descarta registros inválidos.</td>
 </tr>
 </tbody>
 </table>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>Copy the SQL code below and append it into your <code>cdc_pipeline.sql</code> file.</li>
+<li>Copie o código SQL abaixo e adicione ao final do seu arquivo <code>cdc_pipeline.sql</code>.</li>
 </ol>
 </section>
 <section class="notebook-cell">
@@ -508,23 +508,23 @@ function fallbackCopy(text) {
 <code>
 <!-------------------ADD SOLUTION CODE BELOW------------------->
  ------------------------------------------------------
--- STEP 2: Bronze Raw -> Bronze Clean
+-- PASSO 2: Bronze Raw -> Bronze Clean
 ------------------------------------------------------
 CREATE STREAMING TABLE sdp_cdc_1_bronze.customers_bronze_clean_demo
   (
 
-    -- A. Require a valid customer_id, fail the transaction if missing
+    -- A. Exige um customer_id válido, falha a transação se ausente
     CONSTRAINT valid_id EXPECT (customer_id IS NOT NULL) 
       ON VIOLATION FAIL UPDATE,
 
-    -- B. Require a valid operation, drop any record with NULL operation
+    -- B. Exige uma operation válida, descarta qualquer registro com operation NULL
     CONSTRAINT valid_operation EXPECT (operation IS NOT NULL) 
       ON VIOLATION DROP ROW,
 
-    -- C. Require name to be present unless the operation is DELETE
+    -- C. Exige que name esteja presente, a menos que a operation seja DELETE
     CONSTRAINT valid_name EXPECT (name IS NOT NULL OR operation = "DELETE"),
 
-    -- D. Require full address fields unless operation is DELETE
+    -- D. Exige campos de endereço completos, a menos que a operation seja DELETE
     CONSTRAINT valid_address EXPECT (
       (address IS NOT NULL 
        AND city IS NOT NULL 
@@ -532,17 +532,17 @@ CREATE STREAMING TABLE sdp_cdc_1_bronze.customers_bronze_clean_demo
        AND zip_code IS NOT NULL)
        OR operation = "DELETE"),
 
-    -- E. Require valid email format (regex), skip check for DELETE, drop invalid rows
+    -- E. Exige formato de email válido (regex), pula a checagem para DELETE, descarta linhas inválidas
     CONSTRAINT valid_email EXPECT (
       rlike(email, '^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$') 
       OR operation = "DELETE") 
       ON VIOLATION DROP ROW
   )
-  COMMENT "Clean raw bronze data and apply quality constraints"
+  COMMENT "Limpa os dados bronze brutos e aplica constraints de qualidade"
 AS 
 SELECT 
   *,
-  CAST(from_unixtime(timestamp) AS timestamp) AS timestamp_datetime -- Convert unix timestamp
+  CAST(from_unixtime(timestamp) AS timestamp) AS timestamp_datetime -- Converte o unix timestamp
 FROM STREAM sdp_cdc_1_bronze.customers_bronze_raw_demo;
 <!-------------------END SOLUTION CODE------------------->
 </code></pre>
@@ -587,43 +587,43 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<p><strong>Review the code:</strong></p>
+<p><strong>Revise o código:</strong></p>
 <ul>
 <li>
-<p>This query creates the <strong>sdp_cdc_1_bronze.customers_bronze_clean_demo</strong> table from the <strong>sdp_cdc_1_bronze.customers_bronze_raw_demo</strong> table.  </p>
+<p>Esta query cria a tabela <strong>sdp_cdc_1_bronze.customers_bronze_clean_demo</strong> a partir da tabela <strong>sdp_cdc_1_bronze.customers_bronze_raw_demo</strong>.  </p>
 </li>
 <li>
-<p>It applies the <strong>data quality constraints</strong> defined above to ensure only valid CDC records progress to the next stage before reaching Silver.</p>
+<p>Ela aplica as <strong>constraints de qualidade de dados</strong> definidas acima para garantir que apenas registros CDC válidos avancem para o próximo estágio antes de chegar ao Silver.</p>
 </li>
 <li>
-<p>Also <strong>Converts UNIX timestamp to readable timestamp</strong> using <code>CAST(from_unixtime(timestamp) AS timestamp)</code> as <code>timestamp_datetime</code>.</p>
+<p>Também <strong>converte o UNIX timestamp para um timestamp legível</strong> usando <code>CAST(from_unixtime(timestamp) AS timestamp)</code> como <code>timestamp_datetime</code>.</p>
 </li>
 </ul>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>Select <strong>Dry Run</strong> to verify that your pipeline and SQL code are configured correctly.  </li>
+<li>Selecione <strong>Dry Run</strong> para verificar se seu pipeline e código SQL estão configurados corretamente.  </li>
 </ol>
-<p>This will validate your settings without actually running the full pipeline.</p>
+<p>Isso validará suas configurações sem realmente executar o pipeline completo.</p>
 <h4>Checkpoint</h4>
 <p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/cdc_lecture/cdc_dry_run_bronze_clean.png" alt="Bronze Clean" width="1200"></p>
 </section>
 <section class="notebook-cell">
-<h3>C6.Implement <code>AUTO CDC INTO</code> for the Silver Table</h3>
-<p>Now that the <strong>Bronze</strong> layer (<strong>sdp_cdc_1_bronze.customers_bronze_raw_demo -&gt; sdp_cdc_1_bronze.customers_bronze_clean_demo</strong>) data is clean, we'll create a <strong>Silver</strong> table that automatically applies inserts, updates, and deletes as new changes arrive.</p>
+<h3>C6. Implemente <code>AUTO CDC INTO</code> para a Tabela Silver</h3>
+<p>Agora que os dados da camada <strong>Bronze</strong> (<strong>sdp_cdc_1_bronze.customers_bronze_raw_demo -&gt; sdp_cdc_1_bronze.customers_bronze_clean_demo</strong>) estão limpos, vamos criar uma tabela <strong>Silver</strong> que aplica automaticamente inserções, atualizações e exclusões à medida que novas mudanças chegam.</p>
 </section>
 <section class="notebook-cell">
-<h4>The problem, manual CDC logic is brittle</h4>
-<p>In many pipelines, Change Data Capture is implemented manually.</p>
-<p>That usually means writing and maintaining a <code>MERGE INTO</code> statement that must correctly handle:</p>
+<h4>O problema: lógica de CDC manual é frágil</h4>
+<p>Em muitos pipelines, o Change Data Capture é implementado manualmente.</p>
+<p>Isso geralmente significa escrever e manter uma instrução <code>MERGE INTO</code> que precisa lidar corretamente com:</p>
 <ul>
-<li>Inserts, updates, and deletes  </li>
-<li>Duplicate events and replays  </li>
-<li>Late arriving changes  </li>
-<li>Correct keys and match conditions  </li>
+<li>Inserções, atualizações e exclusões  </li>
+<li>Eventos duplicados e replays  </li>
+<li>Mudanças que chegam atrasadas  </li>
+<li>Chaves e condições de match corretas  </li>
 </ul>
-<p>Even when the SQL looks simple, the logic becomes easy to break as requirements change.</p>
-<h4>Traditional approach, manual <code>MERGE INTO</code> example</h4>
+<p>Mesmo quando o SQL parece simples, a lógica se torna fácil de quebrar à medida que os requisitos mudam.</p>
+<h4>Abordagem tradicional: exemplo manual com <code>MERGE INTO</code></h4>
 <pre><code class="language-sql">MERGE INTO target_table AS t
 USING source_stream AS s
 ON t.id = s.id
@@ -634,42 +634,42 @@ WHEN MATCHED AND s.operation = 'DELETE'
 WHEN NOT MATCHED AND s.operation = 'INSERT'
   THEN INSERT *
 </code></pre>
-<p><strong>Why this is a problem</strong></p>
+<p><strong>Por que isso é um problema</strong></p>
 <ul>
-<li>You must maintain the merge logic yourself  </li>
-<li>You must trust incoming operation values and handle edge cases  </li>
-<li>As schemas evolve and rules change, the merge often grows into a large block of SQL that is difficult to test and easy to get wrong  </li>
+<li>Você precisa manter a lógica de merge sozinho  </li>
+<li>Você precisa confiar nos valores de operation recebidos e tratar casos extremos  </li>
+<li>À medida que schemas evoluem e regras mudam, o merge frequentemente cresce para um grande bloco de SQL, difícil de testar e fácil de errar  </li>
 </ul>
-<p>Next, we will replace this pattern with <code>AUTO CDC INTO</code>, which allows the pipeline to apply CDC changes automatically with far less code.</p>
+<p>A seguir, vamos substituir esse padrão por <code>AUTO CDC INTO</code>, que permite que o pipeline aplique mudanças de CDC automaticamente com muito menos código.</p>
 </section>
 <section class="notebook-cell">
-<h4>SOLUTION</h4>
-<p><code>AUTO CDC INTO</code> in <strong>Spark Declarative Pipelines</strong> simplifies this process by automatically managing inserts, updates, and deletes in streaming data, reducing boilerplate code and improving reliability.</p>
-<p><code>AUTO CDC INTO</code> provides the following guarantees and requirements:</p>
+<h4>SOLUÇÃO</h4>
+<p><code>AUTO CDC INTO</code> em <strong>Spark Declarative Pipelines</strong> simplifica esse processo, gerenciando automaticamente inserções, atualizações e exclusões em dados de streaming, reduzindo código boilerplate e melhorando a confiabilidade.</p>
+<p><code>AUTO CDC INTO</code> fornece as seguintes garantias e requisitos:</p>
 <ul>
-<li>Performs incremental and streaming ingestion of CDC data  </li>
-<li>Lets you define one or more primary key fields for identifying records  </li>
-<li>Assumes rows contain inserts and updates by default  </li>
-<li><strong>Optionally</strong> applies deletes when defined  </li>
-<li>Orders late-arriving records using a <strong>sequencing key</strong>  </li>
-<li>Allows excluding columns with the <strong><code>EXCEPT</code></strong> keyword  </li>
-<li>Defaults to <strong>SCD Type 1</strong>, though we will use <strong>SCD Type 2</strong> in this demonstration  </li>
+<li>Realiza ingestão incremental e de streaming de dados de CDC  </li>
+<li>Permite definir um ou mais campos de chave primária para identificar registros  </li>
+<li>Assume por padrão que as linhas contêm inserções e atualizações  </li>
+<li><strong>Opcionalmente</strong> aplica exclusões quando definido  </li>
+<li>Ordena registros que chegam atrasados usando uma <strong>sequencing key</strong>  </li>
+<li>Permite excluir colunas com a palavra-chave <strong><code>EXCEPT</code></strong>  </li>
+<li>Usa <strong>SCD Type 1</strong> por padrão, embora vamos usar <strong>SCD Type 2</strong> nesta demonstração  </li>
 </ul>
-<p>We will complete this in two steps:</p>
+<p>Vamos completar isso em duas etapas:</p>
 <ol>
-<li><strong>Create an empty Silver target table</strong> to store historical customer data using the SCD Type 2 pattern  </li>
-<li><strong>Use <code>AUTO CDC INTO</code></strong> to automatically apply inserts, updates, and deletes as new changes arrive  </li>
+<li><strong>Criar uma tabela target Silver vazia</strong> para armazenar dados históricos de clientes usando o padrão SCD Type 2  </li>
+<li><strong>Usar <code>AUTO CDC INTO</code></strong> para aplicar automaticamente inserções, atualizações e exclusões à medida que novas mudanças chegam  </li>
 </ol>
-<p><strong>NOTE:</strong> For more details, see the official documentation: <a href="https://docs.databricks.com/aws/en/ldp/cdc"><strong>The AUTO CDC APIs: Simplify change data capture with Apache Spark™ Declarative Pipelines</strong></a></p>
+<p><strong>NOTA:</strong> Para mais detalhes, veja a documentação oficial: <a href="https://docs.databricks.com/aws/en/ldp/cdc"><strong>The AUTO CDC APIs: Simplify change data capture with Apache Spark™ Declarative Pipelines</strong></a></p>
 </section>
 <section class="notebook-cell">
-<h4>C6.1 - Create an Empty Silver Target Table</h4>
-<p>Before we can use AUTO CDC INTO, we need to create the target table that will store our customer data with historical tracking.</p>
+<h4>C6.1 - Crie uma Tabela Target Silver Vazia</h4>
+<p>Antes de usarmos o AUTO CDC INTO, precisamos criar a tabela target que armazenará nossos dados de clientes com rastreamento histórico.</p>
 <ol>
-<li>The SQL command below creates or refreshes a <strong>streaming Silver table</strong> named <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong>.  </li>
+<li>O comando SQL abaixo cria ou atualiza uma <strong>streaming table Silver</strong> chamada <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong>.  </li>
 </ol>
-<p>This table will continuously receive incremental updates from the <strong>customers_bronze_clean_demo</strong> table as new change data arrives.  </p>
-<p>Copy and paste the code below into your <code>cdc_pipeline.sql</code> file.</p>
+<p>Esta tabela receberá continuamente atualizações incrementais da tabela <strong>customers_bronze_clean_demo</strong> à medida que novos dados de mudança chegam.  </p>
+<p>Copie e cole o código abaixo no seu arquivo <code>cdc_pipeline.sql</code>.</p>
 </section>
 <section class="notebook-cell">
 <p><button onclick="copyBlock()">Copiar para área de transferência</button></p>
@@ -677,12 +677,12 @@ WHEN NOT MATCHED AND s.operation = 'INSERT'
 <code>
 <!-------------------ADD SOLUTION CODE BELOW------------------->
 ---------------------------------------------------------------------------------------
--- STEP 3: Processing CDC Data with AUTO CDC INTO
+-- PASSO 3: Processando Dados de CDC com AUTO CDC INTO
 ---------------------------------------------------------------------------------------
 
--- a. Create the streaming target table if it's not already created
+-- a. Cria a tabela target de streaming, caso ainda não exista
 CREATE OR REFRESH STREAMING TABLE sdp_cdc_2_silver.customers_silver_scd2_demo
-  COMMENT 'SCD Type 2 Historical Customer Data';
+  COMMENT 'Dados Históricos de Clientes SCD Type 2';
 <!-------------------END SOLUTION CODE------------------->
 </code></pre>
 
@@ -726,24 +726,24 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<p><strong>Review the code</strong></p>
+<p><strong>Revise o código</strong></p>
 <ul>
 <li>
-<p><code>CREATE OR REFRESH STREAMING TABLE</code> - Creates the table <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> if it doesn't exist, or refreshes it if it does, ensuring it's ready for streaming updates.</p>
+<p><code>CREATE OR REFRESH STREAMING TABLE</code> - Cria a tabela <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> caso não exista, ou a atualiza caso já exista, garantindo que esteja pronta para receber atualizações de streaming.</p>
 </li>
 <li>
-<p><code>COMMENT</code> - Adds a description to document the table's purpose, identifying it as an <strong>SCD Type 2</strong> table used to track historical customer changes over time.</p>
+<p><code>COMMENT</code> - Adiciona uma descrição para documentar o propósito da tabela, identificando-a como uma tabela <strong>SCD Type 2</strong> usada para rastrear mudanças históricas de clientes ao longo do tempo.</p>
 </li>
 </ul>
-<p>Once the Silver target table exists, we can automatically propagate changes from the cleaned Bronze table using Apache Spark™ Declarative Pipelines with the <code>AUTO CDC INTO</code> command.</p>
+<p>Assim que a tabela target Silver existir, podemos propagar automaticamente as mudanças da tabela Bronze limpa usando Apache Spark™ Declarative Pipelines com o comando <code>AUTO CDC INTO</code>.</p>
 </section>
 <section class="notebook-cell">
-<h4>C6.2 - Perform SCD Type 2 with <code>AUTO CDC INTO</code></h4>
+<h4>C6.2 - Realize SCD Type 2 com <code>AUTO CDC INTO</code></h4>
 <ol>
 <li>
-<p>Before we run <code>AUTO CDC INTO</code>, let's take a closer look at the key columns in our cleaned Bronze table (<strong>sdp_cdc_1_bronze.customers_bronze_clean_demo</strong>). </p>
-<p>Understanding these columns helps explain how <strong>Spark Declarative Pipelines</strong> detects and applies changes across <code>INSERT</code>, <code>UPDATE</code>, and <code>DELETE</code> operations.</p>
-<p>Below is a simplified preview of the data. We've included only the columns that are important for <strong>Change Data Capture (CDC)</strong>.</p>
+<p>Antes de executarmos o <code>AUTO CDC INTO</code>, vamos observar mais de perto as colunas-chave da nossa tabela Bronze limpa (<strong>sdp_cdc_1_bronze.customers_bronze_clean_demo</strong>). </p>
+<p>Entender essas colunas ajuda a explicar como o <strong>Spark Declarative Pipelines</strong> detecta e aplica mudanças nas operações <code>INSERT</code>, <code>UPDATE</code> e <code>DELETE</code>.</p>
+<p>Abaixo está um preview simplificado dos dados. Incluímos apenas as colunas que são importantes para <strong>Change Data Capture (CDC)</strong>.</p>
 </li>
 </ol>
 <table>
@@ -797,39 +797,39 @@ function fallbackCopy(text) {
 </tr>
 </tbody>
 </table>
-<p><strong>Key Columns</strong></p>
+<p><strong>Colunas-Chave</strong></p>
 <ul>
 <li>
-<p><strong>customer_id</strong>- Serves as the <strong>primary key</strong> used to identify each unique customer record. CDC logic depends on this column to determine which row should be <code>updated</code> or <code>deleted</code> in the target table.</p>
+<p><strong>customer_id</strong> - Serve como a <strong>chave primária</strong> usada para identificar cada registro único de cliente. A lógica de CDC depende dessa coluna para determinar qual linha deve ser <code>atualizada</code> ou <code>excluída</code> na tabela target.</p>
 </li>
 <li>
-<p><strong>operation</strong> - Indicates the type of change from the source system (<code>NEW</code>, <code>UPDATE</code>, or <code>DELETE</code>).  </p>
+<p><strong>operation</strong> - Indica o tipo de mudança do sistema de origem (<code>NEW</code>, <code>UPDATE</code> ou <code>DELETE</code>).  </p>
 </li>
-<li><code>DELETE</code> operations remove the corresponding record from the target table.  </li>
+<li>Operações <code>DELETE</code> removem o registro correspondente da tabela target.  </li>
 <li>
-<p><code>NEW</code> and <code>UPDATE</code> operations are automatically processed and merged by <code>AUTO CDC</code> using the <strong>customer_id</strong> primary key column.</p>
-</li>
-<li>
-<p><strong>timestamp_datetime</strong> - Defines the <strong>order of operations</strong>. This ensures <code>updates</code> are applied in the correct sequence when multiple changes occur for the same record.</p>
+<p>Operações <code>NEW</code> e <code>UPDATE</code> são processadas e mescladas automaticamente pelo <code>AUTO CDC</code> usando a coluna de chave primária <strong>customer_id</strong>.</p>
 </li>
 <li>
-<p><strong>source_file</strong> - Helps trace which file each record came from, useful for debugging and validation during pipeline runs.</p>
+<p><strong>timestamp_datetime</strong> - Define a <strong>ordem das operações</strong>. Isso garante que as <code>atualizações</code> sejam aplicadas na sequência correta quando múltiplas mudanças ocorrem para o mesmo registro.</p>
+</li>
+<li>
+<p><strong>source_file</strong> - Ajuda a rastrear de qual arquivo cada registro veio, útil para debugging e validação durante as execuções do pipeline.</p>
 </li>
 </ul>
-<p>Next, we'll use these columns to perform <code>AUTO CDC INTO</code>, allowing Spark Declarative Pipelines <strong>to automatically manage incremental updates between Bronze and Silver</strong>.</p>
+<p>Em seguida, usaremos essas colunas para realizar o <code>AUTO CDC INTO</code>, permitindo que o Spark Declarative Pipelines <strong>gerencie automaticamente as atualizações incrementais entre Bronze e Silver</strong>.</p>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>The <code>AUTO CDC INTO</code> command defines a <strong>Spark Declarative Pipeline flow</strong> that applies <strong>SCD Type 2</strong> Change Data Capture logic to keep the <strong>Silver</strong> table continuously up to date.  </li>
+<li>O comando <code>AUTO CDC INTO</code> define um <strong>flow de Spark Declarative Pipeline</strong> que aplica a lógica de Change Data Capture <strong>SCD Type 2</strong> para manter a tabela <strong>Silver</strong> continuamente atualizada.  </li>
 </ol>
-<p>It automatically manages how <code>INSERTS</code>, <code>UPDATES</code>, and <code>DELETES</code> are applied between the following:  </p>
+<p>Ele gerencia automaticamente como <code>INSERTS</code>, <code>UPDATES</code> e <code>DELETES</code> são aplicados entre o seguinte:  </p>
 <ul>
 <li>
-<p><code>Source:</code> <strong>sdp_cdc_1_bronze.customers_bronze_clean_demo</strong> - The streaming Bronze table containing cleaned CDC records.  </p>
+<p><code>Source:</code> <strong>sdp_cdc_1_bronze.customers_bronze_clean_demo</strong> - A tabela Bronze de streaming que contém os registros de CDC limpos.  </p>
 </li>
 <li>
-<p><code>Target:</code> <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> - The Silver table that stores the current and historical customer data.</p>
-<p>Copy and paste the code below into your <code>cdc_pipeline.sql</code> file.</p>
+<p><code>Target:</code> <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> - A tabela Silver que armazena os dados de clientes atuais e históricos.</p>
+<p>Copie e cole o código abaixo no seu arquivo <code>cdc_pipeline.sql</code>.</p>
 </li>
 </ul>
 </section>
@@ -838,15 +838,15 @@ function fallbackCopy(text) {
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
 <!-------------------ADD SOLUTION CODE BELOW------------------->
--- b. Perform SCD Type 2 into the silver table
+-- b. Realiza SCD Type 2 na tabela silver
 CREATE FLOW customers_scd_type_2_flow AS 
-AUTO CDC INTO sdp_cdc_2_silver.customers_silver_scd2_demo  -- Target: Where processed records are stored
-FROM STREAM sdp_cdc_1_bronze.customers_bronze_clean_demo   -- Source: Clean CDC records from Bronze layer
-  KEYS (customer_id)                                       -- Primary key: Used to match records for updates/deletes
-  APPLY AS DELETE WHEN operation = "DELETE"                -- Delete logic: Remove records marked as DELETE
-  SEQUENCE BY timestamp_datetime                           -- Ordering: Ensures changes are applied in correct sequence
-  COLUMNS * EXCEPT (timestamp, _rescued_data, operation)   -- Column selection: Include all except metadata fields
-  STORED AS SCD TYPE 2;                                    -- SCD Type 2: Maintains historical versions with __START_AT and __END_AT
+AUTO CDC INTO sdp_cdc_2_silver.customers_silver_scd2_demo  -- Target: Onde os registros processados são armazenados
+FROM STREAM sdp_cdc_1_bronze.customers_bronze_clean_demo   -- Source: Registros de CDC limpos da camada Bronze
+  KEYS (customer_id)                                       -- Chave primária: usada para casar registros em updates/deletes
+  APPLY AS DELETE WHEN operation = "DELETE"                -- Lógica de delete: remove registros marcados como DELETE
+  SEQUENCE BY timestamp_datetime                           -- Ordenação: garante que as mudanças sejam aplicadas na sequência correta
+  COLUMNS * EXCEPT (timestamp, _rescued_data, operation)   -- Seleção de colunas: inclui todas exceto campos de metadata
+  STORED AS SCD TYPE 2;                                    -- SCD Type 2: mantém versões históricas com __START_AT e __END_AT
 <!-------------------END SOLUTION CODE------------------->
 </code></pre>
 
@@ -890,177 +890,177 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<p><strong>Review the code</strong></p>
+<p><strong>Revise o código</strong></p>
 <ul>
-<li><code>CREATE FLOW customers_scd_type_2_flow AS</code> - Creates a named flow (<code>customers_scd_type_2_flow</code>) that defines how CDC changes will be processed.  </li>
-<li><code>AUTO CDC INTO sdp_cdc_2_silver.customers_silver_scd2_demo</code> - Applies the CDC logic to the <strong>target</strong> Silver table.  </li>
-<li><code>FROM STREAM sdp_cdc_1_bronze.customers_bronze_clean_demo</code> - Reads the streaming <strong>source data</strong> that includes new inserts, updates, and deletes.  </li>
-<li><code>KEYS (customer_id)</code> - Identifies the unique customer record by its primary key.  </li>
-<li><code>APPLY AS DELETE WHEN operation = "DELETE"</code> - Ensures records with a delete operation are removed from the target.  </li>
-<li><code>SEQUENCE BY timestamp_datetime</code> - Orders incoming records so late-arriving data is processed correctly.  </li>
-<li><code>COLUMNS * EXCEPT (timestamp, _rescued_data, operation)</code> - Selects all columns from the source except metadata or system fields.  </li>
+<li><code>CREATE FLOW customers_scd_type_2_flow AS</code> - Cria um flow nomeado (<code>customers_scd_type_2_flow</code>) que define como as mudanças de CDC serão processadas.  </li>
+<li><code>AUTO CDC INTO sdp_cdc_2_silver.customers_silver_scd2_demo</code> - Aplica a lógica de CDC à tabela Silver <strong>target</strong>.  </li>
+<li><code>FROM STREAM sdp_cdc_1_bronze.customers_bronze_clean_demo</code> - Lê os <strong>dados de origem</strong> de streaming que incluem novas inserções, atualizações e exclusões.  </li>
+<li><code>KEYS (customer_id)</code> - Identifica o registro único de cliente pela sua chave primária.  </li>
+<li><code>APPLY AS DELETE WHEN operation = "DELETE"</code> - Garante que registros com operação de exclusão sejam removidos do target.  </li>
+<li><code>SEQUENCE BY timestamp_datetime</code> - Ordena os registros recebidos para que dados atrasados sejam processados corretamente.  </li>
+<li><code>COLUMNS * EXCEPT (timestamp, _rescued_data, operation)</code> - Seleciona todas as colunas da origem, exceto campos de metadata ou de sistema.  </li>
 <li>
-<p><code>STORED AS SCD TYPE 2</code> - Specifies the <strong>Slowly Changing Dimension Type 2</strong> method, which updates records in place, keeping historical versions.</p>
+<p><code>STORED AS SCD TYPE 2</code> - Especifica o método <strong>Slowly Changing Dimension Type 2</strong>, que atualiza registros no local, mantendo versões históricas.</p>
 </li>
 <li>
-<p><strong>NOTE:</strong> For more information view the Databricks documentation <a href="https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-apply-changes-into">AUTO CDC INTO (Apache Spark™ Declarative Pipelines)</a>.</p>
+<p><strong>NOTA:</strong> Para mais informações, veja a documentação da Databricks <a href="https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-apply-changes-into">AUTO CDC INTO (Apache Spark™ Declarative Pipelines)</a>.</p>
 </li>
 </ul>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>Select <strong>Dry Run</strong> to verify that your pipeline and SQL code are configured correctly.  </li>
+<li>Selecione <strong>Dry Run</strong> para verificar se seu pipeline e código SQL estão configurados corretamente.  </li>
 </ol>
-<p>This will validate your settings without actually running the full pipeline.</p>
+<p>Isso validará suas configurações sem realmente executar o pipeline completo.</p>
 <h4>Checkpoint</h4>
 <p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/cdc_lecture/cdc_dry_run_auto_cdc_run1.png" alt="AUTO CDC" width="1200"></p>
 </section>
 <section class="notebook-cell">
-<h2>D. Pipeline Execution and Analysis (Run with 1 JSON File)</h2>
+<h2>D. Execução e Análise do Pipeline (Execução com 1 Arquivo JSON)</h2>
 </section>
 <section class="notebook-cell">
-<h3>D1. Run the Spark Declarative Pipeline</h3>
+<h3>D1. Execute o Spark Declarative Pipeline</h3>
 <ol>
 <li>
-<p>In the <strong>Lakeflow Pipelines Editor</strong>, run your <strong>Spark Declarative Pipeline</strong>. The first run may take a few minutes.  </p>
+<p>No <strong>Lakeflow Pipelines Editor</strong>, execute seu <strong>Spark Declarative Pipeline</strong>. A primeira execução pode levar alguns minutos.  </p>
 </li>
 <li>
-<p>Once the pipeline finishes, verify it looks similar to the example below.</p>
+<p>Quando o pipeline terminar, verifique se ele se parece com o exemplo abaixo.</p>
 </li>
 </ol>
 <h4>Checkpoint</h4>
 <p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/cdc_lecture/cdc_01_pipeline-run.png" alt="Pipeline Run 1" width="1200"></p>
 </section>
 <section class="notebook-cell">
-<h3>D2. Quick Review: AUTO CDC INTO (SCD Type 2 Behavior)</h3>
+<h3>D2. Revisão Rápida: AUTO CDC INTO (Comportamento do SCD Type 2)</h3>
 <p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/cdc_lecture/02-scd-type-2-01-review-slide.png" alt="SCD Type 2 Review" width="1200"></p>
-<p>Recall <code>AUTO CDC INTO</code> in Spark Declarative Pipelines automatically tracks historical changes without manual merge logic. With <strong>SCD Type 2</strong> it creates two new columns:</p>
+<p>Lembrando: o <code>AUTO CDC INTO</code> no Spark Declarative Pipelines rastreia automaticamente mudanças históricas sem lógica manual de merge. Com <strong>SCD Type 2</strong>, ele cria duas novas colunas:</p>
 <ul>
 <li>
-<p><strong>__START_AT</strong> - Timestamp when the record becomes active. </p>
+<p><strong>__START_AT</strong> - Timestamp de quando o registro se torna ativo. </p>
 </li>
 <li>
-<p><strong>__END_AT</strong> - Timestamp when the record is closed (after an update or delete).  </p>
+<p><strong>__END_AT</strong> - Timestamp de quando o registro é encerrado (após uma atualização ou exclusão).  </p>
 </li>
 </ul>
-<p>When a row changes, the old version gets an <strong>__END_AT</strong> timestamp, and a new version starts with a fresh <strong>__START_AT</strong>. </p>
-<p>This keeps a full SCD Type 2 history automatically.</p>
+<p>Quando uma linha muda, a versão antiga recebe um timestamp <strong>__END_AT</strong>, e uma nova versão começa com um <strong>__START_AT</strong> novo. </p>
+<p>Isso mantém automaticamente um histórico completo de SCD Type 2.</p>
 </section>
 <section class="notebook-cell">
-<h3>D3. Explore the Spark Declarative Pipeline Results</h3>
-<p>After the pipeline completes, review the outputs to confirm data flow and CDC behavior on the first run with <strong>one</strong> JSON file.</p>
+<h3>D3. Explore os Resultados do Spark Declarative Pipeline</h3>
+<p>Após o pipeline concluir, revise as saídas para confirmar o fluxo de dados e o comportamento do CDC na primeira execução com <strong>um</strong> arquivo JSON.</p>
 <ol>
-<li>In the pipeline graph:</li>
+<li>No grafo do pipeline:</li>
 <li>
-<p><strong>939</strong> rows were streamed through all layers, passing Bronze data quality checks and upserting into <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong>.</p>
+<p><strong>939</strong> linhas fizeram streaming por todas as camadas, passando pelas checagens de qualidade de dados do Bronze e sendo upsertadas em <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong>.</p>
 </li>
 <li>
-<p>In the <strong>Lakeflow Pipeline Editor</strong> table window:</p>
+<p>Na janela de tabelas do <strong>Lakeflow Pipeline Editor</strong>:</p>
 </li>
 <li>
-<p>View the <strong>Upserted records</strong> column in <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> and confirm all <strong>939</strong> rows were inserted as new customers.</p>
+<p>Visualize a coluna <strong>Upserted records</strong> em <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> e confirme que todas as <strong>939</strong> linhas foram inseridas como novos clientes.</p>
 </li>
 <li>
-<p>In the <strong>Tables</strong> view, select the <strong>customers_silver_scd2_demo</strong> table:</p>
+<p>Na visão <strong>Tables</strong>, selecione a tabela <strong>customers_silver_scd2_demo</strong>:</p>
 </li>
-<li>Preview the table to inspect the data.</li>
-<li>Scroll right to see the <strong>__START_AT</strong> and <strong>__END_AT</strong> columns  were automatically added by the <code>AUTO CDC INTO</code> SCD Type 2 process indicating active, inactive and removed data (right now all rows are active - <strong>__END_AT</strong> = <code>null</code>).</li>
+<li>Faça um preview da tabela para inspecionar os dados.</li>
+<li>Role para a direita para ver as colunas <strong>__START_AT</strong> e <strong>__END_AT</strong>, que foram adicionadas automaticamente pelo processo <code>AUTO CDC INTO</code> SCD Type 2, indicando dados ativos, inativos e removidos (neste momento todas as linhas estão ativas - <strong>__END_AT</strong> = <code>null</code>).</li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h3>D4. Explore the Pipeline CDC Silver Streaming Table</h3>
+<h3>D4. Explore a Silver Streaming Table CDC do Pipeline</h3>
 </section>
 <section class="notebook-cell">
 <ol>
 <li>
-<p>Run the cell below to confirm that <code>current_catalog()</code> references your catalog and that your settings are still active (they might have been cleared).  </p>
-<p>If they were cleared, reset your default catalog using: <code>USE CATALOG your_catalog_name;</code></p>
+<p>Execute a célula abaixo para confirmar que <code>current_catalog()</code> referencia seu catálogo e que suas configurações ainda estão ativas (elas podem ter sido limpas).  </p>
+<p>Se elas foram limpas, redefina seu catálogo padrão usando: <code>USE CATALOG your_catalog_name;</code></p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>Run the query below to view the <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> CDC streaming table (SCD Type 2).  </li>
+<li>Execute a query abaixo para visualizar a streaming table de CDC <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> (SCD Type 2).  </li>
 </ol>
-<p>Observe the following:</p>
+<p>Observe o seguinte:</p>
 <ul>
 <li>
-<p>The table contains all <strong>939 rows</strong> from the <strong>00.json</strong> file, as all customers are new.  </p>
+<p>A tabela contém todas as <strong>939 linhas</strong> do arquivo <strong>00.json</strong>, já que todos os clientes são novos.  </p>
 </li>
 <li>
-<p>Scroll to the right to see that <code>AUTO CDC INTO (SCD Type 2)</code> added two columns:  </p>
+<p>Role para a direita para ver que o <code>AUTO CDC INTO (SCD Type 2)</code> adicionou duas colunas:  </p>
 </li>
-<li><strong>__START_AT</strong>: Timestamp showing when the current version of each record became active. This matches the sequence column <strong>timestamp_datetime</strong>.  </li>
+<li><strong>__START_AT</strong>: Timestamp mostrando quando a versão atual de cada registro se tornou ativa. Isso corresponde à coluna de sequência <strong>timestamp_datetime</strong>.  </li>
 <li><strong>__END_AT</strong>: <ul>
-<li>Timestamp showing when the record became inactive due to a <strong>DELETE</strong> or <strong>UPDATE</strong>. </li>
-<li>Filtering where <strong>__END_AT</strong> is <code>NULL</code> returns all active customers.  </li>
+<li>Timestamp mostrando quando o registro se tornou inativo devido a um <strong>DELETE</strong> ou <strong>UPDATE</strong>. </li>
+<li>Filtrar onde <strong>__END_AT</strong> é <code>NULL</code> retorna todos os clientes ativos.  </li>
 </ul>
 </li>
 </ul>
-<p>Since this is the first ingestion from <strong>00.json</strong>, all records are active and <strong>__END_AT</strong> contains only <code>NULL</code> values.</p>
-<p><strong>NOTES:</strong><br />
-- These columns implement <strong>Slowly Changing Dimension (SCD) Type 2</strong> tracking.<br />
-- <code>AUTO CDC INTO</code> automatically manages <strong>__START_AT</strong> and <strong>__END_AT</strong> to record the valid time range of each version.  </p>
+<p>Como esta é a primeira ingestão a partir de <strong>00.json</strong>, todos os registros estão ativos e <strong>__END_AT</strong> contém apenas valores <code>NULL</code>.</p>
+<p><strong>NOTAS:</strong><br />
+- Essas colunas implementam o rastreamento de <strong>Slowly Changing Dimension (SCD) Type 2</strong>.<br />
+- O <code>AUTO CDC INTO</code> gerencia automaticamente <strong>__START_AT</strong> e <strong>__END_AT</strong> para registrar o intervalo de tempo válido de cada versão.  </p>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>Run the cell below to query the CDC table for <strong>all current customers</strong> by filtering where <strong>__END_AT</strong> is <code>NULL</code>. </li>
+<li>Execute a célula abaixo para consultar na tabela de CDC <strong>todos os clientes atuais</strong>, filtrando onde <strong>__END_AT</strong> é <code>NULL</code>. </li>
 </ol>
-<p>Recall a <code>NULL</code> value in the <strong>__END_AT</strong> column indicates all active (current) records.</p>
-<p>Review the results and confirm that on the first run all <strong>939</strong> records are active.</p>
+<p>Lembre-se de que um valor <code>NULL</code> na coluna <strong>__END_AT</strong> indica todos os registros ativos (atuais).</p>
+<p>Revise os resultados e confirme que, na primeira execução, todos os <strong>939</strong> registros estão ativos.</p>
 </section>
 <section class="notebook-cell">
 <ol>
 <li>
-<p>To find all <strong>deleted customer records</strong> in an SCD Type 2 table created with <code>AUTO CDC INTO</code>, you need to locate the <strong>most recent version of each record</strong> and check if the <strong>__END_AT</strong> <code>IS NOT NULL</code> (contains a value).  </p>
+<p>Para encontrar todos os <strong>registros de clientes excluídos</strong> em uma tabela SCD Type 2 criada com <code>AUTO CDC INTO</code>, você precisa localizar a <strong>versão mais recente de cada registro</strong> e verificar se <strong>__END_AT</strong> <code>IS NOT NULL</code> (contém um valor).  </p>
 <ul>
-<li><strong>NOTE:</strong> Recall a non-null <strong>__END_AT</strong> value indicates that the record has been marked as deleted.  </li>
+<li><strong>NOTA:</strong> Lembre-se de que um valor não nulo de <strong>__END_AT</strong> indica que o registro foi marcado como excluído.  </li>
 </ul>
-<p>The example query below demonstrates one way to find these records. Run the cell and confirm that <strong>0</strong> results are returned, since no deletions have occurred yet in the <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> CDC table. </p>
+<p>A query de exemplo abaixo demonstra uma forma de encontrar esses registros. Execute a célula e confirme que <strong>0</strong> resultados são retornados, já que nenhuma exclusão ocorreu ainda na tabela de CDC <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong>. </p>
 </li>
 </ol>
-<p><strong>Code details</strong>
-- This identifies <strong>removed customers</strong> by grouping all versions, selecting each customer's latest record, and keeping only those marked as deleted, showing their final details before removal.</p>
-<pre><code>- **Use MAX_BY to find the latest record** - The function `MAX_BY(value, __START_AT)` returns the value from the row with the most recent `__START_AT` timestamp.  
-    - `MAX_BY(name, __START_AT)` - most recent name  
-    - `MAX_BY(address, __START_AT)` - most recent address  
-    - `MAX_BY(__END_AT, __START_AT)` - most recent deletion marker from the most recent record
+<p><strong>Detalhes do código</strong>
+- Isso identifica <strong>clientes removidos</strong> agrupando todas as versões, selecionando o registro mais recente de cada cliente e mantendo apenas aqueles marcados como excluídos, mostrando seus detalhes finais antes da remoção.</p>
+<pre><code>- **Use MAX_BY para encontrar o registro mais recente** - A função `MAX_BY(value, __START_AT)` retorna o valor da linha com o timestamp `__START_AT` mais recente.  
+    - `MAX_BY(name, __START_AT)` - nome mais recente  
+    - `MAX_BY(address, __START_AT)` - endereço mais recente  
+    - `MAX_BY(__END_AT, __START_AT)` - marcador de exclusão mais recente do registro mais recente
     - etc.
 
-- `GROUP BY customer_id` - Collects all historical versions of each customer into a single group so we can analyze changes over time.
+- `GROUP BY customer_id` - Reúne todas as versões históricas de cada cliente em um único grupo, para que possamos analisar mudanças ao longo do tempo.
 
-- `HAVING MAX_BY(__END_AT, __START_AT) IS NOT NULL` - Condition keeps only customers whose latest record has a value for `__END_AT`, meaning they have been removed.
+- `HAVING MAX_BY(__END_AT, __START_AT) IS NOT NULL` - Condição que mantém apenas clientes cujo registro mais recente tem um valor para `__END_AT`, significando que foram removidos.
 
-- [max_by aggregate function](https://docs.databricks.com/aws/en/sql/language-manual/functions/max_by)
+- [função de agregação max_by](https://docs.databricks.com/aws/en/sql/language-manual/functions/max_by)
 </code></pre>
 </section>
 <section class="notebook-cell">
-<h2>E. Create Gold Materialized Views</h2>
-<p>Rather than having users manually query the CDC table to <strong>find current or deleted customers</strong>, you can create <strong>Gold materialized views</strong> that surface this information automatically as an object.  </p>
-<p>These views simplify access for business users and can be added directly to your <strong>Spark Declarative Pipeline</strong> for continuous updates.</p>
-<p>In this step we'll create two views:</p>
+<h2>E. Crie Materialized Views Gold</h2>
+<p>Em vez de fazer com que os usuários consultem manualmente a tabela de CDC para <strong>encontrar clientes atuais ou excluídos</strong>, você pode criar <strong>materialized views Gold</strong> que expõem essa informação automaticamente como um objeto.  </p>
+<p>Essas views simplificam o acesso para usuários de negócio e podem ser adicionadas diretamente ao seu <strong>Spark Declarative Pipeline</strong> para atualizações contínuas.</p>
+<p>Nesta etapa, criaremos duas views:</p>
 <ul>
 <li>
-<p>a. <strong>current_customers_gold_demo</strong> - Returns only the most recent, active customer records (where <code>__END_AT IS NULL</code>).  </p>
+<p>a. <strong>current_customers_gold_demo</strong> - Retorna apenas os registros de clientes ativos mais recentes (onde <code>__END_AT IS NULL</code>).  </p>
 </li>
 <li>
-<p>b. <strong>removed_customers_gold_demo</strong> - Creates a <strong>Gold Materialized View</strong> that lists all customers who have been <strong>removed (deleted)</strong> from the SCD Type 2 table.  (It uses <code>MAX_BY</code> on multiple columns like <code>name</code>, <code>address</code>, <code>city</code>, <code>state</code>, and <code>zip_code</code> to return the most recent record per customer where the latest <code>__END_AT</code> value is not <code>NULL</code>.)</p>
+<p>b. <strong>removed_customers_gold_demo</strong> - Cria uma <strong>Materialized View Gold</strong> que lista todos os clientes que foram <strong>removidos (excluídos)</strong> da tabela SCD Type 2. (Ela usa <code>MAX_BY</code> em múltiplas colunas, como <code>name</code>, <code>address</code>, <code>city</code>, <code>state</code> e <code>zip_code</code>, para retornar o registro mais recente por cliente onde o valor mais recente de <code>__END_AT</code> não é <code>NULL</code>.)</p>
 </li>
 </ul>
-<p><strong>NOTES:</strong></p>
+<p><strong>NOTAS:</strong></p>
 <ul>
 <li>
-<p>Materialized views in <strong>Spark Declarative Pipelines</strong> provide an automatically updated layer for reporting and dashboards. They make it easy to query only the <strong>current customer state</strong> or identify <strong>removed customers</strong> without scanning the entire SCD history.</p>
+<p>Materialized views em <strong>Spark Declarative Pipelines</strong> fornecem uma camada atualizada automaticamente para relatórios e dashboards. Elas facilitam consultar apenas o <strong>estado atual dos clientes</strong> ou identificar <strong>clientes removidos</strong> sem varrer todo o histórico de SCD.</p>
 </li>
 <li>
-<p>When possible, <strong>materialized views</strong> are incrementally updated. For more information, see the <a href="https://docs.databricks.com/aws/en/optimizations/incremental-refresh">Incremental refresh for materialized views</a>.</p>
+<p>Quando possível, <strong>materialized views</strong> são atualizadas incrementalmente. Para mais informações, veja <a href="https://docs.databricks.com/aws/en/optimizations/incremental-refresh">Incremental refresh for materialized views</a>.</p>
 </li>
 </ul>
 </section>
 <section class="notebook-cell">
-<h3>E1. Create the Current Customers Materialized View</h3>
+<h3>E1. Crie a Materialized View de Clientes Atuais</h3>
 <ol>
-<li>Copy and paste the code below into your <code>cdc_pipeline.sql</code> file to create your gold materialized views. Explore the code.</li>
+<li>Copie e cole o código abaixo no seu arquivo <code>cdc_pipeline.sql</code> para criar suas materialized views gold. Explore o código.</li>
 </ol>
 </section>
 <section class="notebook-cell">
@@ -1069,18 +1069,18 @@ function fallbackCopy(text) {
 <code>
 <!-------------------ADD SOLUTION CODE BELOW------------------->
 ---------------------------------------------------------------------------------------
--- STEP 4: Create Materialized View for Current (Active) Customers
+-- PASSO 4: Criar Materialized View para Clientes Atuais (Ativos)
 ---------------------------------------------------------------------------------------
 
--- a. Create Gold Materialized View for Current Customers
+-- a. Cria a Materialized View Gold para Clientes Atuais
 CREATE OR REFRESH MATERIALIZED VIEW sdp_cdc_3_gold.current_customers_gold_demo
-COMMENT "Current updated list of active customers"
+COMMENT "Lista atualizada de clientes ativos"
 AS 
 SELECT 
   * EXCEPT (processing_time),
   current_timestamp() updated_at
 FROM sdp_cdc_2_silver.customers_silver_scd2_demo
-WHERE `__END_AT` IS NULL;      -- Filter for only rows that contain a null value for __END_AT, which indicates the current version of the record
+WHERE `__END_AT` IS NULL;      -- Filtra apenas linhas com valor nulo para __END_AT, o que indica a versão atual do registro
 <!-------------------END SOLUTION CODE------------------->
 </code></pre>
 
@@ -1124,13 +1124,13 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<h3>E2. Create the Deleted Customers Materialized View</h3>
+<h3>E2. Crie a Materialized View de Clientes Excluídos</h3>
 <ol>
 <li>
-<p>Copy and paste the code below into your <code>cdc_pipeline.sql</code> file to create your gold materialized views. Explore the code.</p>
+<p>Copie e cole o código abaixo no seu arquivo <code>cdc_pipeline.sql</code> para criar suas materialized views gold. Explore o código.</p>
 </li>
 <li>
-<p><strong>NOTE:</strong> Because this uses <code>GROUP BY</code> with aggregates instead of window functions, Lakeflow can update the view incrementally as new CDC data arrives instead of recomputing everything.</p>
+<p><strong>NOTA:</strong> Como isso usa <code>GROUP BY</code> com agregações em vez de window functions, o Lakeflow pode atualizar a view incrementalmente à medida que novos dados de CDC chegam, em vez de recomputar tudo.</p>
 </li>
 </ol>
 </section>
@@ -1139,7 +1139,7 @@ function fallbackCopy(text) {
 <pre id="copy-block" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; border:1px solid #e5e7eb; border-radius:10px; background:#f8fafc; padding:14px 16px; font-size:0.85rem; line-height:1.35; white-space:pre;">
 <code>
 <!-------------------ADD SOLUTION CODE BELOW------------------->
--- b. Create Gold Materialized View that lists all customers who have been removed (deleted) from the SCD Type 2 table.
+-- b. Cria a Materialized View Gold que lista todos os clientes que foram removidos (excluídos) da tabela SCD Type 2.
 CREATE OR REFRESH MATERIALIZED VIEW sdp_cdc_3_gold.removed_customers_gold_demo AS
 SELECT
   customer_id,
@@ -1152,7 +1152,7 @@ SELECT
   MAX_BY(__END_AT, __START_AT)  AS __END_AT
 FROM sdp_cdc_2_silver.customers_silver_scd2_demo
 GROUP BY customer_id
-HAVING MAX_BY(__END_AT, __START_AT) IS NOT NULL;  -- Find the latest records __END_AT value and only return if not null
+HAVING MAX_BY(__END_AT, __START_AT) IS NOT NULL;  -- Encontra o valor __END_AT do registro mais recente e retorna apenas se não for nulo
 <!-------------------END SOLUTION CODE------------------->
 </code></pre>
 
@@ -1196,79 +1196,79 @@ function fallbackCopy(text) {
 </script>
 </section>
 <section class="notebook-cell">
-<h3>E3. Run the Final Spark Declarative Pipeline with the Materialized Views</h3>
+<h3>E3. Execute o Spark Declarative Pipeline Final com as Materialized Views</h3>
 <ol>
-<li><strong>REQUIRED:</strong> Since you're developing the pipeline, run it using <strong>Run pipeline with full table refresh</strong> to remove all checkpoints, truncate the tables, and run the pipeline from scratch.<ul>
-<li>Select the <strong>Run Pipeline</strong> dropdown arrow &gt; <strong>Run pipeline with full table refresh</strong>.  </li>
+<li><strong>OBRIGATÓRIO:</strong> Como você está desenvolvendo o pipeline, execute-o usando <strong>Run pipeline with full table refresh</strong> para remover todos os checkpoints, truncar as tabelas e executar o pipeline do zero.<ul>
+<li>Selecione a seta do dropdown <strong>Run Pipeline</strong> &gt; <strong>Run pipeline with full table refresh</strong>.  </li>
 </ul>
 </li>
 </ol>
-<p>This action will:<br />
-   - Remove all existing checkpoints<br />
-   - Drop previously created tables<br />
-   - Restart the pipeline from scratch </p>
+<p>Essa ação irá:<br />
+   - Remover todos os checkpoints existentes<br />
+   - Excluir as tabelas criadas anteriormente<br />
+   - Reiniciar o pipeline do zero </p>
 <ol>
-<li>While the pipeline is running, update the bottom table view to show the <strong>Incrementalization</strong> column.  </li>
-<li><strong>NOTE:</strong> The <strong>Incrementalization</strong> column shows whether each materialized view was processed as a <strong>Full recompute</strong> or updated <strong>incrementally</strong>: <a href="https://docs.databricks.com/aws/en/optimizations/incremental-refresh">Incremental refresh for materialized views</a>.  </li>
+<li>Enquanto o pipeline estiver em execução, atualize a visão de tabelas na parte inferior para exibir a coluna <strong>Incrementalization</strong>.  </li>
+<li><strong>NOTA:</strong> A coluna <strong>Incrementalization</strong> mostra se cada materialized view foi processada como <strong>Full recompute</strong> ou atualizada <strong>incrementalmente</strong>: <a href="https://docs.databricks.com/aws/en/optimizations/incremental-refresh">Incremental refresh for materialized views</a>.  </li>
 </ol>
 <p><img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/cdc_lecture/incremental_mvs_column2.png" alt="MV Incremental Column" width="1000"> 
 <br></br>
-3. After the run completes, verify the pipeline results match the example below.</p>
+3. Após a execução ser concluída, verifique se os resultados do pipeline correspondem ao exemplo abaixo.</p>
 <h4>Checkpoint</h4>
 <blockquote>
-<p><strong>TROUBLESHOOTING:</strong> If you see zero rows processed in your streaming tables, you likely ran a normal pipeline run instead of <strong>Run pipeline with full table refresh</strong>. A standard run will not reprocess data that was already ingested and processed.
+<p><strong>TROUBLESHOOTING:</strong> Se você ver zero linhas processadas nas suas streaming tables, provavelmente executou uma execução normal do pipeline em vez de <strong>Run pipeline with full table refresh</strong>. Uma execução padrão não reprocessa dados que já foram ingeridos e processados.
 <img src="https://files.training.databricks.com/binder/prod_main/advanced-techniques-with-apache-spark-declarative-pipelines-en_us-1.0.3/images/20260828T162015Z/Advanced Techniques with Apache Spark Declarative Pipelines/Includes/images/cdc_lecture/cdc_02_pipeline-run-with-mvs-one-file.png" alt="Pipeline Run 2 - MVs" width="1200"></p>
 </blockquote>
 </section>
 <section class="notebook-cell">
-<h3>E4. Explore the Spark Declarative Pipeline Run</h3>
+<h3>E4. Explore a Execução do Spark Declarative Pipeline</h3>
 </section>
 <section class="notebook-cell">
-<p>After the pipeline completes, review the outputs to confirm data flow and CDC behavior.</p>
+<p>Após o pipeline concluir, revise as saídas para confirmar o fluxo de dados e o comportamento do CDC.</p>
 <ol>
-<li>In the pipeline graph:</li>
-<li><strong>939</strong> rows were streamed through all streaming tables, passing Bronze data quality checks and upserting into <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong>.</li>
-<li><strong>sdp_cdc_3_gold.current_customers_gold_demo</strong> shows <strong>939</strong> active customers, as no updates or deletes have occurred yet and all customers are active.</li>
+<li>No grafo do pipeline:</li>
+<li><strong>939</strong> linhas fizeram streaming por todas as streaming tables, passando pelas checagens de qualidade de dados do Bronze e sendo upsertadas em <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong>.</li>
+<li><strong>sdp_cdc_3_gold.current_customers_gold_demo</strong> mostra <strong>939</strong> clientes ativos, já que nenhuma atualização ou exclusão ocorreu ainda e todos os clientes estão ativos.</li>
 <li>
-<p><strong>sdp_cdc_3_gold.removed_customers_gold_demo</strong> shows <strong>0</strong> rows since no customers have been removed.</p>
+<p><strong>sdp_cdc_3_gold.removed_customers_gold_demo</strong> mostra <strong>0</strong> linhas, já que nenhum cliente foi removido.</p>
 </li>
 <li>
-<p>In the <strong>Lakeflow Pipeline Editor</strong> table window:</p>
+<p>Na janela de tabelas do <strong>Lakeflow Pipeline Editor</strong>:</p>
 </li>
-<li>The <strong>Upserted records</strong> column in <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> confirms all <strong>939</strong> rows were inserted as new customers.</li>
+<li>A coluna <strong>Upserted records</strong> em <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> confirma que todas as <strong>939</strong> linhas foram inseridas como novos clientes.</li>
 <li>
-<p>Both Gold materialized views display <code>Full recompute</code> in the <strong>Incrementalization</strong> column because this was their first computation.</p>
+<p>Ambas as materialized views Gold exibem <code>Full recompute</code> na coluna <strong>Incrementalization</strong>, pois essa foi sua primeira computação.</p>
 </li>
 <li>
-<p>In the <strong>Tables</strong> view, select <strong>customers_silver_scd2_demo</strong>:</p>
+<p>Na visão <strong>Tables</strong>, selecione <strong>customers_silver_scd2_demo</strong>:</p>
 </li>
-<li>Preview the table to inspect the data.</li>
-<li>Scroll right to see the <strong>__START_AT</strong> and <strong>__END_AT</strong> columns automatically added by the <code>AUTO CDC INTO</code> SCD Type 2 process.</li>
+<li>Faça um preview da tabela para inspecionar os dados.</li>
+<li>Role para a direita para ver as colunas <strong>__START_AT</strong> e <strong>__END_AT</strong> adicionadas automaticamente pelo processo <code>AUTO CDC INTO</code> SCD Type 2.</li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h2>F. Incremental Data Processing</h2>
-<p>The final pipeline is built, let's add another file to cloud storage!</p>
+<h2>F. Processamento Incremental de Dados</h2>
+<p>O pipeline final está construído, vamos adicionar mais um arquivo ao cloud storage!</p>
 </section>
 <section class="notebook-cell">
-<h3>F1. Land Additional Data</h3>
+<h3>F1. Adicione Dados Adicionais</h3>
 <ol>
-<li>Before landing additional data to cloud storage, let's query the <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> streaming table for customers <em>23225</em> and <em>23617</em>.  </li>
+<li>Antes de adicionar dados adicionais ao cloud storage, vamos consultar a streaming table <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> para os clientes <em>23225</em> e <em>23617</em>.  </li>
 </ol>
-<p>Review the output and notice the following:</p>
+<p>Revise a saída e observe o seguinte:</p>
 <ul>
 <li>
 <p><strong>customer_id = 23225</strong>  </p>
 <ul>
 <li><strong>Address:</strong> <code>76814 Jacqueline Mountains Suite 815</code>  </li>
 <li><strong>State:</strong> <code>TX</code>  </li>
-<li><strong>__END_AT:</strong> <code>null</code>, indicating this is the current active record for the customer.</li>
+<li><strong>__END_AT:</strong> <code>null</code>, indicando que este é o registro ativo atual do cliente.</li>
 </ul>
 </li>
 <li>
 <p><strong>customer_id = 23617</strong>  </p>
 <ul>
-<li>This record currently exists in the table and is active (<strong>__END_AT</strong> is <code>null</code>).</li>
+<li>Este registro atualmente existe na tabela e está ativo (<strong>__END_AT</strong> é <code>null</code>).</li>
 </ul>
 </li>
 </ul>
@@ -1276,62 +1276,62 @@ function fallbackCopy(text) {
 <section class="notebook-cell">
 <ol>
 <li>
-<p>Run the cell below to land a new JSON file (<strong>01.json</strong>) <strong>in</strong> your <strong>customer_source_files</strong> volume to simulate new files being added to your cloud storage location.</p>
-<p>Confirm that your <strong>customer_source_files</strong> volume contains two JSON files (<strong>00.json and 01.json</strong>).</p>
+<p>Execute a célula abaixo para adicionar um novo arquivo JSON (<strong>01.json</strong>) ao seu volume <strong>customer_source_files</strong>, simulando novos arquivos sendo adicionados ao seu local de cloud storage.</p>
+<p>Confirme que seu volume <strong>customer_source_files</strong> contém dois arquivos JSON (<strong>00.json e 01.json</strong>).</p>
 </li>
 </ol>
 </section>
-<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>## Copy a second JSON file into the user's volume
+<section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>## Copia um segundo arquivo JSON para o volume do usuário
 copy_files(
     copy_from = f'/Volumes/{my_catalog}/sdp_cdc_1_bronze/staging/customers', 
     copy_to = f'/Volumes/{my_catalog}/sdp_cdc_1_bronze/customer_source_files', 
     n = 2
 )
-## List files in your volume (confirm two files exist)
+## Lista os arquivos no seu volume (confirma que existem dois arquivos)
 spark.sql(f'LIST "{my_vol_path}"').display()</code></pre></div></section>
 <section class="notebook-cell">
 <ol>
-<li>Run the cell below to view the raw data in the <strong>01.json</strong> file before ingesting it into your pipeline.  </li>
+<li>Execute a célula abaixo para visualizar os dados brutos no arquivo <strong>01.json</strong> antes de ingeri-lo no seu pipeline.  </li>
 </ol>
-<p>Key points to notice:</p>
+<p>Pontos importantes a observar:</p>
 <ul>
 <li>
-<p>The <strong>01.json</strong> file contains <strong>23</strong> rows.  </p>
+<p>O arquivo <strong>01.json</strong> contém <strong>23</strong> linhas.  </p>
 </li>
 <li>
-<p>The <strong>operation</strong> column includes <strong>UPDATE</strong>, <strong>DELETE</strong>, and <strong>NEW</strong> values:</p>
+<p>A coluna <strong>operation</strong> inclui os valores <strong>UPDATE</strong>, <strong>DELETE</strong> e <strong>NEW</strong>:</p>
 <ul>
-<li>12 customers marked as <strong>UPDATE</strong>  </li>
-<li>1 customer marked as <strong>DELETE</strong>  </li>
-<li>10 customers marked as <strong>NEW</strong>  </li>
+<li>12 clientes marcados como <strong>UPDATE</strong>  </li>
+<li>1 cliente marcado como <strong>DELETE</strong>  </li>
+<li>10 clientes marcados como <strong>NEW</strong>  </li>
 </ul>
 </li>
 <li>
-<p>For <strong>customer_id = 23225</strong> (Sandy Adams):  </p>
+<p>Para o <strong>customer_id = 23225</strong> (Sandy Adams):  </p>
 <ul>
-<li>Original address (from <strong>00.json</strong>): <code>76814 Jacqueline Mountains Suite 815</code>, <code>TX</code>  </li>
-<li>Updated address (in this file): <code>512 John Stravenue Suite 239</code>, <code>TN</code>  </li>
+<li>Endereço original (do <strong>00.json</strong>): <code>76814 Jacqueline Mountains Suite 815</code>, <code>TX</code>  </li>
+<li>Endereço atualizado (neste arquivo): <code>512 John Stravenue Suite 239</code>, <code>TN</code>  </li>
 </ul>
 </li>
 <li>
-<p>For <strong>customer_id = 23617</strong>:  </p>
+<p>Para o <strong>customer_id = 23617</strong>:  </p>
 <ul>
-<li>The <strong>operation</strong> is <strong>DELETE</strong>.  </li>
-<li>All other columns contain <code>NULL</code> values.</li>
+<li>A <strong>operation</strong> é <strong>DELETE</strong>.  </li>
+<li>Todas as outras colunas contêm valores <code>NULL</code>.</li>
 </ul>
 </li>
 </ul>
 </section>
 <section class="notebook-cell">
-<h3>F2. Process Updates and Deletes</h3>
+<h3>F2. Processe Atualizações e Exclusões</h3>
 </section>
 <section class="notebook-cell">
 <ol>
 <li>
-<p>Return to your <strong>Spark Declarative Pipeline</strong> and select <strong>Run pipeline</strong> to incrementally process the new JSON file (<strong>01.json</strong>) and apply SCD Type 2 logic to your Silver table.  </p>
+<p>Volte ao seu <strong>Spark Declarative Pipeline</strong> e selecione <strong>Run pipeline</strong> para processar incrementalmente o novo arquivo JSON (<strong>01.json</strong>) e aplicar a lógica SCD Type 2 à sua tabela Silver.  </p>
 </li>
 <li>
-<p>Once complete, verify the results match the example below.</p>
+<p>Ao concluir, verifique se os resultados correspondem ao exemplo abaixo.</p>
 </li>
 </ol>
 <h3>Checkpoint</h3>
@@ -1340,136 +1340,136 @@ spark.sql(f'LIST "{my_vol_path}"').display()</code></pre></div></section>
 <section class="notebook-cell">
 <ol>
 <li>
-<p>After running the pipeline, review the <strong>Pipeline graph</strong>:</p>
+<p>Após executar o pipeline, revise o <strong>Pipeline graph</strong>:</p>
 </li>
 <li>
-<p><strong>23 rows</strong> were incrementally ingested from the new <strong>01.json</strong> file into both <strong>customers_bronze_raw_demo</strong> and <strong>customers_bronze_clean_demo</strong> , passing all data quality checks. </p>
+<p><strong>23 linhas</strong> foram ingeridas incrementalmente do novo arquivo <strong>01.json</strong> tanto em <strong>customers_bronze_raw_demo</strong> quanto em <strong>customers_bronze_clean_demo</strong>, passando por todas as checagens de qualidade de dados. </p>
 </li>
 <li>
-<p>In the <strong>customers_silver_scd2_demo</strong> streaming table (SCD Type 2), <strong>35 rows</strong> were processed and <strong>upserted</strong>.  </p>
+<p>Na streaming table <strong>customers_silver_scd2_demo</strong> (SCD Type 2), <strong>35 linhas</strong> foram processadas e <strong>upsertadas</strong>.  </p>
 <ul>
-<li>Breakdown of the <strong>35</strong> upserts from the <strong>01.json</strong> file:  <ul>
-<li><strong>12 updates</strong> - each update adds a new version(row) and marks the old one inactive (<strong>24 total upserts</strong>)  </li>
-<li><strong>1 delete</strong> - sets a value in the <strong>__END_AT</strong> column  </li>
-<li><strong>10 new</strong> customer inserts </li>
+<li>Detalhamento dos <strong>35</strong> upserts do arquivo <strong>01.json</strong>:  <ul>
+<li><strong>12 atualizações</strong> - cada atualização adiciona uma nova versão (linha) e marca a antiga como inativa (<strong>24 upserts no total</strong>)  </li>
+<li><strong>1 exclusão</strong> - define um valor na coluna <strong>__END_AT</strong>  </li>
+<li><strong>10 novas</strong> inserções de clientes </li>
 </ul>
 </li>
 </ul>
-<p><strong>Total changes:</strong> 24 + 1 + 10 = <strong>35</strong></p>
+<p><strong>Total de mudanças:</strong> 24 + 1 + 10 = <strong>35</strong></p>
 </li>
 <li>
-<p>The <strong>current_customers_gold_demo</strong> materialized view contains <strong>948</strong> active customers.</p>
+<p>A materialized view <strong>current_customers_gold_demo</strong> contém <strong>948</strong> clientes ativos.</p>
 </li>
 <li>
-<p>The <strong>removed_customers_gold_demo</strong> materialized view contains <strong>1</strong> deleted customer.</p>
+<p>A materialized view <strong>removed_customers_gold_demo</strong> contém <strong>1</strong> cliente excluído.</p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h2>G. Pipeline Object Analysis and Validation</h2>
+<h2>G. Análise e Validação dos Objetos do Pipeline</h2>
 </section>
 <section class="notebook-cell">
-<h3>G1. Query the CDC Silver Table</h3>
+<h3>G1. Consulte a Tabela Silver de CDC</h3>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>Query the data in the <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> streaming table with SCD Type 2 and observe the following:</li>
+<li>Consulte os dados na streaming table <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> com SCD Type 2 e observe o seguinte:</li>
 </ol>
-<p>a. The table contains <strong>961 rows</strong></p>
-<pre><code>  - **initial 939 customers**  
-  - \+ **12 updates** to existing customers 
-  - \+ **10 new customers**
+<p>a. A tabela contém <strong>961 linhas</strong></p>
+<pre><code>  - **939 clientes iniciais**  
+  - \+ **12 atualizações** de clientes existentes 
+  - \+ **10 novos clientes**
 </code></pre>
-<p>b. Scroll to the right and locate the <strong>__END_AT</strong> column. Then scroll down to rows <strong>82</strong> and <strong>83</strong>. Notice there are two rows for customer <strong>22668</strong>, the original record and the updated record.</p>
+<p>b. Role para a direita e localize a coluna <strong>__END_AT</strong>. Depois role para baixo até as linhas <strong>82</strong> e <strong>83</strong>. Note que há duas linhas para o cliente <strong>22668</strong>, o registro original e o registro atualizado.</p>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>Run the query on the <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> streaming table for all rows where <strong>__END_AT</strong> <code>IS NOT NULL</code> to view all rows where those customers rows are now inactive.</li>
+<li>Execute a query na streaming table <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> para todas as linhas onde <strong>__END_AT</strong> <code>IS NOT NULL</code>, para visualizar todas as linhas em que esses clientes estão agora inativos.</li>
 </ol>
-<p>Notice the following:
-  - <strong>13 rows</strong> are returned (<strong>12 UPDATES</strong> + <strong>1 DELETE</strong>)
-  - The <strong>__END_AT</strong> column indicates the date and time that the row was either updated or marked as removed.</p>
+<p>Observe o seguinte:
+  - <strong>13 linhas</strong> são retornadas (<strong>12 UPDATES</strong> + <strong>1 DELETE</strong>)
+  - A coluna <strong>__END_AT</strong> indica a data e hora em que a linha foi atualizada ou marcada como removida.</p>
 </section>
 <section class="notebook-cell">
 <ol>
-<li>Query the <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> table for the <strong>customer_id</strong> <em>23225</em> (one of the customers that was updated). </li>
+<li>Consulte a tabela <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> para o <strong>customer_id</strong> <em>23225</em> (um dos clientes que foi atualizado). </li>
 </ol>
-<p>Notice the following:</p>
+<p>Observe o seguinte:</p>
 <ul>
-<li>There are <strong>two records</strong> for that customer in the table.</li>
-<li>The original record from the <strong>00.json</strong> file now has a value in the <strong>__END_AT</strong> column, indicating that it is now inactive.</li>
-<li>The new record from the <strong>01.json</strong> file is now the active row and contains a <code>null</code> value in the <strong>__END_AT</strong> column.</li>
+<li>Existem <strong>dois registros</strong> para esse cliente na tabela.</li>
+<li>O registro original do arquivo <strong>00.json</strong> agora tem um valor na coluna <strong>__END_AT</strong>, indicando que agora está inativo.</li>
+<li>O novo registro do arquivo <strong>01.json</strong> é agora a linha ativa e contém um valor <code>null</code> na coluna <strong>__END_AT</strong>.</li>
 </ul>
 </section>
 <section class="notebook-cell">
 <ol>
 <li>
-<p>In the <strong>01.json</strong> file, recall <strong>customer_id</strong> <em>23617</em> was marked as deleted. </p>
-<p>Let's query the <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> table for that customer and view the results. </p>
-<p>Notice that when a customer is marked as deleted, the <strong>__END_AT</strong> column contains the value of when that customer was deleted and became inactive, but the customer records STILL EXISTS in the <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> with SCD Type 2.</p>
+<p>No arquivo <strong>01.json</strong>, lembre-se de que o <strong>customer_id</strong> <em>23617</em> foi marcado como excluído. </p>
+<p>Vamos consultar a tabela <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> para esse cliente e visualizar os resultados. </p>
+<p>Observe que, quando um cliente é marcado como excluído, a coluna <strong>__END_AT</strong> contém o valor de quando esse cliente foi excluído e se tornou inativo, mas o registro do cliente AINDA EXISTE em <strong>sdp_cdc_2_silver.customers_silver_scd2_demo</strong> com SCD Type 2.</p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h3>G2. Query the Current Customers Materialized View</h3>
+<h3>G2. Consulte a Materialized View de Clientes Atuais</h3>
 <ol>
 <li>
-<p>To view your organization's most up-to-date customer data, you can query the materialized view <strong>sdp_cdc_3_gold.current_customers_gold_demo</strong>. </p>
-<p>Remember, the query to create the materialized view filters for all <strong>__END_AT</strong> values that are <code>null</code> (active rows).</p>
-<p>Run the cell and view the results. Notice the following:
-   - The current updated list of customers contains <strong>948 rows</strong>:
- - <strong>939</strong> from the initial file (<strong>00.json</strong>)
- - <strong>+10</strong> new customers from the update file (<strong>01.json</strong>)
- - <strong>-1</strong> deleted customer from the update file (<strong>01.json</strong>)
- - The table also contains the updated records from the <strong>01.json</strong> file.</p>
+<p>Para visualizar os dados de clientes mais atualizados da sua organização, você pode consultar a materialized view <strong>sdp_cdc_3_gold.current_customers_gold_demo</strong>. </p>
+<p>Lembre-se: a query que cria a materialized view filtra todos os valores de <strong>__END_AT</strong> que são <code>null</code> (linhas ativas).</p>
+<p>Execute a célula e visualize os resultados. Observe o seguinte:
+   - A lista atualizada de clientes atuais contém <strong>948 linhas</strong>:
+ - <strong>939</strong> do arquivo inicial (<strong>00.json</strong>)
+ - <strong>+10</strong> novos clientes do arquivo de atualização (<strong>01.json</strong>)
+ - <strong>-1</strong> cliente excluído do arquivo de atualização (<strong>01.json</strong>)
+ - A tabela também contém os registros atualizados do arquivo <strong>01.json</strong>.</p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h3>G3. Query the Removed Customers Materialized View</h3>
+<h3>G3. Consulte a Materialized View de Clientes Removidos</h3>
 <ol>
 <li>
-<p>To view your organization's deleted customers, you can query the materialized view <strong>sdp_cdc_3_gold.removed_customers_gold_demo</strong>. </p>
-<p>Run the cell and view the results. Notice that there has been <strong>1</strong> customer marked as deleted (<strong>customer_id</strong> = <em>23617</em>) in the CDC silver table.</p>
+<p>Para visualizar os clientes excluídos da sua organização, você pode consultar a materialized view <strong>sdp_cdc_3_gold.removed_customers_gold_demo</strong>. </p>
+<p>Execute a célula e visualize os resultados. Observe que houve <strong>1</strong> cliente marcado como excluído (<strong>customer_id</strong> = <em>23617</em>) na tabela silver de CDC.</p>
 </li>
 </ol>
 </section>
 <section class="notebook-cell">
-<h2>H. (Optional) Continue Incrementally Processing New Data</h2>
-<p>If you'd like to continue practicing, use the demonstration function <code>copy_files</code> to dynamically add another JSON file to your cloud storage location. </p>
-<p>Simply remove the <code>%skip</code> and run the cell to add a new file into your source volume.</p>
-<p><strong>NOTE:</strong> Ensure the variables you defined at the start of this lab: <code>your_marketplace_share_catalog_name</code>, <code>my_catalog</code> are still active for the function to work properly.</p>
+<h2>H. (Opcional) Continue Processando Novos Dados Incrementalmente</h2>
+<p>Se quiser continuar praticando, use a função de demonstração <code>copy_files</code> para adicionar dinamicamente outro arquivo JSON ao seu local de cloud storage. </p>
+<p>Basta remover o <code>%skip</code> e executar a célula para adicionar um novo arquivo ao seu volume de origem.</p>
+<p><strong>NOTA:</strong> Certifique-se de que as variáveis definidas no início deste lab, <code>your_marketplace_share_catalog_name</code> e <code>my_catalog</code>, ainda estão ativas para que a função funcione corretamente.</p>
 </section>
 <section class="notebook-cell">
-<h2>I. Lab Clean Up</h2>
+<h2>I. Limpeza do Lab</h2>
 <ol>
-<li>Feel free to delete the schemas you create in this demonstration by running cell below and confirming the delete (<strong>Y</strong>).</li>
+<li>Sinta-se à vontade para excluir os schemas criados nesta demonstração executando a célula abaixo e confirmando a exclusão (<strong>Y</strong>).</li>
 </ol>
 </section>
 <section class="notebook-cell"><div class="code-block"><div class="code-header"><span class="code-lang">PYTHON</span><button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button></div><pre><code>delete_schemas(
-    catalog = my_catalog, ## &lt;--- Your catalog name using the variable you set earlier
+    catalog = my_catalog, ## &lt;--- Nome do seu catálogo usando a variável definida anteriormente
     schemas = ['sdp_cdc_1_bronze','sdp_cdc_2_silver','sdp_cdc_3_gold']
 )</code></pre></div></section>
 <section class="notebook-cell">
 <ol>
-<li>Delete your Spark Declarative Pipeline through the <strong>Jobs &amp; Pipelines</strong> UI.</li>
+<li>Exclua seu Spark Declarative Pipeline através da UI <strong>Jobs &amp; Pipelines</strong>.</li>
 </ol>
 </section>
 <section class="notebook-cell">
 <h2>J. Resumo e Pontos-Chave</h2>
-<p>You have successfully implemented an end-to-end <strong>AUTO CDC for SCD Type 2</strong> pipeline using <strong>Apache Spark™ Declarative Pipelines</strong>. This demonstration showcased how modern data engineering can dramatically simplify complex Change Data Capture operations that traditionally required extensive manual coding.</p>
-<p><strong>Simplified CDC Implementation:</strong>
-- Replaced complex manual <code>MERGE</code> operations with declarative <code>AUTO CDC INTO</code> syntax
-- Automatic handling of late-arriving data using sequence columns
-- Built-in SCD Type 2 logic without manual custom coding</p>
-<p><strong>Robust Data Quality:</strong>
-- Multi-layered validation with conditional constraints for DELETE operations
-- Flexible violation handling (WARN, DROP, FAIL) based on business requirements
-- Comprehensive email validation using regex patterns</p>
-<p><strong>Incremental Processing Efficiency:</strong>
-- Auto Loader for incremental file ingestion (<strong>triggered or continuous</strong>) from cloud storage
-- Incremental materialized view updates where possible
-- Streaming architecture that processes only new changes</p>
+<p>Você implementou com sucesso um pipeline ponta a ponta de <strong>AUTO CDC para SCD Type 2</strong> usando <strong>Apache Spark™ Declarative Pipelines</strong>. Esta demonstração mostrou como a engenharia de dados moderna pode simplificar drasticamente operações complexas de Change Data Capture que tradicionalmente exigiam ampla codificação manual.</p>
+<p><strong>Implementação Simplificada de CDC:</strong>
+- Substituiu operações manuais complexas de <code>MERGE</code> pela sintaxe declarativa <code>AUTO CDC INTO</code>
+- Tratamento automático de dados que chegam atrasados usando colunas de sequência
+- Lógica de SCD Type 2 nativa, sem codificação manual customizada</p>
+<p><strong>Qualidade de Dados Robusta:</strong>
+- Validação em múltiplas camadas com constraints condicionais para operações DELETE
+- Tratamento flexível de violações (WARN, DROP, FAIL) com base em requisitos de negócio
+- Validação abrangente de email usando padrões regex</p>
+<p><strong>Eficiência de Processamento Incremental:</strong>
+- Auto Loader para ingestão incremental de arquivos (<strong>triggered ou continuous</strong>) do cloud storage
+- Atualizações incrementais de materialized views, quando possível
+- Arquitetura de streaming que processa apenas as mudanças novas</p>
 </section>
 <section class="notebook-cell">
 <p>&copy; 2026 Databricks, Inc. All rights reserved. Apache, Apache Spark, Spark, the Spark Logo, Apache Iceberg, Iceberg, and the Apache Iceberg logo are trademarks of the <a href="https://www.apache.org/" target="_blank">Apache Software Foundation</a>.<br/><br/><a href="https://databricks.com/privacy-policy" target="_blank">Privacy Policy</a> | <a href="https://databricks.com/terms-of-use" target="_blank">Terms of Use</a> | <a href="https://help.databricks.com/" target="_blank">Support</a></p>
