@@ -203,51 +203,52 @@ Delta UniForm (Universal Format) resolve um problema antigo no ecossistema lakeh
 </tbody>
 </table>
 </section>
+
 <section class="notebook-cell">
-<h2>D. Connecting the Concepts</h2>
-<p>These three concepts work together to solve complex real-world data pipeline requirements.Each concept solves a distinct problem. Together they form a complete pattern for pipelines that need real-time processing and cross-platform access.</p>
-</section>
-<section class="notebook-cell">
-<div class="mermaid" style="min-width:800px;">
-flowchart LR
-    C1[" <b>Multiplex</b>\nOne source, many event types\nIngest once — fan out by type"]
-    C2[" <b>Delta Sink</b>\nExternal Delta table\ndp.create_sink + append_flow"]
-    C3[" <b>Delta UniForm</b>\nExternal tools need access\nAuto-generate Iceberg metadata"]
-    C1 -->|"Silver table\nfeeds the sink"| C2
-    C2 -->|"Plain Delta table\nenables UniForm"| C3
-    style C1 fill:#FF5722,color:#fff,stroke:#E64A19,stroke-width:2px
-    style C2 fill:#1565C0,color:#fff,stroke:#0D47A1,stroke-width:2px
-    style C3 fill:#2E7D32,color:#fff,stroke:#1B5E20,stroke-width:2px
-    linkStyle 0 stroke:#FF7043,stroke-width:2px
-    linkStyle 1 stroke:#1976D2,stroke-width:2px
+<div style="display:flex;align-items:stretch;justify-content:center;gap:14px;margin:20px 0;flex-wrap:wrap;">
+  <div style="background:#FF5722;border:2px solid #E64A19;border-radius:10px;padding:16px 20px;text-align:center;min-width:180px;flex:1;">
+    <div style="font-size:14px;font-weight:700;color:#fff;">Multiplex</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.85);margin-top:4px;">Uma fonte, muitos tipos de evento</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;">Ingestão única → fan out por tipo</div>
+  </div>
+  <div style="display:flex;align-items:center;font-size:14px;color:var(--text-faint);flex-direction:column;">
+    <div>Silver table</div>
+    <div>→</div>
+  </div>
+  <div style="background:#1565C0;border:2px solid #0D47A1;border-radius:10px;padding:16px 20px;text-align:center;min-width:180px;flex:1;">
+    <div style="font-size:14px;font-weight:700;color:#fff;">Delta Sink</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.85);margin-top:4px;">Delta table externa</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;">dp.create_sink + append_flow</div>
+  </div>
+  <div style="display:flex;align-items:center;font-size:14px;color:var(--text-faint);flex-direction:column;">
+    <div>UniForm</div>
+    <div>→</div>
+  </div>
+  <div style="background:#2E7D32;border:2px solid #1B5E20;border-radius:10px;padding:16px 20px;text-align:center;min-width:180px;flex:1;">
+    <div style="font-size:14px;font-weight:700;color:#fff;">Delta UniForm</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.85);margin-top:4px;">Acesso cross-platform</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;">Metadata Iceberg automática</div>
+  </div>
 </div>
-</div>
-<script type="module">
-import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-mermaid.initialize({
-    startOnLoad: true,
-    theme: "default",
-    flowchart: { padding: 40, nodeSpacing: 80, rankSpacing: 120 }
-});
-</script>
+<p style="text-align:center;color:var(--text-muted);font-size:13px;">Silver table alimenta o Sink → Delta table externa habilita UniForm → Ferramentas externas leem via Iceberg</p>
 </section>
 <section class="notebook-cell">
 <h4>EXPANDIR PARA DETALHES ADICIONAIS</h4>
 <details>
 
-### Combined Advanced Pipeline Pattern
+<h3>Padrão Combinado de Pipeline Avançado</h3>
 
-#### 1. Multiplex Pattern
+<h4>1. Padrão Multiplex</h4>
 - **Problem**: Multiple event types in one source
 - **Solution**: Single ingestion with type-based fan-out
 - **Output**: Domain-specific silver tables
 
-#### 2. Delta Sink
+<h4>2. Delta Sink</h4>
 - **Problem**: Need external table for cross-platform access
 - **Solution**: `dp.create_sink()` + `@dp.append_flow`
 - **Output**: Plain Delta table outside pipeline scope
 
-#### 3. Delta UniForm
+<h4>3. Delta UniForm</h4>
 - **Problem**: External tools need Iceberg format access  
 - **Solution**: Auto-generate Iceberg metadata on plain Delta table
 - **Output**: Dual-protocol table accessible by any platform
